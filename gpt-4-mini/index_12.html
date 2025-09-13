@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Blog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background: #0066cc;
+            color: #fff;
+            padding: 1rem;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            padding: 1rem;
+        }
+        article {
+            background: #fff;
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .comment-section {
+            margin-top: 2rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background: #0066cc;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:focus, input:focus, textarea:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background: #0066cc;
+            color: #fff;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#posts">Posts</a>
+            <a href="#search">Search</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Welcome to My Personal Blog</h1>
+        <section id="posts">
+            <h2>Blog Posts</h2>
+            <article>
+                <h3>First Post</h3>
+                <p>This is the content of my first blog post. It's very interesting!</p>
+            </article>
+            <article>
+                <h3>Second Post</h3>
+                <p>This is the content of my second blog post. It's even more interesting!</p>
+            </article>
+        </section>
+        <section class="comment-section">
+            <h2>Leave a Comment</h2>
+            <form id="commentForm" aria-labelledby="commentForm">
+                <label for="name">Name <span aria-hidden="true">*</span></label>
+                <input type="text" id="name" name="name" required aria-describedby="nameError">
+                <div id="nameError" style="color: red; display: none;">Name is required.</div>
+                
+                <label for="comment">Comment <span aria-hidden="true">*</span></label>
+                <textarea id="comment" name="comment" rows="4" required aria-describedby="commentError"></textarea>
+                <div id="commentError" style="color: red; display: none;">Comment is required.</div>
+                
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+        <section id="search">
+            <h2>Search Articles</h2>
+            <label for="searchInput">Search:</label>
+            <input type="text" id="searchInput" aria-label="Search blog posts">
+            <button id="searchButton">Search</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 My Personal Blog</p>
+    </footer>
+    <script>
+        // Form submission handling
+        document.getElementById('commentForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent actual form submission for demo purposes
+            const name = document.getElementById('name').value;
+            const comment = document.getElementById('comment').value;
+            if (!name) {
+                document.getElementById('nameError').style.display = 'block';
+            } else {
+                document.getElementById('nameError').style.display = 'none';
+            }
+            if (!comment) {
+                document.getElementById('commentError').style.display = 'block';
+            } else {
+                document.getElementById('commentError').style.display = 'none';
+            }
+            if (name && comment) {
+                alert('Comment submitted!'); // Simulate successful submission
+                // Reset form
+                document.getElementById('commentForm').reset();
+            }
+        });
+
+        // Search functionality
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const searchInput = document.getElementById('searchInput').value;
+            alert('Searching for: ' + searchInput); // Simulate search action
+        });
+
+        // Keyboard accessibility for buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    button.click(); // Trigger button click on Enter or Space
+                }
+            });
+        });
+    </script>
+</body>
+</html>

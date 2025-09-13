@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindful Moments - Accessible Meditation Timer</title>
+    <style>
+        /* CSS Reset and Base Styles */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Global Variables */
+        :root {
+            --primary-color: #5c7d99;
+            --secondary-color: #a3c2d5;
+            --accent-color: #3a5a78;
+            --text-color: #333333;
+            --light-text: #ffffff;
+            --background-color: #f5f7fa;
+            --error-color: #d32f2f;
+            --success-color: #388e3c;
+            --focus-color: #0066cc;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        /* Accessibility: Focus Indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus, [tabindex]:focus {
+            outline: 3px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        .dark-bg button:focus, .dark-bg a:focus, .dark-bg [tabindex]:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        /* Typography */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            margin-bottom: 0.5em;
+            line-height: 1.2;
+            color: var(--primary-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-top: 0.5em;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 1em;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Layout */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem 0;
+            box-shadow: var(--box-shadow);
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1.5rem 0;
+            margin-top: auto;
+            text-align: center;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover, .nav-links a:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Timer Section */
+        .timer-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        .timer-display {
+            font-size: 5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            color: var(--primary-color);
+            background-color: white;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .timer-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        /* Settings Section */
+        .settings-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin: 2rem 0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: var(--primary-color);
+            color: var(--light-text);
+        }
+
+        .btn:hover, .btn:focus {
+            background-color: var(--accent-color);
+        }
+
+        .btn-large {
+            font-size: 1.2rem;
+            padding: 1rem 2rem;
+        }
+
+        .btn-start {
+            background-color: var(--success-color);
+        }
+
+        .btn-pause {
+            background-color: var(--accent-color);
+        }
+
+        .btn-reset {
+            background-color: var(--error-color);
+        }
+
+        /* Progress Tracker */
+        .progress-section {
+            margin: 2rem 0;
+        }
+
+        .session-history {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .session-history li {
+            background-color: white;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Sound Controls */
+        .sound-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .sound-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .sound-btn:hover, .sound-btn:focus {
+            border-color: var(--primary-color);
+        }
+
+        .sound-btn.active {
+            border-color: var(--primary-color);
+            background-color: var(--secondary-color);
+        }
+
+        .sound-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Volume Control */
+        .volume-control {
+            width: 100%;
+            max-width: 300px;
+            margin: 1rem auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .volume-control label {
+            margin-right: 1rem;
+            margin-bottom: 0;
+        }
+
+        .volume-slider {
+            flex: 1;
+        }
+
+        /* Alerts and Notifications */
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .alert-error {
+            background-color: #ffebee;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .alert-success {
+            background-color: #e8f5e9;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .timer-display {
+                font-size: 3.5rem;
+                min-width: 250px;
+            }
+
+            .timer-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .sound-controls {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .timer-display {
+                font-size: 3rem;
+                min-width: 200px;
+            }
+
+            .settings-section {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Skip to content link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Visually hidden but accessible to screen readers */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header>
+        <div class="container">
+            <nav role="navigation" aria-label="Main navigation">
+                <div class="logo">Mindful Moments</div>
+                <ul class="nav-links">
+                    <li><a href="#timer">Timer</a></li>
+                    <li><a href="#settings">Settings</a></li>
+                    <li><a href="#progress">Progress</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div class="container">
+            <h1>Mindful Meditation Timer</h1>
+            <p>Set your meditation duration, choose calming sounds, and track your mindfulness journey.</p>
+
+            <section id="timer" class="timer-section" aria-labelledby="timer-heading">
+                <h2 id="timer-heading">Meditation Timer</h2>
+                
+                <div class="timer-display" id="timer-display" role="timer" aria-live="polite">
+                    20:00
+                </div>
+                
+                <div class="timer-controls">
+                    <button id="start-btn" class="btn btn-large btn-start" aria-label="Start meditation timer">
+                        Start
+                    </button>
+                    <button id="pause-btn" class="btn btn-large btn-pause" aria-label="Pause meditation timer" disabled>
+                        Pause
+                    </button>
+                    <button id="reset-btn" class="btn btn-large btn-reset" aria-label="Reset meditation timer">
+                        Reset
+                    </button>
+                </div>
+
+                <div class="sound-section" aria-labelledby="sound-heading">
+                    <h3 id="sound-heading">Meditation Sounds</h3>
+                    <div class="sound-controls" role="radiogroup" aria-label="Select meditation sound">
+                        <div class="sound-btn" tabindex="0" role="radio" aria-checked="false" data-sound="none">
+                            <span class="sound-icon" aria-hidden="true">🔇</span>
+                            <span>None</span>
+                        </div>
+                        <div class="sound-btn" tabindex="0" role="radio" aria-checked="true" data-sound="rain">
+                            <span class="sound-icon" aria-hidden="true">🌧️</span>
+                            <span>Rain</span>
+                        </div>
+                        <div class="sound-btn" tabindex="0" role="radio" aria-checked="false" data-sound="forest">
+                            <span class="sound-icon" aria-hidden="true">🌲</span>
+                            <span>Forest</span>
+                        </div>
+                        <div class="sound-btn" tabindex="0" role="radio" aria-checked="false" data-sound="waves">
+                            <span class="sound-icon" aria-hidden="true">🌊</span>
+                            <span>Ocean Waves</span>
+                        </div>
+                        <div class="sound-btn" tabindex="0" role="radio" aria-checked="false" data-sound="bells">
+                            <span class="sound-icon" aria-hidden="true">🔔</span>
+                            <span>Singing Bowls</span>
+                        </div>
+                    </div>
+
+                    <div class="volume-control">
+                        <label for="volume-slider">Volume:</label>
+                        <input 
+                            type="range" 
+                            id="volume-slider" 
+                            class="volume-slider" 
+                            min="0" 
+                            max="100" 
+                            value="50"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            aria-valuenow="50"
+                            aria-valuetext="50 percent volume"
+                        >
+                    </div>
+                </div>
+            </section>
+
+            <section id="settings" class="settings-section" aria-labelledby="settings-heading">
+                <h2 id="settings-heading">Timer Settings</h2>
+                
+                <form id="timer-settings-form">
+                    <div class="form-group">
+                        <label for="meditation-duration">Meditation Duration (minutes):</label>
+                        <input 
+                            type="number" 
+                            id="meditation-duration" 
+                            name="meditation-duration" 
+                            min="1" 
+                            max="120" 
+                            value="20" 
+                            required
+                            aria-describedby="duration-hint"
+                        >
+                        <p id="duration-hint" class="form-hint">Enter a value between 1 and 120 minutes</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="interval-bells">Interval Bell Sound:</label>
+                        <select id="interval-bells" name="interval-bells">
+                            <option value="none">None</option>
+                            <option value="5min">Every 5 minutes</option>
+                            <option value="10min">Every 10 minutes</option>
+                            <option value="15min">Every 15 minutes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ending-sound">Ending Sound:</label>
+                        <select id="ending-sound" name="ending-sound">
+                            <option value="gentle-bell">Gentle Bell</option>
+                            <option value="singing-bowl">Singing Bowl</option>
+                            <option value="gong">Gong</option>
+                            <option value="none">None</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn" aria-label="Apply timer settings">
+                        Apply Settings
+                    </button>
+                </form>
+            </section>
+
+            <section id="progress" class="progress-section" aria-labelledby="progress-heading">
+                <h2 id="progress-heading">Your Meditation Progress</h2>
+                <p>Track your meditation sessions to build a consistent practice.</p>
+                
+                <div id="progress-stats">
+                    <p>Total sessions: <span id="total-sessions">0</span></p>
+                    <p>Total minutes: <span id="total-minutes">0</span></p>
+                    <p>Current streak: <span id="current-streak">0</span> days</p>
+                </div>
+
+                <h3 id="history-heading">Recent Sessions</h3>
+                <ul id="session-history" class="session-history" aria-labelledby="history-heading">
+                    <!-- Session history will be populated by JavaScript -->
+                    <li>No meditation sessions recorded yet. Start your first session!</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Mindful Moments - Accessible Meditation Timer</p>
+            <p>Created to help everyone practice mindfulness, regardless of ability.</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const timerDisplay = document.getElementById('timer-display');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const durationInput = document.getElementById('meditation-duration');
+        const intervalBellsSelect = document.getElementById('interval-bells');
+        const endingSoundSelect = document.getElementById('ending-sound');
+        const timerSettingsForm = document.getElementById('timer-settings-form');
+        const soundButtons = document.querySelectorAll('.sound-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        const totalSessionsElement = document.getElementById('total-sessions');
+        const totalMinutesElement = document.getElementById('total-minutes');
+        const currentStreakElement = document.getElementById('current-streak');
+        const sessionHistoryList = document.getElementById('session-history');
+
+        // Timer state
+        let timerInterval;
+        let timeRemaining = 20 * 60; // Default 20 minutes in seconds
+        let originalTime = timeRemaining;
+        let isRunning = false;
+        let selectedSound = 'rain';
+        let volume = 0.5; // Default volume (0-1)
+        let audioContext;
+        let audioBuffers = {};
+        let currentAudio = null;
+        let sessionHistory = [];
+        let stats = {
+            totalSessions: 0,
+            totalMinutes: 0,
+            currentStreak: 0,
+            lastSessionDate: null
+        };
+
+        // Initialize the application
+        function init() {
+            updateTimerDisplay();
+            loadUserData();
+            setupEventListeners();
+            setupAudioContext();
+            preloadSounds();
+        }
+
+        // Format time for display (MM:SS)
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        // Update the timer display
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(timeRemaining);
+            // Announce time changes to screen readers when timer is running
+            if (isRunning && timeRemaining % 60 === 0) {
+                const minutes = timeRemaining / 60;
+                timerDisplay.setAttribute('aria-label', `${minutes} minute${minutes !== 1 ? 's' : ''} remaining`);
+            }
+        }
+
+        // Start the timer
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                
+                // Announce timer started to screen readers
+                announceToScreenReader('Meditation timer started');
+                
+                // Play the selected ambient sound
+                playSelectedSound();
+                
+                timerInterval = setInterval(() => {
+                    timeRemaining--;
+                    updateTimerDisplay();
+                    
+                    // Check for interval bells
+                    const intervalSetting = intervalBellsSelect.value;
+                    if (intervalSetting !== 'none') {
+                        const intervalMinutes = parseInt(intervalSetting);
+                        if (timeRemaining % (intervalMinutes * 60) === 0 && timeRemaining > 0) {
+                            playSound('bell', 0.7);
+                        }
+                    }
+                    
+                    // Check if timer is complete
+                    if (timeRemaining <= 0) {
+                        completeSession();
+                    }
+                }, 1000);
+            }
+        }
+
+        // Pause the timer
+        function pauseTimer() {
+            if (isRunning) {
+                isRunning = false;
+                clearInterval(timerInterval);
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                
+                // Stop the ambient sound
+                stopSound();
+                
+                // Announce timer paused to screen readers
+                announceToScreenReader('Meditation timer paused');
+            }
+        }
+
+        // Reset the timer
+        function resetTimer() {
+            pauseTimer();
+            timeRemaining = originalTime;
+            updateTimerDisplay();
+            
+            // Announce timer reset to screen readers
+            announceToScreenReader('Meditation timer reset');
+        }
+
+        // Complete a meditation session
+        function completeSession() {
+            pauseTimer();
+            
+            // Play ending sound
+            const endingSound = endingSoundSelect.value;
+            if (endingSound !== 'none') {
+                playSound(endingSound, 1.0);
+            }
+            
+            // Record session in history
+            const sessionDuration = Math.round(originalTime / 60);
+            const today = new Date();
+            const sessionDate = today.toLocaleDateString();
+            const sessionTime = today.toLocaleTimeString();
+            
+            const newSession = {
+                date: sessionDate,
+                time: sessionTime,
+                duration: sessionDuration
+            };
+            
+            sessionHistory.unshift(newSession);
+            if (sessionHistory.length > 10) {
+                sessionHistory.pop(); // Keep only the 10 most recent sessions
+            }
+            
+            // Update stats
+            stats.totalSessions++;
+            stats.totalMinutes += sessionDuration;
+            
+            // Update streak
+            const lastDate = stats.lastSessionDate ? new Date(stats.lastSessionDate) : null;
+            const todayDate = new Date(today.setHours(0, 0, 0, 0));
+            
+            if (!lastDate) {
+                stats.currentStreak = 1;
+            } else {
+                const lastDateValue = lastDate.setHours(0, 0, 0, 0);
+                const yesterday = new Date(todayDate);
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                if (lastDateValue.toString() === todayDate.toString()) {
+                    // Already meditated today, streak doesn't change
+                } else if (lastDateValue.toString() === yesterday.setHours(0, 0, 0, 0).toString()) {
+                    // Meditated yesterday, streak increases
+                    stats.currentStreak++;
+                } else {
+                    // Missed a day, reset streak
+                    stats.currentStreak = 1;
+                }
+            }
+            
+            stats.lastSessionDate = todayDate;
+            
+            // Save data and update UI
+            saveUserData();
+            updateStatsDisplay();
+            updateSessionHistory();
+            
+            // Announce session completion to screen readers
+            announceToScreenReader(`Meditation session complete. You meditated for ${sessionDuration} minutes.`);
+        }
+
+        // Apply timer settings
+        function applySettings(event) {
+            event.preventDefault();
+            
+            const newDuration = parseInt(durationInput.value);
+            if (newDuration >= 1 && newDuration <= 120) {
+                originalTime = newDuration * 60;
+                timeRemaining = originalTime;
+                updateTimerDisplay();
+                
+                // Announce settings applied to screen readers
+                announceToScreenReader(`Timer set to ${newDuration} minutes`);
+            } else {
+                // Show error for invalid duration
+                announceToScreenReader('Please enter a valid duration between 1 and 120 minutes');
+            }
+        }
+
+        // Set up the Web Audio API context
+        function setupAudioContext() {
+            // Create audio context with fallback for older browsers
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioContext = new AudioContext();
+            } catch (e) {
+                console.error('Web Audio API is not supported in this browser');
+                announceToScreenReader('Audio features are not supported in your browser');
+            }
+        }
+
+        // Preload sound files
+        function preloadSounds() {
+            // In a real application, these would be actual sound files
+            // For this example, we'll simulate the sounds with oscillators
+            
+            // This is a placeholder - in a real app, you would load actual audio files
+            audioBuffers = {
+                rain: true,
+                forest: true,
+                waves: true,
+                bells: true,
+                'gentle-bell': true,
+                'singing-bowl': true,
+                gong: true,
+                bell: true
+            };
+        }
+
+        // Play a sound effect (bell, gong, etc.)
+        function playSound(soundName, soundVolume) {
+            if (!audioContext) return;
+            
+            // Create oscillator for sound effect
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            // Configure sound based on name
+            switch(soundName) {
+                case 'bell':
+                case 'gentle-bell':
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 440;
+                    gainNode.gain.value = soundVolume * volume;
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start();
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 2);
+                    setTimeout(() => oscillator.stop(), 2000);
+                    break;
+                    
+                case 'singing-bowl':
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 294;
+                    gainNode.gain.value = soundVolume * volume;
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start();
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 4);
+                    setTimeout(() => oscillator.stop(), 4000);
+                    break;
+                    
+                case 'gong':
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.value = 100;
+                    gainNode.gain.value = soundVolume * volume;
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start();
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 3);
+                    setTimeout(() => oscillator.stop(), 3000);
+                    break;
+            }
+        }
+
+        // Play the selected ambient sound
+        function playSelectedSound() {
+            if (!audioContext || selectedSound === 'none') return;
+            
+            // Stop any currently playing sound
+            stopSound();
+            
+            // Create oscillator for ambient sound
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            // Configure sound based on selection
+            switch(selectedSound) {
+                case 'rain':
+                    // White noise for rain sound
+                    const bufferSize = 2 * audioContext.sampleRate;
+                    const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                    const output = noiseBuffer.getChannelData(0);
+                    
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 2 - 1;
+                    }
+                    
+                    const noise = audioContext.createBufferSource();
+                    noise.buffer = noiseBuffer;
+                    noise.loop = true;
+                    
+                    const filter = audioContext.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 500;
+                    
+                    gainNode.gain.value = 0.1 * volume;
+                    
+                    noise.connect(filter);
+                    filter.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    noise.start();
+                    currentAudio = noise;
+                    break;
+                    
+                case 'forest':
+                    // Bird chirps simulation
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 1500;
+                    
+                    gainNode.gain.value = 0.05 * volume;
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    // Random chirps
+                    function chirp() {
+                        if (!isRunning) return;
+                        
+                        gainNode.gain.value = 0.05 * volume;
+                        oscillator.frequency.value = 1500 + Math.random() * 500;
+                        
+                        setTimeout(() => {
+                            gainNode.gain.linearRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+                        }, 100);
+                        
+                        setTimeout(chirp, 2000 + Math.random() * 3000);
+                    }
+                    
+                    oscillator.start();
+                    chirp();
+                    currentAudio = oscillator;
+                    break;
+                    
+                case 'waves':
+                    // Ocean waves simulation
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 100;
+                    
+                    gainNode.gain.value = 0.1 * volume;
+                    
+                    const lfo = audioContext.createOscillator();
+                    lfo.type = 'sine';
+                    lfo.frequency.value = 0.1; // One cycle every 10 seconds
+                    
+                    const lfoGain = audioContext.createGain();
+                    lfoGain.gain.value = 0.1 * volume;
+                    
+                    lfo.connect(lfoGain);
+                    lfoGain.connect(gainNode.gain);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start();
+                    lfo.start();
+                    
+                    currentAudio = {
+                        stop: function() {
+                            oscillator.stop();
+                            lfo.stop();
+                        }
+                    };
+                    break;
+                    
+                case 'bells':
+                    // Singing bowls simulation
+                    function playBowl() {
+                        if (!isRunning) return;
+                        
+                        const bowl = audioContext.createOscillator();
+                        bowl.type = 'sine';
+                        bowl.frequency.value = 294 + Math.random() * 100;
+                        
+                        const bowlGain = audioContext.createGain();
+                        bowlGain.gain.value = 0.2 * volume;
+                        
+                        bowl.connect(bowlGain);
+                        bowlGain.connect(audioContext.destination);
+                        
+                        bowl.start();
+                        bowlGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 4);
+                        
+                        setTimeout(() => {
+                            bowl.stop();
+                            if (isRunning) {
+                                setTimeout(playBowl, 10000 + Math.random() * 5000);
+                            }
+                        }, 4000);
+                    }
+                    
+                    playBowl();
+                    currentAudio = {
+                        stop: function() {
+                            // This is a placeholder - the actual stopping happens in the playBowl function
+                        }
+                    };
+                    break;
+            }
+        }
+
+        // Stop the currently playing sound
+        function stopSound() {
+            if (currentAudio) {
+                try {
+                    currentAudio.stop();
+                } catch (e) {
+                    // Handle any errors when stopping audio
+                    console.log('Error stopping audio:', e);
+                }
+                currentAudio = null;
+            }
+        }
+
+        // Select a sound for meditation
+        function selectSound(soundName) {
+            selectedSound = soundName;
+            
+            // Update UI to show selected sound
+            soundButtons.forEach(btn => {
+                const isSelected = btn.dataset.sound === soundName;
+                btn.classList.toggle('active', isSelected);
+                btn.setAttribute('aria-checked', isSelected);
+            });
+            
+            // If timer is running, change the sound
+            if (isRunning) {
+                playSelectedSound();
+            }
+            
+            // Announce selected sound to screen readers
+            announceToScreenReader(`Selected ${soundName} sound`);
+        }
+
+        // Update volume
+        function updateVolume() {
+            volume = volumeSlider.value / 100;
+            
+            // Update aria attributes for accessibility
+            volumeSlider.setAttribute('aria-valuenow', volumeSlider.value);
+            volumeSlider.setAttribute('aria-valuetext', `${volumeSlider.value} percent volume`);
+            
+            // If sound is playing, update its volume
+            if (currentAudio && isRunning) {
+                stopSound();
+                playSelectedSound();
+            }
+        }
+
+        // Save user data to localStorage
+        function saveUserData() {
+            const userData = {
+                sessionHistory,
+                stats,
+                settings: {
+                    duration: Math.round(originalTime / 60),
+                    intervalBells: intervalBellsSelect.value,
+                    endingSound: endingSoundSelect.value,
+                    selectedSound
+                }
+            };
+            
+            try {
+                localStorage.setItem('meditationAppData', JSON.stringify(userData));
+            } catch (e) {
+                console.error('Could not save data to localStorage:', e);
+            }
+        }
+
+        // Load user data from localStorage
+        function loadUserData() {
+            try {
+                const savedData = localStorage.getItem('meditationAppData');
+                if (savedData) {
+                    const userData = JSON.parse(savedData);
+                    
+                    // Restore session history and stats
+                    sessionHistory = userData.sessionHistory || [];
+                    stats = userData.stats || {
+                        totalSessions: 0,
+                        totalMinutes: 0,
+                        currentStreak: 0,
+                        lastSessionDate: null
+                    };
+                    
+                    // Restore settings
+                    if (userData.settings) {
+                        durationInput.value = userData.settings.duration || 20;
+                        originalTime = (userData.settings.duration || 20) * 60;
+                        timeRemaining = originalTime;
+                        
+                        intervalBellsSelect.value = userData.settings.intervalBells || 'none';
+                        endingSoundSelect.value = userData.settings.endingSound || 'gentle-bell';
+                        
+                        selectSound(userData.settings.selectedSound || 'rain');
+                    }
+                    
+                    // Update UI
+                    updateTimerDisplay();
+                    updateStatsDisplay();
+                    updateSessionHistory();
+                }
+            } catch (e) {
+                console.error('Could not load data from localStorage:', e);
+            }
+        }
+
+        // Update stats display
+        function updateStatsDisplay() {
+            totalSessionsElement.textContent = stats.totalSessions;
+            totalMinutesElement.textContent = stats.totalMinutes;
+            currentStreakElement.textContent = stats.currentStreak;
+        }
+
+        // Update session history display
+        function updateSessionHistory() {
+            // Clear current list
+            sessionHistoryList.innerHTML = '';
+            
+            if (sessionHistory.length === 0) {
+                const emptyItem = document.createElement('li');
+                emptyItem.textContent = 'No meditation sessions recorded yet. Start your first session!';
+                sessionHistoryList.appendChild(emptyItem);
+            } else {
+                sessionHistory.forEach(session => {
+                    const listItem = document.createElement('li');
+                    
+                    const dateSpan = document.createElement('span');
+                    dateSpan.textContent = `${session.date} at ${session.time}`;
+                    
+                    const durationSpan = document.createElement('span');
+                    durationSpan.textContent = `${session.duration} minute${session.duration !== 1 ? 's' : ''}`;
+                    
+                    listItem.appendChild(dateSpan);
+                    listItem.appendChild(durationSpan);
+                    
+                    sessionHistoryList.appendChild(listItem);
+                });
+            }
+        }
+
+        // Announce message to screen readers using aria-live
+        function announceToScreenReader(message) {
+            // Create a visually hidden element for screen reader announcements
+            let announcer = document.getElementById('screen-reader-announcer');
+            
+            if (!announcer) {
+                announcer = document.createElement('div');
+                announcer.id = 'screen-reader-announcer';
+                announcer.className = 'sr-only';
+                announcer.setAttribute('aria-live', 'polite');
+                document.body.appendChild(announcer);
+            }
+            
+            // Set the message
+            announcer.textContent = message;
+            
+            // Clear after a short delay to ensure it's read
+            setTimeout(() => {
+                announcer.textContent = '';
+            }, 3000);
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Timer control buttons
+            startBtn.addEventListener('click', startTimer);
+            pauseBtn.addEventListener('click', pauseTimer);
+            resetBtn.addEventListener('click', resetTimer);
+            
+            // Keyboard support for timer controls
+            startBtn.addEventListener('keydown', handleInteraction);
+            pauseBtn.addEventListener('keydown', handleInteraction);
+            resetBtn.addEventListener('keydown', handleInteraction);
+            
+            // Settings form
+            timerSettingsForm.addEventListener('submit', applySettings);
+            
+            // Sound buttons
+            soundButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectSound(btn.dataset.sound);
+                });
+                
+                // Keyboard support for sound buttons
+                btn.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        selectSound(btn.dataset.sound);
+                    }
+                });
+            });
+            
+            // Volume slider
+            volumeSlider.addEventListener('input', updateVolume);
+            volumeSlider.addEventListener('change', updateVolume);
+        }
+
+        // Handle both mouse and keyboard interactions
+        function handleInteraction(event) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                
+                if (event.type === 'keydown') {
+                    event.preventDefault();
+                }
+                
+                // Determine which button was interacted with
+                if (event.currentTarget === startBtn) {
+                    startTimer();
+                } else if (event.currentTarget === pauseBtn) {
+                    pauseTimer();
+                } else if (event.currentTarget === resetBtn) {
+                    resetTimer();
+                }
+            }
+        }
+
+        // Initialize the application when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

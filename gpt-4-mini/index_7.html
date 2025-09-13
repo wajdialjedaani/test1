@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Weather Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        main {
+            margin-top: 20px;
+        }
+        .weather-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        .error-message {
+            color: red;
+        }
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Weather Dashboard</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Search for a City</h2>
+            <form id="weather-form" aria-labelledby="weather-form-label">
+                <label for="city-input">Enter city name:</label>
+                <input type="text" id="city-input" aria-required="true" required>
+                <button type="submit">Get Weather</button>
+                <p class="error-message" id="error-message" aria-live="assertive"></p>
+            </form>
+        </section>
+        <section id="weather-info" class="weather-card" aria-hidden="true">
+            <h2 id="city-name"></h2>
+            <p id="current-temp"></p>
+            <p id="current-conditions"></p>
+            <h3>24-Hour Forecast</h3>
+            <ul id="forecast-list"></ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Weather Dashboard</p>
+    </footer>
+    <script>
+        const form = document.getElementById('weather-form');
+        const cityInput = document.getElementById('city-input');
+        const errorMessage = document.getElementById('error-message');
+        const weatherInfo = document.getElementById('weather-info');
+        const cityName = document.getElementById('city-name');
+        const currentTemp = document.getElementById('current-temp');
+        const currentConditions = document.getElementById('current-conditions');
+        const forecastList = document.getElementById('forecast-list');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const city = cityInput.value.trim();
+            if (city === "") {
+                errorMessage.textContent = "Please enter a city name.";
+                return;
+            }
+            errorMessage.textContent = ""; // Clear previous errors
+            fetchWeather(city);
+        });
+
+        function fetchWeather(city) {
+            const apiKey = 'YOUR_API_KEY'; // Replace with your actual API key
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('City not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayWeather(data);
+                })
+                .catch(error => {
+                    errorMessage.textContent = error.message;
+                });
+        }
+
+        function displayWeather(data) {
+            cityName.textContent = `${data.name}, ${data.sys.country}`;
+            currentTemp.textContent = `Current Temperature: ${data.main.temp} °C`;
+            currentConditions.textContent = `Conditions: ${data.weather[0].description}`;
+            weatherInfo.setAttribute('aria-hidden', 'false'); // Show weather info
+            fetchForecast(data.coord.lat, data.coord.lon);
+        }
+
+        function fetchForecast(lat, lon) {
+            const apiKey = 'YOUR_API_KEY'; // Replace with your actual API key
+            const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    displayForecast(data.hourly);
+                });
+        }
+
+        function displayForecast(forecast) {
+            forecastList.innerHTML = ''; // Clear previous forecast
+            forecast.slice(0, 24).forEach(hour => {
+                const listItem = document.createElement('li');
+                const date = new Date(hour.dt * 1000);
+                listItem.textContent = `${date.getHours()}:00 - ${hour.temp} °C, ${hour.weather[0].description}`;
+                forecastList.appendChild(listItem);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Space Exploration: Constellations & Planet Gallery</title>
+    <meta name="description" content="Explore the stars with an accessible, interactive space-themed website featuring constellations and a planet gallery with fun facts.">
+    <style>
+        :root {
+            --bg-color: #111827;
+            --primary: #38bdf8;
+            --secondary: #fbbf24;
+            --white: #fff;
+            --focus: #fff;
+            --focus-dark: #0066cc;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --gallery-bg: #0f172a;
+            --gallery-arrow: #38bdf8;
+            --gallery-arrow-bg: #1e293b;
+            --gallery-arrow-focus: #fbbf24;
+        }
+
+        html {
+            background: var(--bg-color);
+            color: var(--white);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg-color);
+            color: var(--white);
+        }
+
+        header {
+            background: #0f172a;
+            padding: 1rem 0;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 0 1rem;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.25em 0.5em;
+            border-radius: 0.25em;
+            transition: background 0.2s;
+        }
+
+        nav a:focus,
+        nav a:hover {
+            background: var(--card-bg);
+            outline: 3px solid var(--focus);
+            outline-offset: 2px;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem 4rem 1rem;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            margin-bottom: 0.5em;
+            color: var(--primary);
+            text-shadow: 0 2px 8px #000a;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Starfield and constellations */
+        .starfield-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: 420px;
+            background: radial-gradient(ellipse at 50% 60%, #1e293b 60%, #111827 100%);
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+        }
+
+        canvas#starfield {
+            position: absolute;
+            left: 0; top: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 1;
+        }
+
+        /* Constellation SVG overlay */
+        .constellation-svg {
+            position: absolute;
+            left: 0; top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none; /* except for interactive elements */
+        }
+
+        .constellation-group {
+            cursor: pointer;
+            pointer-events: auto;
+            outline: none;
+            transition: filter 0.2s;
+        }
+
+        .constellation-group:focus,
+        .constellation-group:hover {
+            filter: drop-shadow(0 0 8px var(--secondary));
+            outline: 3px solid var(--focus);
+            outline-offset: 2px;
+        }
+
+        .constellation-line {
+            stroke: var(--primary);
+            stroke-width: 2.5;
+        }
+
+        .constellation-star {
+            fill: var(--secondary);
+            stroke: #fff;
+            stroke-width: 1;
+        }
+
+        /* Modal dialog for constellation info */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(17, 24, 39, 0.85);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal[aria-hidden="false"] {
+            display: flex;
+        }
+        .modal-dialog {
+            background: var(--card-bg);
+            color: var(--white);
+            border-radius: 1rem;
+            box-shadow: 0 6px 32px #000a;
+            max-width: 90vw;
+            width: 420px;
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            position: relative;
+            outline: none;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--gallery-arrow-bg);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:focus {
+            outline: 3px solid var(--focus);
+            outline-offset: 2px;
+            background: var(--gallery-arrow-focus);
+            color: #222;
+        }
+        .modal h3 {
+            margin-top: 0;
+            margin-bottom: 0.75em;
+            color: var(--primary);
+        }
+        .modal p {
+            margin-bottom: 0.5em;
+        }
+
+        /* Planet gallery */
+        .planet-gallery-section {
+            margin-top: 2.5rem;
+        }
+        .gallery-wrapper {
+            position: relative;
+            background: var(--gallery-bg);
+            border-radius: 1rem;
+            padding: 2.5rem 0 2rem 0;
+            overflow: hidden;
+        }
+        .gallery-title {
+            margin-bottom: 1.25rem;
+        }
+        .gallery {
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 1rem 2.5rem;
+            outline: none;
+        }
+        .gallery:focus {
+            outline: 3px solid var(--focus);
+            outline-offset: 2px;
+        }
+        .gallery::-webkit-scrollbar {
+            height: 12px;
+            background: #222;
+        }
+        .gallery::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 6px;
+        }
+        .planet-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 1rem;
+            min-width: 260px;
+            max-width: 260px;
+            flex: 0 0 260px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.25rem 1rem 1rem 1rem;
+            box-shadow: 0 2px 12px #0005;
+            margin-bottom: 1rem;
+        }
+        .planet-card img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff1;
+            margin-bottom: 1rem;
+            border: 2px solid var(--primary);
+        }
+        .planet-card h4 {
+            margin: 0.5em 0 0.5em 0;
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+        .planet-card p {
+            font-size: 1rem;
+            margin: 0.25em 0 0.25em 0;
+        }
+
+        /* Gallery arrows */
+        .gallery-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gallery-arrow-bg);
+            color: var(--gallery-arrow);
+            border: none;
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.2s, color 0.2s;
+        }
+        .gallery-arrow:focus {
+            outline: 3px solid var(--focus);
+            outline-offset: 2px;
+            background: var(--gallery-arrow-focus);
+            color: #222;
+        }
+        .gallery-arrow[disabled] {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .gallery-arrow.left {
+            left: 0.5rem;
+        }
+        .gallery-arrow.right {
+            right: 0.5rem;
+        }
+
+        /* Focus indicators (per accessibility requirements) */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-dark);
+            outline-offset: 2px;
+        }
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid var(--focus);
+        }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .starfield-container {
+                height: 260px;
+            }
+            .planet-card {
+                min-width: 180px;
+                max-width: 180px;
+                padding: 1rem 0.5rem 0.5rem 0.5rem;
+            }
+            .planet-card img {
+                width: 80px;
+                height: 80px;
+            }
+            .gallery {
+                gap: 1rem;
+                padding: 1rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.4rem; }
+            h2 { font-size: 1.1rem; }
+            .starfield-container { height: 170px; }
+            .gallery-wrapper { padding: 1.5rem 0 1rem 0; }
+        }
+
+        footer {
+            background: #0f172a;
+            color: #cbd5e1;
+            text-align: center;
+            font-size: 0.95rem;
+            padding: 1.25rem 0 1rem 0;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body class="dark-bg">
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#constellations">Constellations</a></li>
+                <li><a href="#planets">Planet Gallery</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Space Exploration: Constellations & Planet Gallery</h1>
+        <section id="constellations" aria-labelledby="constellations-heading">
+            <h2 id="constellations-heading">Explore Interactive Constellations</h2>
+            <p>Discover famous constellations in the night sky. Select a constellation to learn more about its history and stars.</p>
+            <div class="starfield-container" aria-label="Starfield with interactive constellations">
+                <canvas id="starfield" aria-hidden="true"></canvas>
+                <!-- SVG overlay for constellations; interactive groups for keyboard/mouse -->
+                <svg class="constellation-svg" width="100%" height="100%" viewBox="0 0 800 400" aria-label="Constellations">
+                    <!-- Orion -->
+                    <g class="constellation-group" tabindex="0" role="button" aria-label="Orion constellation" data-constellation="orion">
+                        <!-- Lines -->
+                        <polyline class="constellation-line" points="170,120 200,180 260,200 320,180 350,120 320,70 260,70 200,120 170,120" />
+                        <!-- Stars -->
+                        <circle class="constellation-star" cx="170" cy="120" r="7" />
+                        <circle class="constellation-star" cx="200" cy="180" r="6" />
+                        <circle class="constellation-star" cx="260" cy="200" r="8" />
+                        <circle class="constellation-star" cx="320" cy="180" r="6" />
+                        <circle class="constellation-star" cx="350" cy="120" r="7" />
+                        <circle class="constellation-star" cx="320" cy="70" r="5" />
+                        <circle class="constellation-star" cx="260" cy="70" r="5" />
+                        <circle class="constellation-star" cx="200" cy="120" r="6" />
+                    </g>
+                    <!-- Ursa Major (Big Dipper) -->
+                    <g class="constellation-group" tabindex="0" role="button" aria-label="Ursa Major constellation" data-constellation="ursa-major">
+                        <polyline class="constellation-line" points="600,70 670,90 700,140 690,210 640,230 610,180 590,120" />
+                        <circle class="constellation-star" cx="600" cy="70" r="7" />
+                        <circle class="constellation-star" cx="670" cy="90" r="7" />
+                        <circle class="constellation-star" cx="700" cy="140" r="8" />
+                        <circle class="constellation-star" cx="690" cy="210" r="7" />
+                        <circle class="constellation-star" cx="640" cy="230" r="6" />
+                        <circle class="constellation-star" cx="610" cy="180" r="6" />
+                        <circle class="constellation-star" cx="590" cy="120" r="6" />
+                    </g>
+                    <!-- Cassiopeia -->
+                    <g class="constellation-group" tabindex="0" role="button" aria-label="Cassiopeia constellation" data-constellation="cassiopeia">
+                        <polyline class="constellation-line" points="420,80 460,120 500,70 540,120 580,80" />
+                        <circle class="constellation-star" cx="420" cy="80" r="6" />
+                        <circle class="constellation-star" cx="460" cy="120" r="6" />
+                        <circle class="constellation-star" cx="500" cy="70" r="7" />
+                        <circle class="constellation-star" cx="540" cy="120" r="6" />
+                        <circle class="constellation-star" cx="580" cy="80" r="6" />
+                    </g>
+                </svg>
+            </div>
+        </section>
+        <section id="planets" class="planet-gallery-section" aria-labelledby="planets-heading">
+            <h2 id="planets-heading" class="gallery-title">Planet Gallery: Discover the Solar System</h2>
+            <div class="gallery-wrapper" aria-label="Scrollable planet gallery">
+                <button type="button" class="gallery-arrow left" aria-label="Scroll left" tabindex="0">
+                    <span aria-hidden="true">&#8592;</span>
+                </button>
+                <div class="gallery" tabindex="0" role="region" aria-label="Planets in our solar system">
+                    <!-- Planet cards inserted here by JavaScript -->
+                </div>
+                <button type="button" class="gallery-arrow right" aria-label="Scroll right" tabindex="0">
+                    <span aria-hidden="true">&#8594;</span>
+                </button>
+            </div>
+        </section>
+        <!-- Modal dialog for constellation info -->
+        <div class="modal" id="constellation-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+            <div class="modal-dialog" tabindex="-1">
+                <button type="button" class="modal-close" aria-label="Close constellation information" tabindex="0">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 id="modal-title"></h3>
+                <div id="modal-content"></div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>
+            &copy; 2024 Accessible Space Exploration. All images and content are for educational purposes.<br>
+            Designed for inclusivity and accessibility. <span aria-hidden="true" role="img" title="sparkles">&#10024;</span>
+        </p>
+    </footer>
+    <script>
+        // --- Starfield background ---
+        (function drawStarfield() {
+            const canvas = document.getElementById('starfield');
+            const ctx = canvas.getContext('2d');
+            let width, height, dpr = window.devicePixelRatio || 1;
+
+            function resize() {
+                width = canvas.offsetWidth;
+                height = canvas.offsetHeight;
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.scale(dpr, dpr);
+            }
+
+            function randomBetween(a, b) {
+                return Math.random() * (b - a) + a;
+            }
+
+            function drawStars() {
+                ctx.clearRect(0, 0, width, height);
+                // Draw random stars
+                for (let i = 0; i < 130; i++) {
+                    let x = randomBetween(0, width);
+                    let y = randomBetween(0, height);
+                    let r = randomBetween(0.4, 1.7);
+                    ctx.beginPath();
+                    ctx.arc(x, y, r, 0, 2 * Math.PI);
+                    ctx.fillStyle = (i % 7 === 0) ? '#fbbf24' : '#fff';
+                    ctx.globalAlpha = randomBetween(0.5, 1);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            function render() {
+                resize();
+                drawStars();
+            }
+
+            window.addEventListener('resize', render);
+            render();
+        })();
+
+        // --- Constellation modal info ---
+        const CONSTELLATION_DATA = {
+            'orion': {
+                name: 'Orion',
+                description: `<p><strong>Orion</strong> is one of the most recognizable constellations, often called "The Hunter." It features two of the brightest stars in the sky: <em>Betelgeuse</em> (red supergiant) and <em>Rigel</em> (blue supergiant). Orion's Belt is formed by three aligned stars in the center.</p>
+                <ul>
+                    <li>Visible in both hemispheres during winter.</li>
+                    <li>Mythologically, represents a hunter in Greek legends.</li>
+                    <li>Contains the Orion Nebula, a stellar nursery.</li>
+                </ul>`
+            },
+            'ursa-major': {
+                name: 'Ursa Major (Big Dipper)',
+                description: `<p><strong>Ursa Major</strong>, known as the "Great Bear," contains the famous <em>Big Dipper</em> asterism. Its "pointer" stars help locate Polaris, the North Star.</p>
+                <ul>
+                    <li>Visible year-round in the Northern Hemisphere.</li>
+                    <li>Key in navigation for centuries.</li>
+                    <li>Part of many world mythologies.</li>
+                </ul>`
+            },
+            'cassiopeia': {
+                name: 'Cassiopeia',
+                description: `<p><strong>Cassiopeia</strong> forms a distinctive "W" shape in the sky. Named after the vain queen in Greek mythology, it sits opposite the Big Dipper across Polaris.</p>
+                <ul>
+                    <li>Easy to spot due to its unique shape.</li>
+                    <li>Home to several star clusters and nebulae.</li>
+                    <li>Visible year-round in the Northern Hemisphere.</li>
+                </ul>`
+            }
+        };
+
+        // --- Modal dialog logic (accessible) ---
+        (function() {
+            const modal = document.getElementById('constellation-modal');
+            const modalDialog = modal.querySelector('.modal-dialog');
+            const modalClose = modal.querySelector('.modal-close');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+            let lastFocusedElement = null;
+
+            function openModal(constellationKey) {
+                const data = CONSTELLATION_DATA[constellationKey];
+                if (!data) return;
+                modalTitle.textContent = data.name;
+                modalContent.innerHTML = data.description;
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                lastFocusedElement = document.activeElement;
+                // Focus the dialog for screen readers and keyboard users
+                setTimeout(() => { modalDialog.focus(); }, 50);
+            }
+
+            function closeModal() {
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                // Restore focus to the last element
+                if (lastFocusedElement && lastFocusedElement.focus) {
+                    lastFocusedElement.focus();
+                }
+            }
+
+            // Trap focus inside modal
+            modal.addEventListener('keydown', function(e) {
+                if (modal.getAttribute('aria-hidden') === 'true') return;
+                const focusable = modal.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
+                const first = focusable[0], last = focusable[focusable.length - 1];
+                if (e.key === 'Tab') {
+                    if (e.shiftKey) {
+                        if (document.activeElement === first) {
+                            e.preventDefault();
+                            last.focus();
+                        }
+                    } else {
+                        if (document.activeElement === last) {
+                            e.preventDefault();
+                            first.focus();
+                        }
+                    }
+                } else if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            // Close button
+            modalClose.addEventListener('click', closeModal);
+            modalClose.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    closeModal();
+                }
+            });
+
+            // Clicking outside the dialog closes modal
+            modal.addEventListener('mousedown', function(e) {
+                if (e.target === modal) closeModal();
+            });
+
+            // Expose openModal globally for constellation click
+            window.openConstellationModal = openModal;
+        })();
+
+        // --- Constellation click & keyboard interaction ---
+        document.querySelectorAll('.constellation-group').forEach(function(group) {
+            // Mouse click
+            group.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.openConstellationModal(group.dataset.constellation);
+            });
+            // Keyboard: Enter/Space
+            group.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    window.openConstellationModal(group.dataset.constellation);
+                }
+            });
+        });
+
+        // --- Planet gallery data ---
+        const PLANETS = [
+            {
+                name: 'Mercury',
+                img: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_true_color.jpg',
+                alt: 'Mercury: small gray rocky planet',
+                facts: [
+                    'Closest planet to the Sun.',
+                    'A year on Mercury is just 88 Earth days.',
+                    'Temperature swings are extreme: -173°C to 427°C.'
+                ]
+            },
+            {
+                name: 'Venus',
+                img: 'https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg',
+                alt: 'Venus: yellowish planet with thick clouds',
+                facts: [
+                    'Hottest planet in the Solar System.',
+                    'Rotates in the opposite direction to most planets.',
+                    'Known as Earth’s “sister planet”.'
+                ]
+            },
+            {
+                name: 'Earth',
+                img: 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg',
+                alt: 'Earth: blue planet with white clouds and continents',
+                facts: [
+                    'Our home planet, the only known planet with life.',
+                    '70% of the surface is covered by water.',
+                    'Has one natural satellite: the Moon.'
+                ]
+            },
+            {
+                name: 'Mars',
+                img: 'https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg',
+                alt: 'Mars: reddish planet with dark markings',
+                facts: [
+                    'Known as the Red Planet.',
+                    'Home to the tallest volcano in the Solar System: Olympus Mons.',
+                    'Evidence suggests it once had liquid water.'
+                ]
+            },
+            {
+                name: 'Jupiter',
+                img: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg',
+                alt: 'Jupiter: large striped planet with Great Red Spot',
+                facts: [
+                    'Largest planet in the Solar System.',
+                    'Has a giant storm called the Great Red Spot.',
+                    'At least 79 moons, including Ganymede (largest moon).'
+                ]
+            },
+            {
+                name: 'Saturn',
+                img: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg',
+                alt: 'Saturn: planet with prominent rings',
+                facts: [
+                    'Famous for its beautiful ring system.',
+                    'Lowest density of all planets; could float in water!',
+                    'At least 83 moons, including Titan.'
+                ]
+            },
+            {
+                name: 'Uranus',
+                img: 'https://upload.wikimedia.org/wikipedia/commons/3/3d/Uranus2.jpg',
+                alt: 'Uranus: pale blue planet',
+                facts: [
+                    'Rotates on its side (axial tilt of 98°).',
+                    'Coldest planet in the Solar System.',
+                    'Has faint rings and at least 27 moons.'
+                ]
+            },
+            {
+                name: 'Neptune',
+                img: 'https://upload.wikimedia.org/wikipedia/commons/5/56/Neptune_Full.jpg',
+                alt: 'Neptune: deep blue planet',
+                facts: [
+                    'Furthest planet from the Sun.',
+                    'Strongest winds in the Solar System.',
+                    'Has a dark storm called the Great Dark Spot.'
+                ]
+            }
+        ];
+
+        // --- Render planet cards in gallery ---
+        (function() {
+            const gallery = document.querySelector('.gallery');
+            PLANETS.forEach(function(planet, idx) {
+                const card = document.createElement('article');
+                card.className = 'planet-card';
+                card.tabIndex = 0;
+                card.setAttribute('role', 'group');
+                card.setAttribute('aria-label', planet.name + ' planet card');
+                // Planet image
+                const img = document.createElement('img');
+                img.src = planet.img;
+                img.alt = planet.alt;
+                img.width = 120;
+                img.height = 120;
+                card.appendChild(img);
+                // Planet name
+                const h4 = document.createElement('h4');
+                h4.textContent = planet.name;
+                card.appendChild(h4);
+                // Fun facts
+                const ul = document.createElement('ul');
+                planet.facts.forEach(function(fact) {
+                    const li = document.createElement('li');
+                    li.textContent = fact;
+                    ul.appendChild(li);
+                });
+                card.appendChild(ul);
+                gallery.appendChild(card);
+            });
+        })();
+
+        // --- Gallery scrolling & keyboard accessibility ---
+        (function() {
+            const gallery = document.querySelector('.gallery');
+            const leftArrow = document.querySelector('.gallery-arrow.left');
+            const rightArrow = document.querySelector('.gallery-arrow.right');
+            const SCROLL_AMOUNT = 280;
+
+            function updateArrows() {
+                // Disable arrows if at ends
+                leftArrow.disabled = gallery.scrollLeft <= 5;
+                rightArrow.disabled = gallery.scrollLeft + gallery.offsetWidth >= gallery.scrollWidth - 5;
+            }
+
+            function scrollGallery(direction) {
+                const amount = direction === 'left' ? -SCROLL_AMOUNT : SCROLL_AMOUNT;
+                gallery.scrollBy({ left: amount, behavior: 'smooth' });
+                setTimeout(updateArrows, 350);
+            }
+
+            // Click events
+            leftArrow.addEventListener('click', function(e) {
+                scrollGallery('left');
+            });
+            rightArrow.addEventListener('click', function(e) {
+                scrollGallery('right');
+            });
+
+            // Keyboard support for arrows
+            leftArrow.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    scrollGallery('left');
+                }
+            });
+            rightArrow.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    scrollGallery('right');
+                }
+            });
+
+            // Keyboard support for gallery itself (arrow keys)
+            gallery.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight') {
+                    scrollGallery('right');
+                } else if (e.key === 'ArrowLeft') {
+                    scrollGallery('left');
+                }
+            });
+
+            // Update arrows on scroll
+            gallery.addEventListener('scroll', updateArrows);
+            // On load
+            updateArrows();
+
+            // Accessibility: allow tabbing into gallery and planet cards
+            // Focus first card when gallery receives focus (if not already inside)
+            gallery.addEventListener('focus', function(e) {
+                const active = document.activeElement;
+                if (!gallery.contains(active)) {
+                    const firstCard = gallery.querySelector('.planet-card');
+                    if (firstCard) firstCard.focus();
+                }
+            });
+
+            // Allow left/right tabbing between cards
+            gallery.querySelectorAll('.planet-card').forEach(function(card, idx, cards) {
+                card.addEventListener('keydown', function(e) {
+                    if (e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        if (cards[idx + 1]) cards[idx + 1].focus();
+                    } else if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        if (cards[idx - 1]) cards[idx - 1].focus();
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

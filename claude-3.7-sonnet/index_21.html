@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Space Explorer - Constellations and Planets</title>
+    <style>
+        /* Base styles with accessibility considerations */
+        :root {
+            --primary-text: #ffffff;
+            --secondary-text: #ccccff;
+            --background-dark: #0a0a20;
+            --accent-color: #6e76ff;
+            --focus-color: #ffffff;
+            --card-background: rgba(20, 20, 40, 0.8);
+            --button-background: #2d2d5d;
+            --button-hover: #3d3d7d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: var(--background-dark);
+            color: var(--primary-text);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        /* Skip to main content link - hidden until focused */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-color);
+            color: #fff;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        header {
+            background-color: rgba(10, 10, 30, 0.9);
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            color: var(--primary-text);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(110, 118, 255, 0.8);
+        }
+
+        h2 {
+            color: var(--secondary-text);
+            font-size: 1.8rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        h3 {
+            color: var(--secondary-text);
+            font-size: 1.4rem;
+            margin: 1rem 0 0.5rem;
+        }
+
+        main {
+            padding: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        section {
+            margin: 2rem 0;
+        }
+
+        /* Star background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+        }
+
+        /* Constellation section */
+        .constellation-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .constellation {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+        }
+
+        .constellation:hover, .constellation:focus {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(110, 118, 255, 0.3);
+        }
+
+        .constellation-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .constellation-info {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(20, 20, 40, 0.95);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 2;
+        }
+
+        .constellation.active .constellation-info {
+            transform: translateY(0);
+        }
+
+        .close-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .constellation svg {
+            width: 200px;
+            height: 200px;
+        }
+
+        /* Planet gallery */
+        .planet-gallery {
+            margin: 3rem 0;
+            position: relative;
+        }
+
+        .gallery-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 1rem 0;
+            gap: 2rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-color) var(--background-dark);
+        }
+
+        .gallery-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .gallery-container::-webkit-scrollbar-track {
+            background: var(--background-dark);
+        }
+
+        .gallery-container::-webkit-scrollbar-thumb {
+            background-color: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        .planet-card {
+            flex: 0 0 300px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .planet-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            object-fit: cover;
+        }
+
+        .gallery-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .gallery-button {
+            background-color: var(--button-background);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .gallery-button:hover, .gallery-button:focus {
+            background-color: var(--button-hover);
+        }
+
+        /* Footer styles */
+        footer {
+            background-color: rgba(10, 10, 30, 0.9);
+            padding: 1rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .constellation-container {
+                gap: 1rem;
+            }
+
+            .constellation {
+                width: 250px;
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .constellation {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content link for keyboard users -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <div class="stars" aria-hidden="true">
+        <!-- Stars will be generated by JavaScript -->
+    </div>
+
+    <header>
+        <h1>Cosmic Explorer</h1>
+        <p>Discover the wonders of our universe</p>
+    </header>
+
+    <main id="main-content">
+        <section aria-labelledby="constellations-heading">
+            <h2 id="constellations-heading">Famous Constellations</h2>
+            <p>Click or press Enter on a constellation to learn more about it.</p>
+            
+            <div class="constellation-container">
+                <!-- Constellation 1: Ursa Major -->
+                <div class="constellation" tabindex="0" role="button" aria-expanded="false" aria-controls="ursa-major-info">
+                    <h3 class="constellation-title">Ursa Major</h3>
+                    <svg aria-hidden="true" viewBox="0 0 200 200">
+                        <circle cx="30" cy="30" r="2" fill="white"></circle>
+                        <circle cx="50" cy="40" r="2" fill="white"></circle>
+                        <circle cx="70" cy="50" r="2" fill="white"></circle>
+                        <circle cx="90" cy="40" r="2" fill="white"></circle>
+                        <circle cx="110" cy="50" r="2" fill="white"></circle>
+                        <circle cx="130" cy="70" r="2" fill="white"></circle>
+                        <circle cx="150" cy="90" r="2" fill="white"></circle>
+                        <line x1="30" y1="30" x2="50" y2="40" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="50" y1="40" x2="70" y2="50" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="70" y1="50" x2="90" y2="40" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="90" y1="40" x2="110" y2="50" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="110" y1="50" x2="130" y2="70" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="130" y1="70" x2="150" y2="90" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                    </svg>
+                    <div id="ursa-major-info" class="constellation-info">
+                        <button class="close-info" aria-label="Close Ursa Major information">×</button>
+                        <h3>Ursa Major (The Great Bear)</h3>
+                        <p>Ursa Major is one of the most recognizable constellations in the northern sky. Its most famous feature is the Big Dipper, which consists of seven bright stars that form a ladle shape.</p>
+                        <p>For centuries, the Big Dipper has been used for navigation, as the two stars at the end of the "bowl" point to Polaris, the North Star.</p>
+                    </div>
+                </div>
+
+                <!-- Constellation 2: Orion -->
+                <div class="constellation" tabindex="0" role="button" aria-expanded="false" aria-controls="orion-info">
+                    <h3 class="constellation-title">Orion</h3>
+                    <svg aria-hidden="true" viewBox="0 0 200 200">
+                        <circle cx="100" cy="30" r="2" fill="white"></circle>
+                        <circle cx="70" cy="60" r="2" fill="white"></circle>
+                        <circle cx="130" cy="60" r="2" fill="white"></circle>
+                        <circle cx="90" cy="90" r="2" fill="white"></circle>
+                        <circle cx="100" cy="90" r="2" fill="white"></circle>
+                        <circle cx="110" cy="90" r="2" fill="white"></circle>
+                        <circle cx="70" cy="140" r="2" fill="white"></circle>
+                        <circle cx="130" cy="140" r="2" fill="white"></circle>
+                        <line x1="100" y1="30" x2="70" y2="60" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="100" y1="30" x2="130" y2="60" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="70" y1="60" x2="90" y2="90" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="130" y1="60" x2="110" y2="90" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="90" y1="90" x2="110" y2="90" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="90" y1="90" x2="70" y2="140" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="110" y1="90" x2="130" y2="140" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                    </svg>
+                    <div id="orion-info" class="constellation-info">
+                        <button class="close-info" aria-label="Close Orion information">×</button>
+                        <h3>Orion (The Hunter)</h3>
+                        <p>Orion is one of the most prominent and recognizable constellations in the night sky. Named after a hunter in Greek mythology, it contains many bright stars and is visible throughout the world.</p>
+                        <p>The distinctive pattern includes the three stars that form Orion's Belt, as well as Betelgeuse (a red supergiant) and Rigel (a blue supergiant).</p>
+                    </div>
+                </div>
+
+                <!-- Constellation 3: Cassiopeia -->
+                <div class="constellation" tabindex="0" role="button" aria-expanded="false" aria-controls="cassiopeia-info">
+                    <h3 class="constellation-title">Cassiopeia</h3>
+                    <svg aria-hidden="true" viewBox="0 0 200 200">
+                        <circle cx="40" cy="100" r="2" fill="white"></circle>
+                        <circle cx="80" cy="70" r="2" fill="white"></circle>
+                        <circle cx="120" cy="100" r="2" fill="white"></circle>
+                        <circle cx="160" cy="70" r="2" fill="white"></circle>
+                        <circle cx="180" cy="100" r="2" fill="white"></circle>
+                        <line x1="40" y1="100" x2="80" y2="70" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="80" y1="70" x2="120" y2="100" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="120" y1="100" x2="160" y2="70" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                        <line x1="160" y1="70" x2="180" y2="100" stroke="rgba(255,255,255,0.6)" stroke-width="1"></line>
+                    </svg>
+                    <div id="cassiopeia-info" class="constellation-info">
+                        <button class="close-info" aria-label="Close Cassiopeia information">×</button>
+                        <h3>Cassiopeia (The Queen)</h3>
+                        <p>Cassiopeia is a prominent constellation in the northern sky, named after the vain queen in Greek mythology. It is easily recognizable by its distinctive W or M shape, depending on its orientation in the sky.</p>
+                        <p>This constellation is circumpolar in most of the northern hemisphere, meaning it never sets below the horizon and can be seen year-round.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section aria-labelledby="planets-heading" class="planet-gallery">
+            <h2 id="planets-heading">Our Solar System</h2>
+            <p>Scroll through the gallery to explore the planets in our solar system.</p>
+            
+            <div class="gallery-container" tabindex="0" aria-label="Planet gallery, use arrow keys to navigate">
+                <!-- Mercury -->
+                <article class="planet-card">
+                    <h3>Mercury</h3>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%23a5a5a5' /%3E%3Ccircle cx='70' cy='80' r='15' fill='%23878787' /%3E%3Ccircle cx='120' cy='60' r='20' fill='%23878787' /%3E%3Ccircle cx='90' cy='130' r='25' fill='%23878787' /%3E%3C/svg%3E" 
+                         alt="Illustration of Mercury, a small gray planet with a cratered surface" 
+                         class="planet-image">
+                    <div class="planet-info">
+                        <p><strong>Distance from Sun:</strong> 36 million miles</p>
+                        <p><strong>Fun Fact:</strong> Mercury has no atmosphere, which means there is no wind or weather to erode surface features.</p>
+                    </div>
+                </article>
+
+                <!-- Venus -->
+                <article class="planet-card">
+                    <h3>Venus</h3>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%23e6c171' /%3E%3Cpath d='M40,100 Q100,40 160,100 Q100,160 40,100' fill='%23d4b05e' fill-opacity='0.7' /%3E%3Cpath d='M60,60 Q100,90 140,60' stroke='%23d4b05e' stroke-width='5' fill='none' /%3E%3Cpath d='M60,140 Q100,110 140,140' stroke='%23d4b05e' stroke-width='5' fill='none' /%3E%3C/svg%3E" 
+                         alt="Illustration of Venus, a yellowish planet with swirling cloud patterns" 
+                         class="planet-image">
+                    <div class="planet-info">
+                        <p><strong>Distance from Sun:</strong> 67 million miles</p>
+                        <p><strong>Fun Fact:</strong> Venus rotates backward compared to other planets, with the sun rising in the west and setting in the east.</p>
+                    </div>
+                </article>
+
+                <!-- Earth -->
+                <article class="planet-card">
+                    <h3>Earth</h3>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%232b82c9' /%3E%3Cpath d='M40,100 Q70,70 100,40 Q130,70 160,100 Q130,130 100,160 Q70,130 40,100' fill='%2349b675' /%3E%3Cpath d='M65,50 Q80,60 95,50' fill='%23ffffff' /%3E%3Ccircle cx='130' cy='80' r='15' fill='%23ffffff' /%3E%3Ccircle cx='70' cy='130' r='10' fill='%23ffffff' /%3E%3C/svg%3E" 
+                         alt="Illustration of Earth, showing blue oceans, green continents, and white cloud formations" 
+                         class="planet-image">
+                    <div class="planet-info">
+                        <p><strong>Distance from Sun:</strong> 93 million miles</p>
+                        <p><strong>Fun Fact:</strong> Earth is the only planet not named after a god. The name comes from the Old English and Germanic words for "ground".</p>
+                    </div>
+                </article>
+
+                <!-- Mars -->
+                <article class="planet-card">
+                    <h3>Mars</h3>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%23c1440e' /%3E%3Ccircle cx='70' cy='80' r='20' fill='%23a93a0c' /%3E%3Ccircle cx='130' cy='120' r='25' fill='%23a93a0c' /%3E%3Ccircle cx='50' cy='130' r='15' fill='%23a93a0c' /%3E%3Ccircle cx='150' cy='60' r='10' fill='%23ffffff' /%3E%3C/svg%3E" 
+                         alt="Illustration of Mars, a reddish-orange planet with darker surface features and a white polar cap" 
+                         class="planet-image">
+                    <div class="planet-info">
+                        <p><strong>Distance from Sun:</strong> 142 million miles</p>
+                        <p><strong>Fun Fact:</strong> Mars is home to Olympus Mons, the largest volcano in our solar system, nearly three times the height of Mount Everest.</p>
+                    </div>
+                </article>
+
+                <!-- Jupiter -->
+                <article class="planet-card">
+                    <h3>Jupiter</h3>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%23e0ae6f' /%3E%3Cpath d='M10,100 L190,100' stroke='%23c18948' stroke-width='20' /%3E%3Cpath d='M10,70 L190,70' stroke='%23d09c59' stroke-width='15' /%3E%3Cpath d='M10,130 L190,130' stroke='%23d09c59' stroke-width='15' /%3E%3Ccircle cx='150' cy='80' r='25' fill='%23cc3333' /%3E%3C/svg%3E" 
+                         alt="Illustration of Jupiter, showing its distinctive bands and the Great Red Spot" 
+                         class="planet-image">
+                    <div class="planet-info">
+                        <p><strong>Distance from Sun:</strong> 484 million miles</p>
+                        <p><strong>Fun Fact:</strong> Jupiter's Great Red Spot is a storm that has been raging for at least 400 years and is large enough to fit three Earths inside it.</p>
+                    </div>
+                </article>
+
+                <!-- Saturn -->
+                <article class="planet-card">
+                    <h3>Saturn</h3>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cellipse cx='100' cy='100' rx='90' ry='85' fill='%23e6bb7a' /%3E%3Cellipse cx='100' cy='100' rx='120' ry='30' fill='none' stroke='%23c9a05d' stroke-width='8' /%3E%3Cellipse cx='100' cy='100' rx='105' ry='25' fill='none' stroke='%23d8b068' stroke-width='5' /%3E%3Cellipse cx='100' cy='100' rx='130' ry='35' fill='none' stroke='%23c9a05d' stroke-width='3' /%3E%3C/svg%3E" 
+                         alt="Illustration of Saturn, a yellowish planet with its distinctive ring system" 
+                         class="planet-image">
+                    <div class="planet-info">
+                        <p><strong>Distance from Sun:</strong> 886 million miles</p>
+                        <p><strong>Fun Fact:</strong> Saturn's rings are made mostly of ice particles, with some rocky debris and dust. Some particles are as small as grains of sand, while others are as large as mountains.</p>
+                    </div>
+                </article>
+
+                <!-- Uranus -->
+                <article class="planet-card">
+                    <h3>Uranus</h3>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%2384cdde' /%3E%3Cpath d='M30,100 L170,100' stroke='%2372b8c9' stroke-width='10' /%3E%3Cpath d='M40,70 L160,70' stroke='%2372b8c9' stroke-width='5' /%3E%3Cpath d='M40,130 L160,130' stroke='%2372b8c9' stroke-width='5' /%3E%3Cellipse cx='100' cy='100' rx='110' ry='20' fill='none' stroke='%2372b8c9' stroke-width='2' transform='rotate(80 100 100)' /%3E%3C/svg%3E" 
+                         alt="Illustration of Uranus, a pale blue-green planet with a tilted ring system" 
+                         class="planet-image">
+                    <div class="planet-info">
+                        <p><strong>Distance from Sun:</strong> 1.8 billion miles</p>
+                        <p><strong>Fun Fact:</strong> Uranus rotates on its side with an axial tilt of about 98 degrees, making it appear to roll along its orbital path like a ball.</p>
+                    </div>
+                </article>
+
+                <!-- Neptune -->
+                <article class="planet-card">
+                    <h3>Neptune</h3>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%231d6fa5' /%3E%3Ccircle cx='70' cy='80' r='20' fill='%231a5c8a' /%3E%3Ccircle cx='130' cy='120' r='25' fill='%231a5c8a' /%3E%3Cpath d='M40,60 Q100,90 160,60' stroke='%231a5c8a' stroke-width='10' fill='none' /%3E%3Cpath d='M40,140 Q100,110 160,140' stroke='%231a5c8a' stroke-width='10' fill='none' /%3E%3C/svg%3E" 
+                         alt="Illustration of Neptune, a deep blue planet with visible storm systems" 
+                         class="planet-image">
+                    <div class="planet-info">
+                        <p><strong>Distance from Sun:</strong> 2.8 billion miles</p>
+                        <p><strong>Fun Fact:</strong> Neptune has the strongest winds in the solar system, reaching speeds of over 1,200 miles per hour.</p>
+                    </div>
+                </article>
+            </div>
+
+            <div class="gallery-controls">
+                <button class="gallery-button" id="scroll-left" aria-label="Scroll gallery left">
+                    &larr; Previous
+                </button>
+                <button class="gallery-button" id="scroll-right" aria-label="Scroll gallery right">
+                    Next &rarr;
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Cosmic Explorer. An accessible space exploration experience.</p>
+    </footer>
+
+    <script>
+        // Create stars in the background
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const numberOfStars = 200;
+            
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Random position
+                const x = Math.floor(Math.random() * window.innerWidth);
+                const y = Math.floor(Math.random() * window.innerHeight);
+                
+                // Random size (1-3px)
+                const size = Math.random() * 2 + 1;
+                
+                // Set star properties
+                star.style.left = `${x}px`;
+                star.style.top = `${y}px`;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Random opacity for twinkling effect
+                star.style.opacity = Math.random();
+                
+                // Add star to container
+                starsContainer.appendChild(star);
+            }
+            
+            // Simple twinkling effect
+            setInterval(() => {
+                const stars = document.querySelectorAll('.star');
+                stars.forEach(star => {
+                    star.style.opacity = Math.random();
+                });
+            }, 2000);
+        }
+
+        // Handle constellation interactions
+        function setupConstellations() {
+            const constellations = document.querySelectorAll('.constellation');
+            
+            constellations.forEach(constellation => {
+                // Function to handle both click and keyboard events
+                function toggleInfo(event) {
+                    // Only respond to click, Enter key or Space key
+                    if (event.type === 'click' || 
+                        (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                        
+                        // Prevent default action for space key (scrolling)
+                        if (event.key === ' ') {
+                            event.preventDefault();
+                        }
+                        
+                        const isActive = constellation.classList.contains('active');
+                        
+                        // Close any open constellation info first
+                        document.querySelectorAll('.constellation.active').forEach(active => {
+                            active.classList.remove('active');
+                            active.setAttribute('aria-expanded', 'false');
+                        });
+                        
+                        // Toggle this constellation
+                        if (!isActive) {
+                            constellation.classList.add('active');
+                            constellation.setAttribute('aria-expanded', 'true');
+                        }
+                    }
+                }
+                
+                // Add event listeners for both mouse and keyboard
+                constellation.addEventListener('click', toggleInfo);
+                constellation.addEventListener('keydown', toggleInfo);
+                
+                // Setup close button
+                const closeButton = constellation.querySelector('.close-info');
+                closeButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent triggering constellation click
+                    constellation.classList.remove('active');
+                    constellation.setAttribute('aria-expanded', 'false');
+                    constellation.focus(); // Return focus to the constellation
+                });
+                
+                // Close on Escape key
+                constellation.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && constellation.classList.contains('active')) {
+                        constellation.classList.remove('active');
+                        constellation.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            });
+        }
+
+        // Handle planet gallery scrolling
+        function setupGallery() {
+            const gallery = document.querySelector('.gallery-container');
+            const scrollLeftBtn = document.getElementById('scroll-left');
+            const scrollRightBtn = document.getElementById('scroll-right');
+            const scrollAmount = 320; // Approximate width of a card + margin
+            
+            // Function to handle scroll left button
+            function scrollLeft(event) {
+                if (event.type === 'click' || 
+                    (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                    
+                    if (event.key === ' ') {
+                        event.preventDefault();
+                    }
+                    
+                    gallery.scrollBy({
+                        left: -scrollAmount,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+            
+            // Function to handle scroll right button
+            function scrollRight(event) {
+                if (event.type === 'click' || 
+                    (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                    
+                    if (event.key === ' ') {
+                        event.preventDefault();
+                    }
+                    
+                    gallery.scrollBy({
+                        left: scrollAmount,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+            
+            // Add event listeners for both mouse and keyboard
+            scrollLeftBtn.addEventListener('click', scrollLeft);
+            scrollLeftBtn.addEventListener('keydown', scrollLeft);
+            
+            scrollRightBtn.addEventListener('click', scrollRight);
+            scrollRightBtn.addEventListener('keydown', scrollRight);
+            
+            // Add keyboard navigation for the gallery container
+            gallery.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    gallery.scrollBy({
+                        left: -scrollAmount,
+                        behavior: 'smooth'
+                    });
+                } else if (event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    gallery.scrollBy({
+                        left: scrollAmount,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        }
+
+        // Initialize everything when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            setupConstellations();
+            setupGallery();
+        });
+    </script>
+</body>
+</html>

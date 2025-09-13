@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Personal Blog – Read, Search, and Comment</title>
+    <meta name="description" content="A personal blog with accessible articles, search, and commenting features. WCAG 2.1 AA compliant, keyboard and screen reader friendly.">
+    <style>
+        :root {
+            --primary: #17497a;
+            --secondary: #eaeaea;
+            --accent: #0066cc;
+            --danger: #c0392b;
+            --success: #257a36;
+            --text: #1a1a1a;
+            --background: #fff;
+            --focus-outline: #0066cc;
+            --focus-outline-dark: #fff;
+        }
+        html {
+            font-size: 100%;
+            box-sizing: border-box;
+            background: var(--background);
+        }
+        *, *::before, *::after {
+            box-sizing: inherit;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: var(--text);
+            background: var(--background);
+            margin: 0;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: var(--primary);
+            color: #fff;
+            padding: 1rem 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        nav[role="navigation"] {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .blog-title {
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            position: relative;
+            transition: color 0.2s;
+        }
+        .nav-links a:focus,
+        .nav-links a:hover {
+            color: #cde7ff;
+        }
+        main {
+            flex: 1;
+            padding: 2rem 0 2rem 0;
+        }
+        h1 {
+            font-size: 2.25rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .search-section {
+            margin-bottom: 2rem;
+            background: var(--secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .search-label {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .search-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .search-input-group input[type="search"] {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #888;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .search-input-group button {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .search-input-group button:focus,
+        .search-input-group button:hover {
+            background: #004e99;
+        }
+        .sr-only {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+        .articles-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        article {
+            background: #f9fafb;
+            border: 1px solid #d6e0eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(23,73,122,0.03);
+        }
+        article:focus-within {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+        .article-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 0.25rem;
+        }
+        .article-meta {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        .article-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .article-content {
+            margin-bottom: 1.5rem;
+        }
+        .comments-section {
+            margin-top: 1.5rem;
+        }
+        .comments-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        .comments-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem 0;
+        }
+        .comments-list li {
+            background: #eef6fb;
+            border: 1px solid #c5d7e6;
+            border-radius: 4px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .comment-meta {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 0.2rem;
+        }
+        .comment-content {
+            margin: 0;
+        }
+        .comment-form {
+            background: #eaeaea;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+        .comment-form label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .comment-form input[type="text"],
+        .comment-form input[type="email"],
+        .comment-form textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #888;
+            border-radius: 4px;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+        .comment-form textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .required-indicator {
+            color: var(--danger);
+            margin-left: 0.15em;
+        }
+        .comment-form button[type="submit"] {
+            background: var(--success);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1.25rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .comment-form button[type="submit"]:focus,
+        .comment-form button[type="submit"]:hover {
+            background: #185e29;
+        }
+        .form-error {
+            color: var(--danger);
+            font-size: 0.98rem;
+            margin-bottom: 0.5rem;
+        }
+        .form-success {
+            color: var(--success);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        /* Focus indicators for all interactive elements */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+        /* For dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid var(--focus-outline-dark);
+        }
+        /* Responsive Design */
+        @media (max-width: 700px) {
+            .container {
+                width: 98%;
+                padding: 0 0.5rem;
+            }
+            main {
+                padding: 1rem 0;
+            }
+            .search-section {
+                padding: 1rem 0.75rem;
+            }
+            article {
+                padding: 1rem;
+            }
+        }
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 1.4rem;
+            }
+            .article-title {
+                font-size: 1.1rem;
+            }
+            .search-section {
+                flex-direction: column;
+            }
+            .nav-links {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+        }
+        footer {
+            background: var(--primary);
+            color: #fff;
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 1rem;
+            margin-top: auto;
+        }
+        /* Hide scrollbars for comments on mobile */
+        @media (max-width: 500px) {
+            .comments-list {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav role="navigation" aria-label="Main navigation">
+                <span class="blog-title" aria-label="Blog Home">Accessible Personal Blog</span>
+                <div class="nav-links">
+                    <a href="#main-content" aria-label="Skip to main content">Skip to Content</a>
+                    <a href="#articles-list" aria-label="View blog articles">Articles</a>
+                    <a href="#about-section" aria-label="About this blog">About</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+        <div class="container">
+            <h1>Welcome to My Accessible Blog</h1>
+            <section class="search-section" aria-labelledby="search-label">
+                <label id="search-label" for="search-input" class="search-label">Search Articles</label>
+                <form id="search-form" role="search" autocomplete="off">
+                    <div class="search-input-group">
+                        <input type="search" id="search-input" name="search" placeholder="Enter keywords..." aria-label="Search blog articles" aria-describedby="search-help" />
+                        <button type="submit" id="search-button">Search</button>
+                    </div>
+                    <span id="search-help" class="sr-only">Type keywords to filter blog articles. Press Enter or click Search.</span>
+                </form>
+            </section>
+            <section id="articles-list" class="articles-list" aria-label="Blog Articles">
+                <!-- Articles dynamically rendered here -->
+            </section>
+            <section id="about-section" aria-labelledby="about-heading" style="margin-top:2.5rem;">
+                <h2 id="about-heading">About This Blog</h2>
+                <p>
+                    This is a demonstration of a <strong>fully accessible, WCAG 2.1 AA compliant</strong> personal blog. 
+                    You can <strong>read articles</strong>, <strong>search posts</strong>, and <strong>leave comments</strong> – all with keyboard, screen reader, and mobile support.
+                </p>
+                <p>
+                    <em>Accessibility matters. Everyone should be able to participate and share their voice.</em>
+                </p>
+            </section>
+        </div>
+    </main>
+    <footer>
+        <span>&copy; 2024 Accessible Personal Blog. All rights reserved.</span>
+    </footer>
+    <script>
+    // --- Data Model (Demo) ---
+    const blogPosts = [
+        {
+            id: 'post-1',
+            title: 'Building Accessible Web Apps',
+            author: 'Jane Doe',
+            date: '2024-05-20',
+            image: {
+                src: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
+                alt: 'Laptop on a desk with accessibility icons overlay'
+            },
+            content: `<p>Accessibility is about making the web usable for everyone, regardless of ability. In this article, we explore the fundamentals of building accessible web applications, including semantic HTML, keyboard navigation, and color contrast.</p>
+            <ul>
+                <li>Use semantic elements for structure</li>
+                <li>Ensure sufficient color contrast</li>
+                <li>Provide keyboard access for all features</li>
+            </ul>
+            <p>By following accessibility guidelines, you ensure your site is inclusive and reaches the widest possible audience.</p>`,
+            comments: [
+                {
+                    name: 'Alex Smith',
+                    email: 'alex@example.com',
+                    date: '2024-05-21',
+                    content: 'Great tips! Accessibility should always be a priority.'
+                }
+            ]
+        },
+        {
+            id: 'post-2',
+            title: 'The Importance of Semantic HTML',
+            author: 'Jane Doe',
+            date: '2024-05-10',
+            image: {
+                src: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80',
+                alt: 'HTML5 logo on a white background'
+            },
+            content: `<p>Semantic HTML provides meaning to web content, making it easier for assistive technologies to interpret. Headings, lists, and sections help users navigate and understand your site.</p>
+            <p>Always use <strong>proper heading hierarchy</strong> and avoid skipping levels for clarity and accessibility.</p>`,
+            comments: []
+        },
+        {
+            id: 'post-3',
+            title: 'Color Contrast in UI Design',
+            author: 'Jane Doe',
+            date: '2024-04-28',
+            image: {
+                src: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80',
+                alt: 'Color swatches and palette on a designer desk'
+            },
+            content: `<p>Good color contrast is essential for readability, especially for users with low vision or color blindness. Use tools to check your contrast ratios and ensure text is easy to read against backgrounds.</p>
+            <ol>
+                <li>Check contrast ratios (minimum 4.5:1 for normal text)</li>
+                <li>Don’t use color as the only way to convey information</li>
+            </ol>`,
+            comments: [
+                {
+                    name: 'Maria Lopez',
+                    email: 'maria@example.com',
+                    date: '2024-04-29',
+                    content: 'Thanks for the reminder about color contrast tools!'
+                }
+            ]
+        }
+    ];
+
+    // --- Utility: Date formatting ---
+    function formatDate(iso) {
+        const date = new Date(iso);
+        return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    // --- Render Articles ---
+    function renderArticles(posts) {
+        const articlesList = document.getElementById('articles-list');
+        articlesList.innerHTML = '';
+        if (posts.length === 0) {
+            const noResults = document.createElement('p');
+            noResults.textContent = 'No articles found. Try a different search term.';
+            noResults.setAttribute('role', 'status');
+            articlesList.appendChild(noResults);
+            return;
+        }
+        posts.forEach((post, idx) => {
+            const article = document.createElement('article');
+            article.setAttribute('tabindex', '-1');
+            article.setAttribute('aria-labelledby', `article-title-${post.id}`);
+            article.setAttribute('id', post.id);
+
+            // Title
+            const h2 = document.createElement('h2');
+            h2.className = 'article-title';
+            h2.id = `article-title-${post.id}`;
+            h2.textContent = post.title;
+            article.appendChild(h2);
+
+            // Meta
+            const meta = document.createElement('div');
+            meta.className = 'article-meta';
+            meta.innerHTML = `By <span>${post.author}</span> &mdash; <time datetime="${post.date}">${formatDate(post.date)}</time>`;
+            article.appendChild(meta);
+
+            // Image (with descriptive alt)
+            if (post.image && post.image.src) {
+                const img = document.createElement('img');
+                img.src = post.image.src;
+                img.alt = post.image.alt;
+                img.className = 'article-image';
+                article.appendChild(img);
+            }
+
+            // Content
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'article-content';
+            contentDiv.innerHTML = post.content;
+            article.appendChild(contentDiv);
+
+            // Comments section
+            const commentsSection = document.createElement('section');
+            commentsSection.className = 'comments-section';
+            commentsSection.setAttribute('aria-labelledby', `comments-title-${post.id}`);
+
+            const commentsTitle = document.createElement('h3');
+            commentsTitle.className = 'comments-title';
+            commentsTitle.id = `comments-title-${post.id}`;
+            commentsTitle.textContent = 'Comments';
+            commentsSection.appendChild(commentsTitle);
+
+            // Comments List
+            const commentsList = document.createElement('ul');
+            commentsList.className = 'comments-list';
+            commentsList.setAttribute('aria-live', 'polite');
+            commentsList.setAttribute('aria-relevant', 'additions');
+            if (post.comments.length === 0) {
+                const noComments = document.createElement('li');
+                noComments.textContent = 'No comments yet. Be the first to comment!';
+                commentsList.appendChild(noComments);
+            } else {
+                post.comments.forEach(comment => {
+                    const li = document.createElement('li');
+                    // Meta
+                    const meta = document.createElement('div');
+                    meta.className = 'comment-meta';
+                    meta.innerHTML = `<strong>${comment.name}</strong> &mdash; <time datetime="${comment.date}">${formatDate(comment.date)}</time>`;
+                    li.appendChild(meta);
+                    // Content
+                    const content = document.createElement('p');
+                    content.className = 'comment-content';
+                    content.textContent = comment.content;
+                    li.appendChild(content);
+                    commentsList.appendChild(li);
+                });
+            }
+            commentsSection.appendChild(commentsList);
+
+            // Comment Form
+            const form = document.createElement('form');
+            form.className = 'comment-form';
+            form.setAttribute('aria-label', `Leave a comment on "${post.title}"`);
+            form.setAttribute('autocomplete', 'off');
+            form.setAttribute('novalidate', 'novalidate');
+            form.setAttribute('data-post-id', post.id);
+
+            // Name
+            const nameLabel = document.createElement('label');
+            nameLabel.setAttribute('for', `name-${post.id}`);
+            nameLabel.innerHTML = 'Name <span class="required-indicator" aria-hidden="true">*</span>';
+            form.appendChild(nameLabel);
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.id = `name-${post.id}`;
+            nameInput.name = 'name';
+            nameInput.required = true;
+            nameInput.setAttribute('aria-required', 'true');
+            nameInput.setAttribute('aria-describedby', `name-desc-${post.id}`);
+            nameInput.autocomplete = 'name';
+            form.appendChild(nameInput);
+            const nameDesc = document.createElement('span');
+            nameDesc.id = `name-desc-${post.id}`;
+            nameDesc.className = 'sr-only';
+            nameDesc.textContent = 'Enter your full name. Required field.';
+            form.appendChild(nameDesc);
+
+            // Email
+            const emailLabel = document.createElement('label');
+            emailLabel.setAttribute('for', `email-${post.id}`);
+            emailLabel.innerHTML = 'Email <span class="required-indicator" aria-hidden="true">*</span>';
+            form.appendChild(emailLabel);
+            const emailInput = document.createElement('input');
+            emailInput.type = 'email';
+            emailInput.id = `email-${post.id}`;
+            emailInput.name = 'email';
+            emailInput.required = true;
+            emailInput.setAttribute('aria-required', 'true');
+            emailInput.setAttribute('aria-describedby', `email-desc-${post.id}`);
+            emailInput.autocomplete = 'email';
+            form.appendChild(emailInput);
+            const emailDesc = document.createElement('span');
+            emailDesc.id = `email-desc-${post.id}`;
+            emailDesc.className = 'sr-only';
+            emailDesc.textContent = 'Enter a valid email address. Required field.';
+            form.appendChild(emailDesc);
+
+            // Comment
+            const commentLabel = document.createElement('label');
+            commentLabel.setAttribute('for', `comment-${post.id}`);
+            commentLabel.innerHTML = 'Comment <span class="required-indicator" aria-hidden="true">*</span>';
+            form.appendChild(commentLabel);
+            const commentTextarea = document.createElement('textarea');
+            commentTextarea.id = `comment-${post.id}`;
+            commentTextarea.name = 'comment';
+            commentTextarea.required = true;
+            commentTextarea.setAttribute('aria-required', 'true');
+            commentTextarea.setAttribute('aria-describedby', `comment-desc-${post.id}`);
+            form.appendChild(commentTextarea);
+            const commentDesc = document.createElement('span');
+            commentDesc.id = `comment-desc-${post.id}`;
+            commentDesc.className = 'sr-only';
+            commentDesc.textContent = 'Enter your comment. Required field.';
+            form.appendChild(commentDesc);
+
+            // Error message area
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'form-error';
+            errorDiv.id = `comment-error-${post.id}`;
+            errorDiv.setAttribute('aria-live', 'assertive');
+            errorDiv.setAttribute('role', 'alert');
+            errorDiv.style.display = 'none';
+            form.appendChild(errorDiv);
+
+            // Success message area
+            const successDiv = document.createElement('div');
+            successDiv.className = 'form-success';
+            successDiv.id = `comment-success-${post.id}`;
+            successDiv.setAttribute('aria-live', 'polite');
+            successDiv.style.display = 'none';
+            form.appendChild(successDiv);
+
+            // Submit
+            const submitBtn = document.createElement('button');
+            submitBtn.type = 'submit';
+            submitBtn.textContent = 'Post Comment';
+            submitBtn.id = `submit-comment-${post.id}`;
+            form.appendChild(submitBtn);
+
+            // Event Listener for Comment Form Submission
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                handleCommentSubmit(event, post.id);
+            });
+
+            commentsSection.appendChild(form);
+            article.appendChild(commentsSection);
+
+            articlesList.appendChild(article);
+        });
+    }
+
+    // --- Handle Comment Submission ---
+    function handleCommentSubmit(event, postId) {
+        const form = event.target;
+        const nameInput = form.querySelector('input[name="name"]');
+        const emailInput = form.querySelector('input[name="email"]');
+        const commentTextarea = form.querySelector('textarea[name="comment"]');
+        const errorDiv = form.querySelector('.form-error');
+        const successDiv = form.querySelector('.form-success');
+
+        // Reset errors
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+        successDiv.style.display = 'none';
+        successDiv.textContent = '';
+
+        // Validation
+        let valid = true;
+        let errorMsg = '';
+
+        if (!nameInput.value.trim()) {
+            valid = false;
+            errorMsg += 'Name is required. ';
+            nameInput.setAttribute('aria-invalid', 'true');
+        } else {
+            nameInput.removeAttribute('aria-invalid');
+        }
+        if (!emailInput.value.trim()) {
+            valid = false;
+            errorMsg += 'Email is required. ';
+            emailInput.setAttribute('aria-invalid', 'true');
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())) {
+            valid = false;
+            errorMsg += 'Email is not valid. ';
+            emailInput.setAttribute('aria-invalid', 'true');
+        } else {
+            emailInput.removeAttribute('aria-invalid');
+        }
+        if (!commentTextarea.value.trim()) {
+            valid = false;
+            errorMsg += 'Comment is required.';
+            commentTextarea.setAttribute('aria-invalid', 'true');
+        } else {
+            commentTextarea.removeAttribute('aria-invalid');
+        }
+
+        if (!valid) {
+            errorDiv.textContent = errorMsg;
+            errorDiv.style.display = 'block';
+            // Associate error message with fields
+            nameInput.setAttribute('aria-describedby', nameInput.getAttribute('aria-describedby') + ' ' + errorDiv.id);
+            emailInput.setAttribute('aria-describedby', emailInput.getAttribute('aria-describedby') + ' ' + errorDiv.id);
+            commentTextarea.setAttribute('aria-describedby', commentTextarea.getAttribute('aria-describedby') + ' ' + errorDiv.id);
+            // Focus the first invalid field
+            if (!nameInput.value.trim()) {
+                nameInput.focus();
+            } else if (!emailInput.value.trim() || emailInput.hasAttribute('aria-invalid')) {
+                emailInput.focus();
+            } else {
+                commentTextarea.focus();
+            }
+            return;
+        }
+
+        // Add comment to data model (in-memory for demo)
+        const newComment = {
+            name: nameInput.value.trim(),
+            email: emailInput.value.trim(),
+            date: new Date().toISOString().split('T')[0],
+            content: commentTextarea.value.trim()
+        };
+        const post = blogPosts.find(p => p.id === postId);
+        if (post) {
+            post.comments.push(newComment);
+            // Re-render articles (to update comments list)
+            renderArticles(filteredPosts);
+            // Focus the success message
+            setTimeout(() => {
+                const newSuccessDiv = document.getElementById(`comment-success-${postId}`);
+                if (newSuccessDiv) {
+                    newSuccessDiv.textContent = 'Your comment was posted successfully!';
+                    newSuccessDiv.style.display = 'block';
+                    newSuccessDiv.focus();
+                }
+            }, 100);
+        }
+    }
+
+    // --- Search Functionality ---
+    let filteredPosts = blogPosts.slice();
+
+    function handleSearch(event) {
+        event.preventDefault();
+        const searchInput = document.getElementById('search-input');
+        const query = searchInput.value.trim().toLowerCase();
+        if (!query) {
+            filteredPosts = blogPosts.slice();
+        } else {
+            filteredPosts = blogPosts.filter(post => {
+                return post.title.toLowerCase().includes(query) ||
+                    post.content.toLowerCase().includes(query) ||
+                    post.author.toLowerCase().includes(query);
+            });
+        }
+        renderArticles(filteredPosts);
+        // Move focus to first article (for screen reader context)
+        setTimeout(() => {
+            const firstArticle = document.querySelector('article');
+            if (firstArticle) {
+                firstArticle.focus();
+            }
+        }, 50);
+    }
+
+    document.getElementById('search-form').addEventListener('submit', handleSearch);
+
+    // --- Keyboard accessibility for search button (space/enter) ---
+    document.getElementById('search-button').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            document.getElementById('search-form').dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+    });
+
+    // --- Initial render ---
+    renderArticles(filteredPosts);
+
+    // --- "Skip to Content" accessibility: move focus to main on click/enter ---
+    document.querySelector('a[href="#main-content"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('main-content').focus();
+    });
+    document.querySelector('a[href="#main-content"]').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            document.getElementById('main-content').focus();
+        }
+    });
+    </script>
+</body>
+</html>

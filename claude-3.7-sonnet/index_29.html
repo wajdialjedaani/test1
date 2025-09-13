@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Featured Products - Interactive Card Gallery</title>
+    <style>
+        /* Base styles with accessibility in mind */
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #004080;
+            --text-color: #333333;
+            --light-text: #ffffff;
+            --background-color: #f5f5f5;
+            --card-background: #ffffff;
+            --focus-color: #0066cc;
+            --border-color: #dddddd;
+            --success-color: #28a745;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, 
+        input:focus, 
+        select:focus, 
+        textarea:focus, 
+        a:focus,
+        .card:focus {
+            outline: 3px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, 
+        .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        /* Skip link for keyboard users */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Layout components */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem 0;
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        footer {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Navigation */
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        nav li {
+            margin-right: 1.5rem;
+        }
+
+        nav a {
+            color: var(--light-text);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            display: inline-block;
+        }
+
+        nav a:hover, 
+        nav a:focus {
+            text-decoration: underline;
+        }
+
+        /* Cards section */
+        .cards-section {
+            margin: 2rem 0;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Card component with accessibility features */
+        .card {
+            background: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Interactive states for cards */
+        .card:hover,
+        .card:focus-within {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-img-container {
+            position: relative;
+            overflow: hidden;
+            padding-top: 56.25%; /* 16:9 aspect ratio */
+        }
+
+        .card-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-img,
+        .card:focus-within .card-img {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .card-description {
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .card-price {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .card-button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .card-button:hover,
+        .card-button:focus {
+            background-color: var(--secondary-color);
+        }
+
+        /* Badge for featured items */
+        .badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--success-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav li {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        /* Utility classes */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip link for keyboard users -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header>
+        <div class="container">
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="#" aria-current="page">Home</a></li>
+                    <li><a href="#">Products</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div class="container">
+            <h1>Featured Products</h1>
+            <p>Explore our selection of premium products designed to meet your needs. Each item is carefully crafted with attention to detail and quality.</p>
+
+            <section class="cards-section" aria-labelledby="products-heading">
+                <h2 id="products-heading">Our Top Selections</h2>
+                <div class="cards-container">
+                    <!-- Card 1 -->
+                    <article class="card" tabindex="0">
+                        <div class="card-img-container">
+                            <img src="https://via.placeholder.com/600x400?text=Premium+Headphones" alt="Premium wireless headphones with noise cancellation" class="card-img">
+                        </div>
+                        <span class="badge" aria-label="Featured product">Featured</span>
+                        <div class="card-content">
+                            <h3 class="card-title">Premium Headphones</h3>
+                            <p class="card-description">Experience crystal clear sound with our noise-cancelling wireless headphones. Perfect for music lovers and professionals.</p>
+                            <p class="card-price" aria-label="Price: 199 dollars">$199.00</p>
+                            <button class="card-button" onclick="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Card 2 -->
+                    <article class="card" tabindex="0">
+                        <div class="card-img-container">
+                            <img src="https://via.placeholder.com/600x400?text=Smart+Watch" alt="Smart fitness watch with heart rate monitor" class="card-img">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">Smart Fitness Watch</h3>
+                            <p class="card-description">Track your fitness goals with our advanced smart watch. Features include heart rate monitoring, sleep tracking, and more.</p>
+                            <p class="card-price" aria-label="Price: 149 dollars">$149.00</p>
+                            <button class="card-button" onclick="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Card 3 -->
+                    <article class="card" tabindex="0">
+                        <div class="card-img-container">
+                            <img src="https://via.placeholder.com/600x400?text=Wireless+Speaker" alt="Portable wireless Bluetooth speaker" class="card-img">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">Wireless Speaker</h3>
+                            <p class="card-description">Take your music anywhere with this portable Bluetooth speaker. Waterproof design with 20 hours of battery life.</p>
+                            <p class="card-price" aria-label="Price: 89 dollars">$89.00</p>
+                            <button class="card-button" onclick="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Card 4 -->
+                    <article class="card" tabindex="0">
+                        <div class="card-img-container">
+                            <img src="https://via.placeholder.com/600x400?text=Laptop+Backpack" alt="Ergonomic laptop backpack with multiple compartments" class="card-img">
+                        </div>
+                        <span class="badge" aria-label="Featured product">Featured</span>
+                        <div class="card-content">
+                            <h3 class="card-title">Ergonomic Laptop Backpack</h3>
+                            <p class="card-description">Carry your tech comfortably with our ergonomic backpack. Features padded laptop compartment and multiple storage pockets.</p>
+                            <p class="card-price" aria-label="Price: 79 dollars">$79.00</p>
+                            <button class="card-button" onclick="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Card 5 -->
+                    <article class="card" tabindex="0">
+                        <div class="card-img-container">
+                            <img src="https://via.placeholder.com/600x400?text=Coffee+Maker" alt="Programmable coffee maker with thermal carafe" class="card-img">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">Programmable Coffee Maker</h3>
+                            <p class="card-description">Wake up to fresh coffee with our programmable coffee maker. Features thermal carafe to keep your coffee hot for hours.</p>
+                            <p class="card-price" aria-label="Price: 129 dollars">$129.00</p>
+                            <button class="card-button" onclick="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Card 6 -->
+                    <article class="card" tabindex="0">
+                        <div class="card-img-container">
+                            <img src="https://via.placeholder.com/600x400?text=Desk+Lamp" alt="Adjustable LED desk lamp with multiple brightness settings" class="card-img">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">Adjustable LED Desk Lamp</h3>
+                            <p class="card-description">Illuminate your workspace with our adjustable LED lamp. Features multiple brightness levels and color temperatures.</p>
+                            <p class="card-price" aria-label="Price: 59 dollars">$59.00</p>
+                            <button class="card-button" onclick="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section aria-labelledby="services-heading">
+                <h2 id="services-heading">Our Services</h2>
+                <p>We offer a range of services to complement our products and enhance your experience. Contact us to learn more about how we can help you.</p>
+                <a href="#" class="card-button" style="margin-top: 1rem;">View All Services</a>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="text-center">
+                <p>&copy; 2023 Product Showcase. All rights reserved.</p>
+                <p>
+                    <a href="#" style="color: white; margin-right: 1rem;">Privacy Policy</a>
+                    <a href="#" style="color: white; margin-right: 1rem;">Terms of Service</a>
+                    <a href="#" style="color: white;">Contact Us</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // For any element with mouse events, add keyboard support
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                
+                // Prevent default space bar scrolling
+                if (event.type === 'keydown' && event.key === ' ') {
+                    event.preventDefault();
+                }
+                
+                // Get the button that was clicked
+                const button = event.currentTarget;
+                
+                // Visual feedback for the button
+                button.style.opacity = '0.8';
+                setTimeout(() => {
+                    button.style.opacity = '1';
+                }, 200);
+                
+                // Get product information from the card
+                const card = button.closest('.card');
+                const productTitle = card.querySelector('.card-title').textContent;
+                const productPrice = card.querySelector('.card-price').textContent;
+                
+                // Announce to screen readers using aria-live region
+                updateCartFeedback(productTitle);
+                
+                // In a real application, you would add the product to the cart here
+                console.log(`Added to cart: ${productTitle} - ${productPrice}`);
+            }
+        }
+
+        // Create an aria-live region for cart updates
+        document.addEventListener('DOMContentLoaded', function() {
+            const liveRegion = document.createElement('div');
+            liveRegion.setAttribute('aria-live', 'polite');
+            liveRegion.setAttribute('aria-atomic', 'true');
+            liveRegion.classList.add('sr-only');
+            liveRegion.id = 'cart-feedback';
+            document.body.appendChild(liveRegion);
+        });
+
+        // Update the aria-live region with cart feedback
+        function updateCartFeedback(productTitle) {
+            const liveRegion = document.getElementById('cart-feedback');
+            if (liveRegion) {
+                liveRegion.textContent = `${productTitle} added to your cart.`;
+                
+                // Clear the message after screen readers have time to announce it
+                setTimeout(() => {
+                    liveRegion.textContent = '';
+                }, 3000);
+            }
+        }
+
+        // Make cards keyboard navigable
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            
+            cards.forEach(card => {
+                // Allow cards to be activated with Enter key
+                card.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter') {
+                        // Find and click the button inside this card
+                        const button = this.querySelector('.card-button');
+                        if (button) {
+                            button.click();
+                            button.focus(); // Move focus to the button
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

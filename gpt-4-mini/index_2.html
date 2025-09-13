@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Showcase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        main {
+            padding: 2rem;
+        }
+        .pet-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .pet-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        @media (max-width: 600px) {
+            main {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Pet Showcase</h1>
+        <nav role="navigation" aria-label="Main navigation">
+            <button onclick="addPet()">Add Pet</button>
+        </nav>
+    </header>
+    <main>
+        <section id="pet-gallery" aria-labelledby="pet-gallery-heading">
+            <h2 id="pet-gallery-heading">Our Pets</h2>
+            <article class="pet-card" tabindex="0" onkeydown="handleInteraction(event)">
+                <img src="dog.jpg" alt="A playful golden retriever" class="pet-image">
+                <h3>Buddy</h3>
+                <p><strong>Breed:</strong> Golden Retriever</p>
+                <p><strong>Age:</strong> 3 years</p>
+                <p><strong>Fun Fact:</strong> Loves to play fetch!</p>
+            </article>
+            <article class="pet-card" tabindex="0" onkeydown="handleInteraction(event)">
+                <img src="cat.jpg" alt="A fluffy orange tabby cat" class="pet-image">
+                <h3>Whiskers</h3>
+                <p><strong>Breed:</strong> Domestic Shorthair</p>
+                <p><strong>Age:</strong> 2 years</p>
+                <p><strong>Fun Fact:</strong> Enjoys climbing trees!</p>
+            </article>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Pet Showcase. All rights reserved.</p>
+    </footer>
+    <script>
+        // Function to handle keyboard and mouse events for interactive elements
+        function handleInteraction(event) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                alert('You interacted with a pet card!');
+            }
+        }
+
+        // Function to simulate adding a new pet (placeholder)
+        function addPet() {
+            alert('Add pet functionality not implemented yet.');
+        }
+    </script>
+</body>
+</html>

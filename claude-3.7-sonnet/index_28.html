@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GardenShare - Community Gardening Platform</title>
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Accessibility Focus Styles */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus, [tabindex]:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        /* Skip Link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #0066cc;
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Header Styles */
+        header {
+            padding: 1rem 0;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e1e4e8;
+            margin-bottom: 2rem;
+        }
+
+        .site-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .site-title {
+            font-size: 1.8rem;
+            color: #2e7d32;
+            text-decoration: none;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        nav a:hover, nav a:focus {
+            border-bottom-color: #2e7d32;
+        }
+
+        /* Main Content Styles */
+        main {
+            padding: 1rem 0;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            color: #2e7d32;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin: 1.5rem 0 1rem;
+            color: #2e7d32;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin: 1rem 0 0.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Button Styles */
+        button, .button {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover, .button:hover, 
+        button:focus, .button:focus {
+            background-color: #1b5e20;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #d32f2f;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            background-color: #4caf50;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .file-input-label:hover, .file-input-label:focus {
+            background-color: #388e3c;
+        }
+
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .file-name {
+            margin-left: 10px;
+            font-style: italic;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e1e4e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .card-footer {
+            padding: 1rem;
+            border-top: 1px solid #e1e4e8;
+            background-color: #f8f9fa;
+        }
+
+        /* Post Styles */
+        .post-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .post-image-container {
+            position: relative;
+            padding-top: 75%; /* 4:3 Aspect Ratio */
+            overflow: hidden;
+        }
+
+        .post-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 0.3rem;
+        }
+
+        .post-action:hover, .post-action:focus {
+            color: #2e7d32;
+            background: none;
+        }
+
+        .post-action[aria-pressed="true"] {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        /* Comments Styles */
+        .comments-section {
+            margin-top: 1.5rem;
+        }
+
+        .comment {
+            padding: 1rem 0;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        .comment:last-child {
+            border-bottom: none;
+        }
+
+        .comment-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s linear 0.25s, opacity 0.25s;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 0s;
+        }
+
+        .modal {
+            background-color: white;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 8px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e1e4e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 1rem;
+        }
+
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid #e1e4e8;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-button:hover, .close-button:focus {
+            color: #333;
+            background: none;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e1e4e8;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 0.8rem 1.2rem;
+            border-bottom: 3px solid transparent;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .tab-button:hover, .tab-button:focus {
+            color: #2e7d32;
+            background: none;
+        }
+
+        .tab-button[aria-selected="true"] {
+            color: #2e7d32;
+            border-bottom-color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel[aria-hidden="false"] {
+            display: block;
+        }
+
+        /* Utility Classes */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-2 {
+            margin-top: 2rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .site-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .post-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Indicator */
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #2e7d32;
+            animation: spin 1s ease-in-out infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-container {
+            text-align: center;
+        }
+
+        /* Status Messages */
+        .status-message {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-message.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .status-message.error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .status-message.info {
+            background-color: #e3f2fd;
+            color: #0277bd;
+            border-left: 4px solid #0277bd;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header>
+        <div class="site-header">
+            <a href="#" class="site-title">GardenShare</a>
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="#" aria-current="page">Home</a></li>
+                    <li><a href="#">My Garden</a></li>
+                    <li><a href="#">Community</a></li>
+                    <li><a href="#">Resources</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <h1>Garden Community</h1>
+        
+        <div id="status-container" aria-live="polite"></div>
+        
+        <div class="tabs" role="tablist" aria-label="Garden content">
+            <button id="tab-feed" class="tab-button" role="tab" aria-selected="true" aria-controls="panel-feed" tabindex="0">Community Feed</button>
+            <button id="tab-upload" class="tab-button" role="tab" aria-selected="false" aria-controls="panel-upload" tabindex="-1">Share Your Garden</button>
+        </div>
+        
+        <div id="panel-feed" class="tab-panel" role="tabpanel" aria-labelledby="tab-feed" aria-hidden="false">
+            <div id="posts-container" class="post-grid">
+                <!-- Posts will be loaded here -->
+                <div class="loading-container">
+                    <div class="loading-spinner" aria-hidden="true"></div>
+                    <p>Loading garden posts...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="panel-upload" class="tab-panel" role="tabpanel" aria-labelledby="tab-upload" aria-hidden="true">
+            <section>
+                <h2>Share Your Garden</h2>
+                <p>Upload photos of your plants or garden and share them with the community.</p>
+                
+                <form id="upload-form" class="card">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="post-title" class="required-field">Title</label>
+                            <input type="text" id="post-title" name="title" required aria-required="true" aria-describedby="title-error">
+                            <div id="title-error" class="error-message" aria-live="polite"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="post-description">Description</label>
+                            <textarea id="post-description" name="description" rows="4" aria-describedby="description-error"></textarea>
+                            <div id="description-error" class="error-message" aria-live="polite"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="post-category">Category</label>
+                            <select id="post-category" name="category">
+                                <option value="flowers">Flowers</option>
+                                <option value="vegetables">Vegetables</option>
+                                <option value="herbs">Herbs</option>
+                                <option value="trees">Trees</option>
+                                <option value="landscape">Landscape</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="post-image" class="required-field">Garden Image</label>
+                            <div class="file-input-wrapper">
+                                <label for="post-image" class="file-input-label">Choose File</label>
+                                <input type="file" id="post-image" name="image" class="file-input" accept="image/*" required aria-required="true" aria-describedby="image-name image-error">
+                            </div>
+                            <span id="image-name" class="file-name">No file chosen</span>
+                            <div id="image-error" class="error-message" aria-live="polite"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <fieldset>
+                                <legend>Growing Conditions</legend>
+                                <div>
+                                    <input type="checkbox" id="condition-sun" name="conditions" value="sun">
+                                    <label for="condition-sun">Full Sun</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="condition-shade" name="conditions" value="shade">
+                                    <label for="condition-shade">Partial Shade</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="condition-indoor" name="conditions" value="indoor">
+                                    <label for="condition-indoor">Indoor</label>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button type="submit" id="submit-post">Share with Community</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+    
+    <!-- Post Detail Modal -->
+    <div id="post-modal" class="modal-overlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+            <div class="modal-header">
+                <h2 id="modal-title">Post Title</h2>
+                <button class="close-button" aria-label="Close dialog">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-content">
+                    <!-- Post details will be loaded here -->
+                </div>
+                
+                <div class="comments-section">
+                    <h3>Comments</h3>
+                    <div id="comments-container">
+                        <!-- Comments will be loaded here -->
+                    </div>
+                    
+                    <form id="comment-form" class="mt-2">
+                        <div class="form-group">
+                            <label for="comment-text">Add a comment</label>
+                            <textarea id="comment-text" name="comment" rows="3" required aria-required="true" aria-describedby="comment-error"></textarea>
+                            <div id="comment-error" class="error-message" aria-live="polite"></div>
+                        </div>
+                        <button type="submit" id="submit-comment">Post Comment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p class="text-center">&copy; 2023 GardenShare Community. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Sample data for demonstration purposes
+        const samplePosts = [
+            {
+                id: 1,
+                title: "My Tomato Garden",
+                description: "First harvest of the season! These organic tomatoes are thriving in my raised beds.",
+                image: "https://images.unsplash.com/photo-1592841200221-a6898f307baa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "vegetables",
+                author: "GardenLover",
+                date: "2023-07-15",
+                likes: 24,
+                comments: [
+                    { id: 1, author: "PlantFriend", text: "Those look amazing! What variety are they?", date: "2023-07-15" },
+                    { id: 2, author: "GreenThumb", text: "Great job! How often do you water them?", date: "2023-07-16" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Rose Garden in Bloom",
+                description: "My rose garden is finally in full bloom. The fragrance is incredible!",
+                image: "https://images.unsplash.com/photo-1559563362-c667ba5f5480?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "flowers",
+                author: "RoseLover",
+                date: "2023-07-10",
+                likes: 42,
+                comments: [
+                    { id: 3, author: "FlowerFan", text: "Absolutely stunning! What variety is the pink one?", date: "2023-07-11" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Herb Garden Update",
+                description: "My kitchen herb garden is thriving! Fresh basil, mint, and rosemary ready for cooking.",
+                image: "https://images.unsplash.com/photo-1599934548725-c456b9813b01?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "herbs",
+                author: "CookAndGarden",
+                date: "2023-07-05",
+                likes: 18,
+                comments: []
+            },
+            {
+                id: 4,
+                title: "Japanese Maple Progress",
+                description: "Three years of growth on my Japanese Maple. The fall colors are starting to show!",
+                image: "https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "trees",
+                author: "TreeEnthusiast",
+                date: "2023-06-28",
+                likes: 31,
+                comments: [
+                    { id: 4, author: "GardenDesigner", text: "Beautiful specimen! They're such a great focal point.", date: "2023-06-29" },
+                    { id: 5, author: "NatureLover", text: "The colors are amazing. How old is it?", date: "2023-06-30" }
+                ]
+            }
+        ];
+
+        // DOM Elements
+        const tabFeed = document.getElementById('tab-feed');
+        const tabUpload = document.getElementById('tab-upload');
+        const panelFeed = document.getElementById('panel-feed');
+        const panelUpload = document.getElementById('panel-upload');
+        const postsContainer = document.getElementById('posts-container');
+        const uploadForm = document.getElementById('upload-form');
+        const postImageInput = document.getElementById('post-image');
+        const imageNameSpan = document.getElementById('image-name');
+        const postModal = document.getElementById('post-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const commentsContainer = document.getElementById('comments-container');
+        const commentForm = document.getElementById('comment-form');
+        const statusContainer = document.getElementById('status-container');
+        const closeModalButton = document.querySelector('.close-button');
+
+        // Current state
+        let currentPostId = null;
+        let userPosts = [...samplePosts]; // Clone the sample posts for demonstration
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTabs();
+            loadPosts();
+            setupEventListeners();
+        });
+
+        // Initialize tab functionality
+        function initializeTabs() {
+            tabFeed.addEventListener('click', (event) => {
+                switchTab(tabFeed, panelFeed, tabUpload, panelUpload);
+            });
+
+            tabFeed.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    switchTab(tabFeed, panelFeed, tabUpload, panelUpload);
+                }
+            });
+
+            tabUpload.addEventListener('click', (event) => {
+                switchTab(tabUpload, panelUpload, tabFeed, panelFeed);
+            });
+
+            tabUpload.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    switchTab(tabUpload, panelUpload, tabFeed, panelFeed);
+                }
+            });
+        }
+
+        // Switch between tabs
+        function switchTab(activeTab, activePanel, inactiveTab, inactivePanel) {
+            // Update tab attributes
+            activeTab.setAttribute('aria-selected', 'true');
+            activeTab.removeAttribute('tabindex');
+            inactiveTab.setAttribute('aria-selected', 'false');
+            inactiveTab.setAttribute('tabindex', '-1');
+            
+            // Update panel attributes
+            activePanel.setAttribute('aria-hidden', 'false');
+            inactivePanel.setAttribute('aria-hidden', 'true');
+            
+            // Focus the active tab
+            activeTab.focus();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // File input change event
+            postImageInput.addEventListener('change', () => {
+                if (postImageInput.files.length > 0) {
+                    imageNameSpan.textContent = postImageInput.files[0].name;
+                } else {
+                    imageNameSpan.textContent = 'No file chosen';
+                }
+            });
+
+            // Form submission
+            uploadForm.addEventListener('submit', handlePostSubmit);
+            
+            // Comment form submission
+            commentForm.addEventListener('submit', handleCommentSubmit);
+            
+            // Close modal button
+            closeModalButton.addEventListener('click', closeModal);
+            closeModalButton.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    closeModal();
+                }
+            });
+            
+            // Close modal when clicking outside
+            postModal.addEventListener('click', (event) => {
+                if (event.target === postModal) {
+                    closeModal();
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !postModal.getAttribute('aria-hidden')) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Load posts into the feed
+        function loadPosts() {
+            // Clear loading indicator
+            postsContainer.innerHTML = '';
+            
+            if (userPosts.length === 0) {
+                postsContainer.innerHTML = '<p class="text-center">No garden posts yet. Be the first to share your garden!</p>';
+                return;
+            }
+            
+            // Sort posts by date (newest first)
+            userPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Create post cards
+            userPosts.forEach(post => {
+                const postCard = createPostCard(post);
+                postsContainer.appendChild(postCard);
+            });
+        }
+
+        // Create a post card element
+        function createPostCard(post) {
+            const card = document.createElement('article');
+            card.className = 'card';
+            card.setAttribute('aria-labelledby', `post-title-${post.id}`);
+            
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'post-image-container';
+            
+            const image = document.createElement('img');
+            image.src = post.image;
+            image.alt = `Garden photo: ${post.title}`;
+            image.className = 'post-image';
+            imageContainer.appendChild(image);
+            
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+            
+            const title = document.createElement('h3');
+            title.id = `post-title-${post.id}`;
+            title.textContent = post.title;
+            
+            const meta = document.createElement('div');
+            meta.className = 'post-meta';
+            meta.innerHTML = `
+                <span>By ${post.author}</span>
+                <time datetime="${post.date}">${formatDate(post.date)}</time>
+            `;
+            
+            const description = document.createElement('p');
+            description.textContent = truncateText(post.description, 100);
+            
+            const actions = document.createElement('div');
+            actions.className = 'post-actions';
+            
+            const likeButton = document.createElement('button');
+            likeButton.className = 'post-action';
+            likeButton.setAttribute('aria-label', `Like this post. Currently ${post.likes} likes`);
+            likeButton.setAttribute('aria-pressed', 'false');
+            likeButton.innerHTML = `
+                <span aria-hidden="true">❤</span> ${post.likes}
+            `;
+            likeButton.addEventListener('click', () => handleLike(post.id, likeButton));
+            likeButton.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handleLike(post.id, likeButton);
+                }
+            });
+            
+            const commentButton = document.createElement('button');
+            commentButton.className = 'post-action';
+            commentButton.setAttribute('aria-label', `View and add comments. Currently ${post.comments.length} comments`);
+            commentButton.innerHTML = `
+                <span aria-hidden="true">💬</span> ${post.comments.length}
+            `;
+            commentButton.addEventListener('click', () => openPostModal(post.id));
+            commentButton.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openPostModal(post.id);
+                }
+            });
+            
+            actions.appendChild(likeButton);
+            actions.appendChild(commentButton);
+            
+            cardBody.appendChild(title);
+            cardBody.appendChild(meta);
+            cardBody.appendChild(description);
+            cardBody.appendChild(actions);
+            
+            card.appendChild(imageContainer);
+            card.appendChild(cardBody);
+            
+            // Make the entire card clickable for accessibility
+            card.addEventListener('click', (event) => {
+                // Only trigger if the click wasn't on a button
+                if (!event.target.closest('button')) {
+                    openPostModal(post.id);
+                }
+            });
+            
+            card.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    if (!event.target.closest('button')) {
+                        event.preventDefault();
+                        openPostModal(post.id);
+                    }
+                }
+            });
+            
+            card.setAttribute('tabindex', '0');
+            
+            return card;
+        }
+
+        // Handle post submission
+        function handlePostSubmit(event) {
+            event.preventDefault();
+            
+            // Clear previous error messages
+            clearErrors();
+            
+            // Get form values
+            const title = document.getElementById('post-title').value.trim();
+            const description = document.getElementById('post-description').value.trim();
+            const category = document.getElementById('post-category').value;
+            const imageFile = document.getElementById('post-image').files[0];
+            
+            // Validate form
+            let isValid = true;
+            
+            if (!title) {
+                showError('title-error', 'Please enter a title for your post');
+                isValid = false;
+            }
+            
+            if (!imageFile) {
+                showError('image-error', 'Please select an image to upload');
+                isValid = false;
+            } else if (!imageFile.type.startsWith('image/')) {
+                showError('image-error', 'Please select a valid image file');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                return;
+            }
+            
+            // In a real application, you would upload the image to a server
+            // For this demo, we'll create a local URL for the image
+            const imageUrl = URL.createObjectURL(imageFile);
+            
+            // Create new post object
+            const newPost = {
+                id: Date.now(), // Use timestamp as ID
+                title,
+                description,
+                image: imageUrl,
+                category,
+                author: "You", // In a real app, this would be the logged-in user
+                date: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
+                likes: 0,
+                comments: []
+            };
+            
+            // Add to posts array
+            userPosts.unshift(newPost);
+            
+            // Reset form
+            uploadForm.reset();
+            imageNameSpan.textContent = 'No file chosen';
+            
+            // Show success message
+            showStatus('Your garden post has been shared successfully!', 'success');
+            
+            // Switch to feed tab to show the new post
+            switchTab(tabFeed, panelFeed, tabUpload, panelUpload);
+            
+            // Reload posts
+            loadPosts();
+        }
+
+        // Handle comment submission
+        function handleCommentSubmit(event) {
+            event.preventDefault();
+            
+            // Get comment text
+            const commentText = document.getElementById('comment-text').value.trim();
+            
+            // Validate
+            if (!commentText) {
+                showError('comment-error', 'Please enter a comment');
+                return;
+            }
+            
+            // Find the current post
+            const post = userPosts.find(p => p.id === currentPostId);
+            if (!post) return;
+            
+            // Create new comment
+            const newComment = {
+                id: Date.now(),
+                author: "You", // In a real app, this would be the logged-in user
+                text: commentText,
+                date: new Date().toISOString().split('T')[0] // Current date
+            };
+            
+            // Add comment to post
+            post.comments.push(newComment);
+            
+            // Reset form
+            commentForm.reset();
+            
+            // Update comments display
+            loadComments(post);
+            
+            // Update comment count in the feed
+            loadPosts();
+            
+            // Show success message
+            showStatus('Your comment has been added!', 'success');
+        }
+
+        // Handle like button click
+        function handleLike(postId, button) {
+            // Find the post
+            const post = userPosts.find(p => p.id === postId);
+            if (!post) return;
+            
+            // Toggle like state
+            const isLiked = button.getAttribute('aria-pressed') === 'true';
+            
+            if (isLiked) {
+                post.likes--;
+                button.setAttribute('aria-pressed', 'false');
+            } else {
+                post.likes++;
+                button.setAttribute('aria-pressed', 'true');
+            }
+            
+            // Update button text
+            button.innerHTML = `
+                <span aria-hidden="true">❤</span> ${post.likes}
+            `;
+            button.setAttribute('aria-label', `Like this post. Currently ${post.likes} likes`);
+            
+            // In a real app, you would send this update to the server
+        }
+
+        // Open post modal
+        function openPostModal(postId) {
+            // Find the post
+            const post = userPosts.find(p => p.id === postId);
+            if (!post) return;
+            
+            // Store current post ID
+            currentPostId = postId;
+            
+            // Set modal title
+            modalTitle.textContent = post.title;
+            
+            // Create modal content
+            modalContent.innerHTML = `
+                <div class="post-image-container">
+                    <img src="${post.image}" alt="Garden photo: ${post.title}" class="post-image">
+                </div>
+                <div class="post-meta">
+                    <span>By ${post.author}</span>
+                    <time datetime="${post.date}">${formatDate(post.date)}</time>
+                </div>
+                <p>${post.description}</p>
+                <div class="post-actions">
+                    <button class="post-action" id="modal-like-button" aria-label="Like this post. Currently ${post.likes} likes" aria-pressed="false">
+                        <span aria-hidden="true">❤</span> ${post.likes}
+                    </button>
+                </div>
+            `;
+            
+            // Load comments
+            loadComments(post);
+            
+            // Show modal
+            postModal.classList.add('active');
+            postModal.setAttribute('aria-hidden', 'false');
+            
+            // Set focus to the modal
+            modalTitle.focus();
+            
+            // Add event listener to like button
+            const modalLikeButton = document.getElementById('modal-like-button');
+            modalLikeButton.addEventListener('click', () => {
+                handleLike(post.id, modalLikeButton);
+            });
+            modalLikeButton.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handleLike(post.id, modalLikeButton);
+                }
+            });
+            
+            // Trap focus in modal
+            trapFocus(postModal);
+        }
+
+        // Close post modal
+        function closeModal() {
+            postModal.classList.remove('active');
+            postModal.setAttribute('aria-hidden', 'true');
+            
+            // Reset current post ID
+            currentPostId = null;
+        }
+
+        // Load comments for a post
+        function loadComments(post) {
+            commentsContainer.innerHTML = '';
+            
+            if (post.comments.length === 0) {
+                commentsContainer.innerHTML = '<p>No comments yet. Be the first to comment!</p>';
+                return;
+            }
+            
+            // Sort comments by date (newest first)
+            const sortedComments = [...post.comments].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Create comment elements
+            sortedComments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
+                commentElement.innerHTML = `
+                    <div class="comment-meta">
+                        <span>${comment.author}</span>
+                        <time datetime="${comment.date}">${formatDate(comment.date)}</time>
+                    </div>
+                    <p>${comment.text}</p>
+                `;
+                commentsContainer.appendChild(commentElement);
+            });
+        }
+
+        // Utility Functions
+        
+        // Format date to readable format
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+        
+        // Truncate text with ellipsis
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+        
+        // Show error message
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            
+            // Set focus to the error message
+            errorElement.focus();
+        }
+        
+        // Clear all error messages
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(element => {
+                element.textContent = '';
+            });
+        }
+        
+        // Show status message
+        function showStatus(message, type = 'info') {
+            const statusElement = document.createElement('div');
+            statusElement.className = `status-message ${type}`;
+            statusElement.textContent = message;
+            
+            // Clear previous status messages
+            statusContainer.innerHTML = '';
+            statusContainer.appendChild(statusElement);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                statusElement.remove();
+            }, 5000);
+        }
+        
+        // Trap focus within an element (for modal accessibility)
+        function trapFocus(element) {
+            const focusableElements = element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+            
+            element.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    if (e.shiftKey) {
+                        if (document.activeElement === firstElement) {
+                            e.preventDefault();
+                            lastElement.focus();
+                        }
+                    } else {
+                        if (document.activeElement === lastElement) {
+                            e.preventDefault();
+                            firstElement.focus();
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Registration Form with Validation</title>
+    <style>
+        /* Base styles with accessibility in mind */
+        :root {
+            --primary-color: #0066cc;
+            --error-color: #d32f2f;
+            --success-color: #388e3c;
+            --focus-color: #0066cc;
+            --text-color: #333333;
+            --background-color: #ffffff;
+            --border-color: #cccccc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        .form-container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .required-indicator {
+            color: var(--error-color);
+            margin-left: 0.25rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: var(--focus-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            min-height: 1.25rem;
+        }
+
+        .validation-icon {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .validation-icon.success {
+            color: var(--success-color);
+        }
+
+        .validation-icon.error {
+            color: var(--error-color);
+        }
+
+        .password-requirements {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            color: #666;
+        }
+
+        .password-requirement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .password-requirement.met {
+            color: var(--success-color);
+        }
+
+        .password-requirement.unmet {
+            color: #666;
+        }
+
+        .submit-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+
+        .submit-button:hover {
+            background-color: #0055aa;
+        }
+
+        .submit-button:focus {
+            background-color: #0055aa;
+        }
+
+        .submit-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            background-color: rgba(56, 142, 60, 0.1);
+            color: var(--success-color);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 1.5rem;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (forced-colors: active) {
+            .submit-button {
+                border: 2px solid ButtonText;
+            }
+            
+            input {
+                border: 2px solid ButtonText;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Registration Form</h1>
+    </header>
+    
+    <main>
+        <section class="form-container">
+            <h2>Create Your Account</h2>
+            <p>Please fill out the form below to register. All fields marked with <span class="required-indicator">*</span> are required.</p>
+            
+            <form id="registration-form" novalidate>
+                <!-- Name Field -->
+                <div class="form-group">
+                    <label for="name">Full Name <span class="required-indicator">*</span></label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="name-error"
+                        autocomplete="name"
+                    >
+                    <span class="validation-icon" aria-hidden="true"></span>
+                    <div id="name-error" class="error-message" role="alert"></div>
+                </div>
+                
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="email">Email Address <span class="required-indicator">*</span></label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="email-error"
+                        autocomplete="email"
+                    >
+                    <span class="validation-icon" aria-hidden="true"></span>
+                    <div id="email-error" class="error-message" role="alert"></div>
+                </div>
+                
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password">Password <span class="required-indicator">*</span></label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="password-error password-requirements"
+                        autocomplete="new-password"
+                    >
+                    <span class="validation-icon" aria-hidden="true"></span>
+                    <div id="password-error" class="error-message" role="alert"></div>
+                    
+                    <div id="password-requirements" class="password-requirements">
+                        <p>Password must contain:</p>
+                        <div id="req-length" class="password-requirement unmet">
+                            <span aria-hidden="true">○ </span>At least 8 characters
+                        </div>
+                        <div id="req-uppercase" class="password-requirement unmet">
+                            <span aria-hidden="true">○ </span>At least one uppercase letter
+                        </div>
+                        <div id="req-lowercase" class="password-requirement unmet">
+                            <span aria-hidden="true">○ </span>At least one lowercase letter
+                        </div>
+                        <div id="req-number" class="password-requirement unmet">
+                            <span aria-hidden="true">○ </span>At least one number
+                        </div>
+                        <div id="req-special" class="password-requirement unmet">
+                            <span aria-hidden="true">○ </span>At least one special character
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Phone Number Field -->
+                <div class="form-group">
+                    <label for="phone">Phone Number <span class="required-indicator">*</span></label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="phone-error phone-format"
+                        autocomplete="tel"
+                        placeholder="(123) 456-7890"
+                    >
+                    <span class="validation-icon" aria-hidden="true"></span>
+                    <div id="phone-error" class="error-message" role="alert"></div>
+                    <div id="phone-format" class="password-requirements">
+                        <p>Format: (123) 456-7890</p>
+                    </div>
+                </div>
+                
+                <button 
+                    type="submit" 
+                    id="submit-button" 
+                    class="submit-button" 
+                    disabled
+                >
+                    Create Account
+                    <span id="loading-spinner" class="loading-spinner" style="display: none;"></span>
+                </button>
+            </form>
+            
+            <div id="success-message" class="success-message" role="alert">
+                <strong>Registration successful!</strong> Your account has been created.
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2023 Registration Form. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get form elements
+            const form = document.getElementById('registration-form');
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const phoneInput = document.getElementById('phone');
+            const submitButton = document.getElementById('submit-button');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const successMessage = document.getElementById('success-message');
+            
+            // Validation state object
+            const validationState = {
+                name: false,
+                email: false,
+                password: false,
+                phone: false
+            };
+            
+            // Add input event listeners for real-time validation
+            nameInput.addEventListener('input', validateName);
+            emailInput.addEventListener('input', validateEmail);
+            passwordInput.addEventListener('input', validatePassword);
+            phoneInput.addEventListener('input', validatePhone);
+            
+            // Add blur event listeners for validation when focus leaves the field
+            nameInput.addEventListener('blur', validateName);
+            emailInput.addEventListener('blur', validateEmail);
+            passwordInput.addEventListener('blur', validatePassword);
+            phoneInput.addEventListener('blur', validatePhone);
+            
+            // Form submission
+            form.addEventListener('submit', handleSubmit);
+            
+            // Validation functions
+            function validateName() {
+                const nameValue = nameInput.value.trim();
+                const nameError = document.getElementById('name-error');
+                const validationIcon = nameInput.nextElementSibling;
+                
+                if (nameValue === '') {
+                    setError(nameInput, nameError, validationIcon, 'Name is required');
+                    validationState.name = false;
+                } else if (nameValue.length < 2) {
+                    setError(nameInput, nameError, validationIcon, 'Name must be at least 2 characters');
+                    validationState.name = false;
+                } else {
+                    setSuccess(nameInput, nameError, validationIcon);
+                    validationState.name = true;
+                }
+                
+                updateSubmitButton();
+            }
+            
+            function validateEmail() {
+                const emailValue = emailInput.value.trim();
+                const emailError = document.getElementById('email-error');
+                const validationIcon = emailInput.nextElementSibling;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (emailValue === '') {
+                    setError(emailInput, emailError, validationIcon, 'Email is required');
+                    validationState.email = false;
+                } else if (!emailRegex.test(emailValue)) {
+                    setError(emailInput, emailError, validationIcon, 'Please enter a valid email address');
+                    validationState.email = false;
+                } else {
+                    setSuccess(emailInput, emailError, validationIcon);
+                    validationState.email = true;
+                }
+                
+                updateSubmitButton();
+            }
+            
+            function validatePassword() {
+                const passwordValue = passwordInput.value;
+                const passwordError = document.getElementById('password-error');
+                const validationIcon = passwordInput.nextElementSibling;
+                
+                // Password requirements
+                const minLength = 8;
+                const hasUppercase = /[A-Z]/.test(passwordValue);
+                const hasLowercase = /[a-z]/.test(passwordValue);
+                const hasNumber = /[0-9]/.test(passwordValue);
+                const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(passwordValue);
+                
+                // Update requirement indicators
+                updateRequirement('req-length', passwordValue.length >= minLength);
+                updateRequirement('req-uppercase', hasUppercase);
+                updateRequirement('req-lowercase', hasLowercase);
+                updateRequirement('req-number', hasNumber);
+                updateRequirement('req-special', hasSpecial);
+                
+                if (passwordValue === '') {
+                    setError(passwordInput, passwordError, validationIcon, 'Password is required');
+                    validationState.password = false;
+                } else if (
+                    passwordValue.length < minLength || 
+                    !hasUppercase || 
+                    !hasLowercase || 
+                    !hasNumber || 
+                    !hasSpecial
+                ) {
+                    setError(passwordInput, passwordError, validationIcon, 'Password does not meet all requirements');
+                    validationState.password = false;
+                } else {
+                    setSuccess(passwordInput, passwordError, validationIcon);
+                    validationState.password = true;
+                }
+                
+                updateSubmitButton();
+            }
+            
+            function validatePhone() {
+                const phoneValue = phoneInput.value.trim();
+                const phoneError = document.getElementById('phone-error');
+                const validationIcon = phoneInput.nextElementSibling;
+                
+                // Format as user types
+                const formattedPhone = formatPhoneNumber(phoneValue);
+                if (formattedPhone !== phoneValue) {
+                    phoneInput.value = formattedPhone;
+                }
+                
+                // Check if valid US phone number
+                const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
+                
+                if (phoneValue === '') {
+                    setError(phoneInput, phoneError, validationIcon, 'Phone number is required');
+                    validationState.phone = false;
+                } else if (!phoneRegex.test(phoneValue)) {
+                    setError(phoneInput, phoneError, validationIcon, 'Please enter a valid phone number');
+                    validationState.phone = false;
+                } else {
+                    setSuccess(phoneInput, phoneError, validationIcon);
+                    validationState.phone = true;
+                }
+                
+                updateSubmitButton();
+            }
+            
+            // Helper functions
+            function setError(input, errorElement, iconElement, message) {
+                input.setAttribute('aria-invalid', 'true');
+                errorElement.textContent = message;
+                iconElement.innerHTML = '✕';
+                iconElement.className = 'validation-icon error';
+            }
+            
+            function setSuccess(input, errorElement, iconElement) {
+                input.setAttribute('aria-invalid', 'false');
+                errorElement.textContent = '';
+                iconElement.innerHTML = '✓';
+                iconElement.className = 'validation-icon success';
+            }
+            
+            function updateRequirement(reqId, isMet) {
+                const reqElement = document.getElementById(reqId);
+                if (isMet) {
+                    reqElement.className = 'password-requirement met';
+                    reqElement.querySelector('span').textContent = '✓ ';
+                } else {
+                    reqElement.className = 'password-requirement unmet';
+                    reqElement.querySelector('span').textContent = '○ ';
+                }
+            }
+            
+            function formatPhoneNumber(value) {
+                // Remove all non-digits
+                const digits = value.replace(/\D/g, '');
+                
+                // Format according to pattern
+                if (digits.length <= 3) {
+                    return digits;
+                } else if (digits.length <= 6) {
+                    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                } else {
+                    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+                }
+            }
+            
+            function updateSubmitButton() {
+                // Enable submit button only if all fields are valid
+                submitButton.disabled = !(
+                    validationState.name && 
+                    validationState.email && 
+                    validationState.password && 
+                    validationState.phone
+                );
+            }
+            
+            function handleSubmit(event) {
+                event.preventDefault();
+                
+                // Show loading state
+                submitButton.disabled = true;
+                loadingSpinner.style.display = 'inline-block';
+                submitButton.textContent = 'Creating Account ';
+                submitButton.appendChild(loadingSpinner);
+                
+                // Simulate form submission with a delay
+                setTimeout(() => {
+                    // Hide loading state
+                    loadingSpinner.style.display = 'none';
+                    submitButton.textContent = 'Create Account';
+                    
+                    // Show success message
+                    successMessage.style.display = 'block';
+                    
+                    // Announce success to screen readers
+                    successMessage.focus();
+                    
+                    // Reset form
+                    form.reset();
+                    
+                    // Reset validation state
+                    validationState.name = false;
+                    validationState.email = false;
+                    validationState.password = false;
+                    validationState.phone = false;
+                    
+                    // Reset validation UI
+                    document.querySelectorAll('.validation-icon').forEach(icon => {
+                        icon.className = 'validation-icon';
+                        icon.innerHTML = '';
+                    });
+                    
+                    document.querySelectorAll('.password-requirement').forEach(req => {
+                        req.className = 'password-requirement unmet';
+                        req.querySelector('span').textContent = '○ ';
+                    });
+                    
+                    // Disable submit button
+                    updateSubmitButton();
+                }, 2000);
+            }
+            
+            // Add keyboard support for interactive elements
+            function handleInteraction(event) {
+                if (event.type === 'click' || 
+                    (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                    // Prevent default space key behavior (scrolling)
+                    if (event.key === ' ') {
+                        event.preventDefault();
+                    }
+                    
+                    // Your action here if needed
+                }
+            }
+        });
+    </script>
+</body>
+</html>

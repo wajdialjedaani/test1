@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Music Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .player {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        button, select {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:focus, input:focus, select:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .playlist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .playlist-item {
+            margin: 5px 0;
+        }
+
+        .playlist-item button {
+            background-color: #28a745;
+        }
+
+        .playlist-item button:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            button, select {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Accessible Music Player</h1>
+    </header>
+    <main>
+        <section class="player">
+            <h2>Now Playing</h2>
+            <audio id="audioPlayer" controls aria-label="Audio player">
+                <source id="audioSource" src="" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <h2>Playlist</h2>
+            <ul class="playlist" id="playlist">
+                <li class="playlist-item">
+                    <span>Song 1 - Artist 1</span>
+                    <button onclick="playSong('song1.mp3')" onkeydown="handleInteraction(event)">Play</button>
+                </li>
+                <li class="playlist-item">
+                    <span>Song 2 - Artist 2</span>
+                    <button onclick="playSong('song2.mp3')" onkeydown="handleInteraction(event)">Play</button>
+                </li>
+                <li class="playlist-item">
+                    <span>Song 3 - Artist 3</span>
+                    <button onclick="playSong('song3.mp3')" onkeydown="handleInteraction(event)">Play</button>
+                </li>
+            </ul>
+            <label for="volumeControl">Volume:</label>
+            <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.5" aria-labelledby="volumeLabel" oninput="setVolume(this.value)">
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Accessible Music Player</p>
+    </footer>
+    <script>
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioSource = document.getElementById('audioSource');
+
+        function playSong(song) {
+            audioSource.src = song;
+            audioPlayer.load();
+            audioPlayer.play();
+        }
+
+        function setVolume(volume) {
+            audioPlayer.volume = volume;
+        }
+
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.target.click();
+            }
+        }
+    </script>
+</body>
+</html>

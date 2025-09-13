@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Accessible Webpage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background-color: #0066cc;
+            color: white;
+            padding: 1rem;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1rem;
+            transition: color 0.3s ease;
+        }
+        nav a:hover, nav a:focus {
+            color: #ffcc00;
+        }
+        main {
+            padding: 2rem;
+        }
+        h1 {
+            font-size: 2rem;
+        }
+        .button {
+            background-color: #28a745;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .button:hover, .button:focus {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, a:focus {
+            outline: 3px solid #ffcc00;
+            outline-offset: 2px;
+        }
+        .card {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#home" tabindex="0">Home</a>
+            <a href="#about" tabindex="0">About</a>
+            <a href="#contact" tabindex="0">Contact</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Welcome to Our Interactive Webpage</h1>
+        <section id="home">
+            <article class="card" tabindex="0">
+                <h2>Interactive Card 1</h2>
+                <p>This card has hover effects and is keyboard accessible.</p>
+                <button class="button" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">Click Me</button>
+            </article>
+            <article class="card" tabindex="0">
+                <h2>Interactive Card 2</h2>
+                <p>This card also features similar interactions.</p>
+                <button class="button" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">Click Me</button>
+            </article>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Interactive Webpage. All rights reserved.</p>
+    </footer>
+    <script>
+        // For any element with mouse events, add keyboard support
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                alert('Button clicked or activated!');
+            }
+        }
+    </script>
+</body>
+</html>

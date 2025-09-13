@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Local Events Showcase</title>
+    <meta name="description" content="Discover and filter local events with accessible details and interactive venue maps.">
+    <style>
+        /* Base styles */
+        html {
+            box-sizing: border-box;
+            font-size: 100%;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9fafb;
+            color: #222;
+            line-height: 1.6;
+        }
+        header, nav, main, footer {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            background: #00509e;
+            color: #fff;
+            padding: 1.5rem 1rem 1rem 1rem;
+        }
+        .site-title {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        nav[role="navigation"] {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5em 1em;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        nav a:focus, nav a:hover {
+            background: #003f7f;
+        }
+        main {
+            padding: 1.5rem 1rem 2rem 1rem;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .filters {
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: flex-end;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 0.3em;
+        }
+        select {
+            font-size: 1rem;
+            padding: 0.5em;
+            border-radius: 4px;
+            border: 1px solid #bbb;
+            background: #fff;
+            color: #222;
+        }
+        /* Event List */
+        .events-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+            gap: 2rem;
+        }
+        article.event {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .event-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            background: #e6e6e6;
+        }
+        .event-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .event-details {
+            flex: 1;
+        }
+        .event-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+        }
+        .event-meta {
+            font-size: 1rem;
+            margin-bottom: 0.6rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        .event-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3em;
+        }
+        .event-description {
+            margin-bottom: 1rem;
+        }
+        .event-map {
+            width: 100%;
+            height: 200px;
+            border: 0;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+        .event-category {
+            display: inline-block;
+            background: #e3f1ff;
+            color: #00509e;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 0.2em 0.7em;
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+        }
+        /* Focus indicators (required) */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .filters {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .events-list {
+                grid-template-columns: 1fr;
+            }
+            header, nav, main, footer {
+                max-width: 100%;
+            }
+        }
+        /* Footer */
+        footer {
+            background: #222;
+            color: #fff;
+            text-align: center;
+            padding: 1.2rem 1rem;
+            font-size: 1rem;
+            margin-top: 2rem;
+        }
+        /* Visually hidden utility class for screen readers */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+        /* Category color dots for visual users, but not only color for info */
+        .category-dot {
+            display: inline-block;
+            width: 0.8em;
+            height: 0.8em;
+            border-radius: 50%;
+            margin-right: 0.4em;
+            vertical-align: middle;
+        }
+        .dot-music { background: #ea4c89; }
+        .dot-sports { background: #1abc9c; }
+        .dot-art { background: #f39c12; }
+        .dot-education { background: #6c63ff; }
+        .dot-food { background: #e67e22; }
+        .dot-other { background: #888; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="site-title">Local Events Showcase</h1>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#main-content">Skip to main content</a>
+            <a href="#events-section">Events</a>
+            <a href="#footer">Contact & Info</a>
+        </nav>
+    </header>
+    <main id="main-content" tabindex="-1">
+        <h1>Discover Local Events</h1>
+        <section class="filters" aria-labelledby="filter-heading">
+            <h2 id="filter-heading" class="sr-only">Filter Events</h2>
+            <form id="filter-form" aria-describedby="filter-desc">
+                <span id="filter-desc" class="sr-only">Use these filters to refine events by category.</span>
+                <div class="filter-group">
+                    <label for="category-select">Event Category</label>
+                    <select id="category-select" name="category" aria-label="Filter by event category">
+                        <option value="all">All Categories</option>
+                        <option value="music">Music</option>
+                        <option value="sports">Sports</option>
+                        <option value="art">Art</option>
+                        <option value="education">Education</option>
+                        <option value="food">Food & Drink</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </form>
+        </section>
+        <section id="events-section" aria-labelledby="events-heading">
+            <h2 id="events-heading" class="sr-only">Event Listings</h2>
+            <div id="events-list" class="events-list" aria-live="polite">
+                <!-- Events rendered here by JS -->
+            </div>
+            <div id="no-events-message" class="sr-only" aria-live="assertive"></div>
+        </section>
+    </main>
+    <footer id="footer">
+        <p>
+            &copy; <span id="year"></span> Local Events Showcase. All rights reserved.<br>
+            <a href="mailto:info@localevents.com">Contact us via email</a>
+        </p>
+    </footer>
+    <script>
+        // Event data (could be fetched from API in production)
+        const events = [
+            {
+                id: 1,
+                title: "Summer Jazz Festival",
+                image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
+                alt: "Musicians performing on stage at a jazz festival outdoors",
+                date: "2024-07-15",
+                location: "Riverside Park, Downtown",
+                lat: 40.712776,
+                lng: -74.005974,
+                category: "music",
+                description: "Enjoy a day of live jazz performances by renowned artists in the scenic Riverside Park. Food trucks and family activities available.",
+            },
+            {
+                id: 2,
+                title: "Art in the Square",
+                image: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80",
+                alt: "Colorful art displays at an outdoor art fair",
+                date: "2024-08-02",
+                location: "City Square",
+                lat: 40.714352,
+                lng: -74.008583,
+                category: "art",
+                description: "Browse local artists' work, join workshops, and create your own masterpiece. Open to all ages and free entry.",
+            },
+            {
+                id: 3,
+                title: "Community Soccer Match",
+                image: "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=600&q=80",
+                alt: "People playing soccer on a grassy field",
+                date: "2024-07-20",
+                location: "Central Sports Complex",
+                lat: 40.718267,
+                lng: -74.002379,
+                category: "sports",
+                description: "Join us for a friendly soccer match between local teams. Spectators welcome. Snacks and drinks available.",
+            },
+            {
+                id: 4,
+                title: "Gourmet Food Truck Rally",
+                image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80",
+                alt: "Food trucks lined up at an outdoor food festival",
+                date: "2024-07-22",
+                location: "Market Street",
+                lat: 40.710002,
+                lng: -74.009000,
+                category: "food",
+                description: "Sample delicious dishes from the city's best food trucks. Vegan and gluten-free options available.",
+            },
+            {
+                id: 5,
+                title: "Photography Workshop",
+                image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80",
+                alt: "Person holding a camera at a photography workshop",
+                date: "2024-08-10",
+                location: "Library Conference Room",
+                lat: 40.713800,
+                lng: -74.006000,
+                category: "education",
+                description: "Learn photography basics from a professional instructor. Bring your own camera or use one of ours.",
+            },
+            {
+                id: 6,
+                title: "Outdoor Movie Night",
+                image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80",
+                alt: "People watching a movie projected outdoors at night",
+                date: "2024-07-28",
+                location: "Greenwood Park",
+                lat: 40.715000,
+                lng: -74.003000,
+                category: "other",
+                description: "Bring a blanket and enjoy a family-friendly movie under the stars. Free popcorn for all attendees.",
+            }
+        ];
+
+        // Categories for mapping and color
+        const categoryLabels = {
+            music: "Music",
+            sports: "Sports",
+            art: "Art",
+            education: "Education",
+            food: "Food & Drink",
+            other: "Other"
+        };
+        const categoryDotClass = {
+            music: "dot-music",
+            sports: "dot-sports",
+            art: "dot-art",
+            education: "dot-education",
+            food: "dot-food",
+            other: "dot-other"
+        };
+
+        // Utility: Format date for screen reader and visual users
+        function formatDate(iso) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const date = new Date(iso);
+            return date.toLocaleDateString(undefined, options);
+        }
+
+        // Render events to the DOM
+        function renderEvents(filteredEvents) {
+            const eventsList = document.getElementById('events-list');
+            const noEventsMsg = document.getElementById('no-events-message');
+            eventsList.innerHTML = '';
+            noEventsMsg.textContent = '';
+            if (filteredEvents.length === 0) {
+                noEventsMsg.textContent = "No events found for the selected category.";
+                noEventsMsg.classList.remove('sr-only');
+                return;
+            } else {
+                noEventsMsg.classList.add('sr-only');
+            }
+            filteredEvents.forEach(event => {
+                // Compose event article
+                const article = document.createElement('article');
+                article.className = 'event';
+                article.setAttribute('tabindex', '0');
+                article.setAttribute('aria-labelledby', `event-title-${event.id}`);
+                article.setAttribute('aria-describedby', `event-meta-${event.id} event-desc-${event.id}`);
+
+                // Category badge with color dot and text (not color alone)
+                const categoryBadge = document.createElement('span');
+                categoryBadge.className = 'event-category';
+                const dot = document.createElement('span');
+                dot.className = `category-dot ${categoryDotClass[event.category] || 'dot-other'}`;
+                dot.setAttribute('aria-hidden', 'true');
+                categoryBadge.appendChild(dot);
+                categoryBadge.appendChild(document.createTextNode(categoryLabels[event.category] || "Other"));
+
+                // Event image
+                const imgWrapper = document.createElement('div');
+                imgWrapper.className = 'event-image-wrapper';
+                const img = document.createElement('img');
+                img.src = event.image;
+                img.alt = event.alt;
+                img.width = 600;
+                img.height = 180;
+                imgWrapper.appendChild(img);
+
+                // Event details
+                const details = document.createElement('div');
+                details.className = 'event-details';
+
+                // Title
+                const title = document.createElement('h3');
+                title.className = 'event-title';
+                title.id = `event-title-${event.id}`;
+                title.textContent = event.title;
+
+                // Meta (date, location)
+                const meta = document.createElement('div');
+                meta.className = 'event-meta';
+                meta.id = `event-meta-${event.id}`;
+
+                // Date
+                const dateSpan = document.createElement('span');
+                dateSpan.innerHTML = `<strong>Date:</strong> <time datetime="${event.date}">${formatDate(event.date)}</time>`;
+
+                // Location
+                const locSpan = document.createElement('span');
+                locSpan.innerHTML = `<strong>Location:</strong> ${event.location}`;
+
+                meta.appendChild(dateSpan);
+                meta.appendChild(locSpan);
+
+                // Description
+                const desc = document.createElement('p');
+                desc.className = 'event-description';
+                desc.id = `event-desc-${event.id}`;
+                desc.textContent = event.description;
+
+                // Map integration (iframe, accessible)
+                const map = document.createElement('iframe');
+                map.className = 'event-map';
+                map.width = "100%";
+                map.height = "200";
+                map.setAttribute('loading', 'lazy');
+                map.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+                // Using OpenStreetMap for privacy and accessibility
+                map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${event.lng-0.002},${event.lat-0.001},${event.lng+0.002},${event.lat+0.001}&layer=mapnik&marker=${event.lat},${event.lng}`;
+                map.title = `Map showing location of ${event.title} at ${event.location}`;
+                map.setAttribute('aria-label', `Map showing location of ${event.title} at ${event.location}`);
+
+                // Compose article
+                article.appendChild(categoryBadge);
+                article.appendChild(imgWrapper);
+                details.appendChild(title);
+                details.appendChild(meta);
+                details.appendChild(desc);
+                article.appendChild(details);
+                article.appendChild(map);
+
+                eventsList.appendChild(article);
+            });
+        }
+
+        // Filtering logic
+        function filterEvents() {
+            const category = document.getElementById('category-select').value;
+            let filtered = events;
+            if (category !== 'all') {
+                filtered = events.filter(e => e.category === category);
+            }
+            renderEvents(filtered);
+        }
+
+        // Set up filter form
+        document.addEventListener('DOMContentLoaded', function () {
+            // Render all events initially
+            renderEvents(events);
+
+            // Filter change handler (change and keyboard accessible)
+            const categorySelect = document.getElementById('category-select');
+            categorySelect.addEventListener('change', filterEvents);
+
+            // Keyboard accessibility for select (handled by browser), but ensure visible focus
+            categorySelect.addEventListener('focus', function (e) {
+                e.target.style.outline = '3px solid #0066cc';
+            });
+            categorySelect.addEventListener('blur', function (e) {
+                e.target.style.outline = '';
+            });
+
+            // Set current year in footer
+            document.getElementById('year').textContent = new Date().getFullYear();
+        });
+
+        // Skip to main content link: move focus for accessibility
+        document.querySelector('a[href="#main-content"]').addEventListener('click', function (e) {
+            e.preventDefault();
+            const main = document.getElementById('main-content');
+            main.setAttribute('tabindex', '-1');
+            main.focus();
+        });
+
+        // Ensure all event articles are keyboard focusable and provide ARIA labelling for screen readers
+        // Already handled during renderEvents()
+
+        // If any custom clickable elements are added, use this accessible pattern:
+        function handleInteraction(event) {
+            // For demonstration, but no custom mouse events needed here
+            if (event.type === 'click' ||
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                // Your action here
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Meditation Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #4a4a4a;
+        }
+        .timer-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            margin: 10px 0;
+        }
+        input[type="number"] {
+            width: 80px;
+            padding: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .progress {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Meditation Timer</h1>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#timer" accesskey="t">Timer</a></li>
+                <li><a href="#progress" accesskey="p">Progress</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="timer" aria-labelledby="timer-heading">
+            <h2 id="timer-heading">Set Your Meditation Session</h2>
+            <div class="timer-controls">
+                <label for="sessionLength">Session Length (minutes):</label>
+                <input type="number" id="sessionLength" name="sessionLength" min="1" required aria-describedby="length-description">
+                <span id="length-description" class="visually-hidden">Enter the desired session length in minutes.</span>
+                <button id="startButton" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">Start Timer</button>
+            </div>
+        </section>
+        <section id="progress" aria-labelledby="progress-heading">
+            <h2 id="progress-heading">Progress Tracker</h2>
+            <div class="progress" id="progressDisplay">You have completed: 0 minutes</div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Meditation Timer. All rights reserved.</p>
+    </footer>
+    <script>
+        let timer;
+        let totalMinutes = 0;
+
+        document.getElementById('startButton').addEventListener('click', startTimer);
+        document.getElementById('sessionLength').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                startTimer();
+            }
+        });
+
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            const sessionLength = document.getElementById('sessionLength').value;
+            if (sessionLength < 1) {
+                alert("Please enter a valid session length.");
+                return;
+            }
+            totalMinutes = sessionLength;
+            let secondsRemaining = sessionLength * 60;
+            updateProgress();
+
+            timer = setInterval(() => {
+                secondsRemaining--;
+                if (secondsRemaining <= 0) {
+                    clearInterval(timer);
+                    alert("Session complete! Well done.");
+                }
+                updateProgress();
+            }, 1000);
+        }
+
+        function updateProgress() {
+            document.getElementById('progressDisplay').innerText = `You have completed: ${totalMinutes - Math.floor((totalMinutes * 60 - (totalMinutes * 60 - (totalMinutes * 60 - (totalMinutes * 60)))) / 60)} minutes`;
+        }
+    </script>
+</body>
+</html>

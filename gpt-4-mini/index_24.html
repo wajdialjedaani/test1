@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Recommendation Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background: #0077cc;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        main {
+            margin-top: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #0077cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005fa3;
+        }
+        button:focus, input:focus, select:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .recommendations {
+            margin-top: 20px;
+        }
+        .book {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: white;
+        }
+        .book img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Book Recommendation Finder</h1>
+    </header>
+    <main>
+        <form id="book-form" aria-labelledby="form-title">
+            <h2 id="form-title">Tell us your favorite genres and authors</h2>
+            <label for="genres">Favorite Genres:</label>
+            <select id="genres" required>
+                <option value="">Select a genre</option>
+                <option value="fiction">Fiction</option>
+                <option value="non-fiction">Non-Fiction</option>
+                <option value="fantasy">Fantasy</option>
+                <option value="mystery">Mystery</option>
+                <option value="science-fiction">Science Fiction</option>
+            </select>
+            <label for="author">Favorite Author:</label>
+            <input type="text" id="author" required aria-describedby="author-error" />
+            <span id="author-error" class="error-message" aria-live="assertive"></span>
+            <button type="submit">Get Recommendations</button>
+        </form>
+        <section class="recommendations" aria-labelledby="recommendations-title">
+            <h2 id="recommendations-title">Recommended Books</h2>
+            <div id="book-list"></div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Book Recommendations</p>
+    </footer>
+    <script>
+        document.getElementById('book-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const genre = document.getElementById('genres').value;
+            const author = document.getElementById('author').value;
+            const bookList = document.getElementById('book-list');
+            bookList.innerHTML = ''; // Clear previous recommendations
+
+            // Simple book recommendations based on genre
+            const recommendations = {
+                'fiction': [
+                    { title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', img: 'https://via.placeholder.com/150', description: 'A novel about the American dream.' },
+                    { title: 'To Kill a Mockingbird', author: 'Harper Lee', img: 'https://via.placeholder.com/150', description: 'A story of racial injustice in the Deep South.' }
+                ],
+                'non-fiction': [
+                    { title: 'Sapiens: A Brief History of Humankind', author: 'Yuval Noah Harari', img: 'https://via.placeholder.com/150', description: 'An exploration of human history.' },
+                    { title: 'Educated', author: 'Tara Westover', img: 'https://via.placeholder.com/150', description: 'A memoir about a woman who grows up in a strict and abusive household.' }
+                ],
+                // Add more genres and recommendations as needed
+            };
+
+            const selectedRecommendations = recommendations[genre] || [];
+            if (selectedRecommendations.length === 0) {
+                bookList.innerHTML = '<p>No recommendations available for this genre.</p>';
+                return;
+            }
+
+            selectedRecommendations.forEach(book => {
+                const bookDiv = document.createElement('div');
+                bookDiv.className = 'book';
+                bookDiv.innerHTML = `
+                    <h3>${book.title}</h3>
+                    <p><strong>Author:</strong> ${book.author}</p>
+                    <img src="${book.img}" alt="Cover of ${book.title}" />
+                    <p>${book.description}</p>
+                `;
+                bookList.appendChild(bookDiv);
+            });
+        });
+
+        // Add keyboard support for the button
+        document.querySelector('button').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                this.click();
+            }
+        });
+    </script>
+</body>
+</html>

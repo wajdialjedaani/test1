@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Registration Form with Real-Time Validation</title>
+    <style>
+        /* Base styles for readability and contrast */
+        body {
+            font-family: system-ui, Arial, sans-serif;
+            background-color: #f9fafb;
+            color: #1a1a1a;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        header, footer {
+            background-color: #003366;
+            color: #fff;
+            padding: 1rem 0;
+        }
+        header nav {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-start;
+            gap: 1.5rem;
+        }
+        header nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.25em 0.5em;
+            border-radius: 3px;
+        }
+        header nav a:focus {
+            background: #0066cc;
+            color: #fff;
+        }
+        main {
+            max-width: 700px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 2rem 1.5rem;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+        label {
+            font-weight: 600;
+        }
+        .required-indicator {
+            color: #b30000;
+            margin-left: 0.25em;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"] {
+            font-size: 1rem;
+            padding: 0.5em;
+            border: 1.5px solid #bbb;
+            border-radius: 4px;
+            transition: border-color 0.2s;
+            background: #fff;
+            color: #1a1a1a;
+        }
+        input:focus {
+            border-color: #0066cc;
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        /* Error state */
+        .input-error {
+            border-color: #b30000 !important;
+            background: #fff0f0;
+        }
+        .error-message {
+            color: #b30000;
+            font-size: 0.95em;
+            margin-top: 0.1em;
+            min-height: 1.3em;
+        }
+        .success-message {
+            color: #007a33;
+            font-weight: 600;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        button[type="submit"] {
+            background: #0066cc;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 0.75em 1.5em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        button[type="submit"]:hover,
+        button[type="submit"]:focus {
+            background: #004b99;
+        }
+        button[type="submit"]:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        /* Submission indicator */
+        .submitting-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.75em;
+            color: #0066cc;
+            font-weight: 600;
+            margin-top: 1em;
+        }
+        .spinner {
+            width: 1.2em;
+            height: 1.2em;
+            border: 2.5px solid #cce1fa;
+            border-top: 2.5px solid #0066cc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Responsive design */
+        @media (max-width: 600px) {
+            main {
+                padding: 1rem 0.5rem;
+            }
+        }
+        /* Focus indicators as required */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#main-content">Skip to main content</a>
+            <a href="/" aria-current="page">Home</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+    <main id="main-content" tabindex="-1">
+        <h1>Register for Your Account</h1>
+        <section aria-labelledby="form-section-heading">
+            <h2 id="form-section-heading" class="sr-only" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Registration Form</h2>
+            <form id="registration-form" novalidate aria-describedby="form-instructions">
+                <p id="form-instructions">
+                    <strong>All fields marked with <span class="required-indicator" aria-hidden="true">*</span> are required.</strong>
+                </p>
+                <!-- Name Field -->
+                <div class="form-group">
+                    <label for="name">
+                        Name
+                        <span class="required-indicator" aria-hidden="true">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        autocomplete="name"
+                        required 
+                        aria-required="true"
+                        aria-describedby="name-error"
+                        maxlength="50"
+                        inputmode="text"
+                    >
+                    <span id="name-error" class="error-message" role="alert" aria-live="polite"></span>
+                </div>
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="email">
+                        Email
+                        <span class="required-indicator" aria-hidden="true">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        autocomplete="email"
+                        required 
+                        aria-required="true"
+                        aria-describedby="email-error"
+                        maxlength="100"
+                        inputmode="email"
+                    >
+                    <span id="email-error" class="error-message" role="alert" aria-live="polite"></span>
+                </div>
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password">
+                        Password
+                        <span class="required-indicator" aria-hidden="true">*</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="password-error password-hint"
+                        minlength="8"
+                        maxlength="32"
+                        autocomplete="new-password"
+                    >
+                    <span id="password-hint" style="font-size:0.95em;color:#444;">
+                        Minimum 8 characters, including at least one letter and one number.
+                    </span>
+                    <span id="password-error" class="error-message" role="alert" aria-live="polite"></span>
+                </div>
+                <!-- Phone Number Field -->
+                <div class="form-group">
+                    <label for="phone">
+                        Phone Number
+                        <span class="required-indicator" aria-hidden="true">*</span>
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        autocomplete="tel"
+                        required 
+                        aria-required="true"
+                        aria-describedby="phone-error phone-hint"
+                        maxlength="20"
+                        inputmode="tel"
+                        pattern="^[\d\-\+\(\) ]+$"
+                    >
+                    <span id="phone-hint" style="font-size:0.95em;color:#444;">
+                        Enter a valid phone number (e.g., (555) 123-4567).
+                    </span>
+                    <span id="phone-error" class="error-message" role="alert" aria-live="polite"></span>
+                </div>
+                <button type="submit" id="submit-btn">
+                    Register
+                </button>
+                <div id="submitting-indicator" class="submitting-indicator" style="display:none;" aria-live="assertive">
+                    <span class="spinner" aria-hidden="true"></span>
+                    <span>Submitting, please wait...</span>
+                </div>
+                <div id="success-message" class="success-message" role="status" aria-live="polite" style="display:none;"></div>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p id="contact">Questions? Email us at <a href="mailto:support@example.com">support@example.com</a>.</p>
+        <p>&copy; 2024 Accessible Web Forms</p>
+    </footer>
+    <script>
+        // Accessibility: Move focus to main content on skip link click
+        document.querySelector('a[href="#main-content"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('main-content').focus();
+        });
+
+        // Utility functions for validation
+        function validateName(name) {
+            if (!name.trim()) return 'Name is required.';
+            if (name.trim().length < 2) return 'Name must be at least 2 characters.';
+            if (!/^[A-Za-z\s\-']+$/.test(name.trim())) return 'Name may only contain letters, spaces, hyphens, and apostrophes.';
+            return '';
+        }
+        function validateEmail(email) {
+            if (!email.trim()) return 'Email is required.';
+            // Simple email regex for demonstration
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email.trim())) return 'Please enter a valid email address.';
+            return '';
+        }
+        function validatePassword(password) {
+            if (!password) return 'Password is required.';
+            if (password.length < 8) return 'Password must be at least 8 characters.';
+            if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+                return 'Password must include at least one letter and one number.';
+            }
+            return '';
+        }
+        function validatePhone(phone) {
+            if (!phone.trim()) return 'Phone number is required.';
+            // Accepts digits, spaces, dashes, parentheses, plus sign
+            const phonePattern = /^[\d\-\+\(\) ]{7,20}$/;
+            if (!phonePattern.test(phone.trim())) return 'Please enter a valid phone number.';
+            return '';
+        }
+
+        // Accessibility: focus first error field
+        function focusFirstErrorField(fields) {
+            for (const field of fields) {
+                if (field.classList.contains('input-error')) {
+                    field.focus();
+                    break;
+                }
+            }
+        }
+
+        // Real-time validation and form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registration-form');
+            const fields = {
+                name: document.getElementById('name'),
+                email: document.getElementById('email'),
+                password: document.getElementById('password'),
+                phone: document.getElementById('phone')
+            };
+            const errors = {
+                name: document.getElementById('name-error'),
+                email: document.getElementById('email-error'),
+                password: document.getElementById('password-error'),
+                phone: document.getElementById('phone-error')
+            };
+            const submitBtn = document.getElementById('submit-btn');
+            const submittingIndicator = document.getElementById('submitting-indicator');
+            const successMessage = document.getElementById('success-message');
+
+            // Helper: validate and show error for a field
+            function validateField(fieldName) {
+                let value = fields[fieldName].value;
+                let errorMsg = '';
+                switch(fieldName) {
+                    case 'name':
+                        errorMsg = validateName(value);
+                        break;
+                    case 'email':
+                        errorMsg = validateEmail(value);
+                        break;
+                    case 'password':
+                        errorMsg = validatePassword(value);
+                        break;
+                    case 'phone':
+                        errorMsg = validatePhone(value);
+                        break;
+                }
+                if (errorMsg) {
+                    fields[fieldName].classList.add('input-error');
+                    errors[fieldName].textContent = errorMsg;
+                    fields[fieldName].setAttribute('aria-invalid', 'true');
+                } else {
+                    fields[fieldName].classList.remove('input-error');
+                    errors[fieldName].textContent = '';
+                    fields[fieldName].removeAttribute('aria-invalid');
+                }
+                return !errorMsg;
+            }
+
+            // Attach real-time validation (input and blur)
+            Object.keys(fields).forEach(fieldName => {
+                fields[fieldName].addEventListener('input', function() {
+                    validateField(fieldName);
+                });
+                fields[fieldName].addEventListener('blur', function() {
+                    validateField(fieldName);
+                });
+            });
+
+            // Form submission handler
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                let allValid = true;
+                // Validate all fields
+                Object.keys(fields).forEach(fieldName => {
+                    const valid = validateField(fieldName);
+                    if (!valid) allValid = false;
+                });
+                if (!allValid) {
+                    // Focus the first invalid field for accessibility
+                    focusFirstErrorField(Object.values(fields));
+                    return;
+                }
+                // Show submission indicator
+                submittingIndicator.style.display = 'flex';
+                submitBtn.disabled = true;
+                // Hide previous success message
+                successMessage.style.display = 'none';
+                // Simulate async submission
+                setTimeout(function() {
+                    submittingIndicator.style.display = 'none';
+                    successMessage.textContent = 'Registration successful! Welcome, ' + fields.name.value.trim() + '.';
+                    successMessage.style.display = 'block';
+                    // Reset form and errors
+                    form.reset();
+                    Object.values(fields).forEach(field => {
+                        field.classList.remove('input-error');
+                        field.removeAttribute('aria-invalid');
+                    });
+                    Object.values(errors).forEach(span => span.textContent = '');
+                    submitBtn.disabled = false;
+                    // Move focus to success message for screen reader announcement
+                    successMessage.setAttribute('tabindex', '-1');
+                    successMessage.focus();
+                    setTimeout(() => successMessage.removeAttribute('tabindex'), 1000);
+                }, 1400);
+            });
+
+            // Keyboard accessibility for the submission button (handled natively)
+            // But for any custom mouse event, ensure keyboard support
+            function handleInteraction(event) {
+                if (event.type === 'click' ||
+                    (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                    event.preventDefault();
+                    submitBtn.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

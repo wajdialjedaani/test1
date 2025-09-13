@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Meditation Timer – Calming & Inclusive</title>
+    <meta name="description" content="Accessible, WCAG 2.1 AA-compliant meditation timer with custom session lengths, soothing sounds, and progress tracking.">
+    <style>
+        :root {
+            --calm-blue: #6bb7c7;
+            --calm-blue-dark: #295b63;
+            --calm-green: #c9e4ca;
+            --calm-green-dark: #588157;
+            --white: #fff;
+            --gray: #222;
+            --focus-outline: #0066cc;
+            --error: #b00020;
+            --radius: 8px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        html {
+            font-size: 18px;
+            background: var(--calm-green);
+            color: var(--gray);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--calm-blue);
+            color: var(--white);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 1rem;
+            position: relative;
+        }
+
+        nav a:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+            background: rgba(255,255,255,0.15);
+            border-radius: var(--radius);
+        }
+
+        main {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem 1rem 1rem 1rem;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--calm-blue-dark);
+        }
+
+        .timer-section {
+            width: 100%;
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .timer-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .timer-time {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--calm-blue-dark);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        button {
+            background: var(--calm-blue);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: background 0.2s;
+        }
+
+        button[aria-pressed="true"] {
+            background: var(--calm-green-dark);
+        }
+
+        button:disabled {
+            background: #d1d1d1;
+            color: #777;
+            cursor: not-allowed;
+        }
+
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            border: 1px solid #bbb;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        input[type="number"]:invalid {
+            border-color: var(--error);
+        }
+
+        .required {
+            color: var(--error);
+            margin-left: 0.2em;
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 0.95em;
+            margin-top: 0.2em;
+        }
+
+        /* Sound selector */
+        .sound-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .sound-option-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            font-weight: 500;
+        }
+
+        /* Progress section */
+        .progress-section {
+            width: 100%;
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem 1.5rem 1rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            font-weight: 600;
+            color: var(--calm-blue-dark);
+        }
+
+        .progress-list {
+            margin: 1rem 0 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .progress-list li {
+            padding: 0.5em 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 1rem;
+        }
+
+        .progress-list li:last-child {
+            border-bottom: none;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            main {
+                padding: 1rem 0.2rem;
+            }
+            .timer-section, .progress-section {
+                padding: 1rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#main-content">Skip to main content</a>
+            <a href="#timer" aria-current="page">Meditation Timer</a>
+            <a href="#progress">Progress</a>
+        </nav>
+    </header>
+    <main id="main-content">
+        <h1 id="timer">Meditation Timer</h1>
+        <section class="timer-section" aria-labelledby="timer">
+            <form id="timer-form" autocomplete="off" novalidate>
+                <fieldset>
+                    <legend class="sr-only">Set your meditation session</legend>
+                    <div class="form-group">
+                        <label for="minutes">
+                            Session Length (minutes)
+                            <span class="required" aria-hidden="true">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            id="minutes" 
+                            name="minutes" 
+                            min="1" 
+                            max="120" 
+                            required 
+                            aria-required="true"
+                            aria-describedby="minutes-desc minutes-error"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                        >
+                        <div id="minutes-desc" class="sr-only">Enter a value between 1 and 120 minutes.</div>
+                        <div id="minutes-error" class="error-message" aria-live="polite"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sound">
+                            Soothing Sound
+                            <span class="required" aria-hidden="true">*</span>
+                        </label>
+                        <select id="sound" name="sound" required aria-required="true" aria-describedby="sound-desc sound-error">
+                            <option value="">Select a sound</option>
+                            <option value="rain">Gentle Rain</option>
+                            <option value="waves">Ocean Waves</option>
+                            <option value="forest">Forest Birds</option>
+                            <option value="none">No Sound</option>
+                        </select>
+                        <div id="sound-desc" class="sr-only">Choose a background sound for your meditation session.</div>
+                        <div id="sound-error" class="error-message" aria-live="polite"></div>
+                    </div>
+                    <button type="submit" id="start-btn">Start Session</button>
+                </fieldset>
+            </form>
+            <div class="timer-display" aria-live="polite" aria-atomic="true">
+                <span id="timer-time" class="timer-time" aria-label="Time remaining" role="timer">00:00</span>
+                <div class="timer-controls" aria-label="Timer controls">
+                    <button type="button" id="pause-btn" aria-pressed="false" disabled>Pause</button>
+                    <button type="button" id="resume-btn" aria-pressed="false" disabled>Resume</button>
+                    <button type="button" id="reset-btn" disabled>Reset</button>
+                </div>
+            </div>
+        </section>
+        <section class="progress-section" aria-labelledby="progress-header">
+            <div class="progress-header" id="progress-header">
+                <span aria-hidden="true" role="img">🧘</span>
+                <span id="progress">Session Progress</span>
+            </div>
+            <ul class="progress-list" id="progress-list" aria-live="polite" aria-atomic="false">
+                <!-- Progress entries will be dynamically added here -->
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <section aria-label="About this meditation timer" style="text-align:center; padding: 1rem 0;">
+            <small>
+                &copy; 2024 Calming Meditation Timer. Accessible and inclusive for all.<br>
+                <a href="#main-content">Back to top</a>
+            </small>
+        </section>
+    </footer>
+    <!-- Audio elements (hidden, controlled via JS) -->
+    <audio id="audio-rain" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e2e6b.mp3" preload="auto" loop aria-label="Gentle Rain Sound"></audio>
+    <audio id="audio-waves" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124b2e7a6c.mp3" preload="auto" loop aria-label="Ocean Waves Sound"></audio>
+    <audio id="audio-forest" src="https://cdn.pixabay.com/audio/2022/02/23/audio_116b3a4f8b.mp3" preload="auto" loop aria-label="Forest Birds Sound"></audio>
+    <!-- End of audio elements -->
+    <script>
+        // --- Accessibility: Focus management for skip link ---
+        document.querySelector('a[href="#main-content"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            const main = document.getElementById('main-content');
+            main.setAttribute('tabindex', '-1');
+            main.focus();
+            setTimeout(() => main.removeAttribute('tabindex'), 1000);
+        });
+
+        // --- Timer logic ---
+        const timerForm = document.getElementById('timer-form');
+        const minutesInput = document.getElementById('minutes');
+        const soundSelect = document.getElementById('sound');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resumeBtn = document.getElementById('resume-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const timerTime = document.getElementById('timer-time');
+        const progressList = document.getElementById('progress-list');
+
+        // Error message elements
+        const minutesError = document.getElementById('minutes-error');
+        const soundError = document.getElementById('sound-error');
+
+        // Audio elements
+        const audioRain = document.getElementById('audio-rain');
+        const audioWaves = document.getElementById('audio-waves');
+        const audioForest = document.getElementById('audio-forest');
+
+        let timer = null;
+        let totalSeconds = 0;
+        let remainingSeconds = 0;
+        let isPaused = false;
+        let currentSound = null;
+
+        // Accessibility: Announce when timer completes
+        function announceCompletion() {
+            const liveRegion = document.createElement('div');
+            liveRegion.setAttribute('role', 'status');
+            liveRegion.setAttribute('aria-live', 'polite');
+            liveRegion.className = 'sr-only';
+            liveRegion.textContent = 'Meditation session complete.';
+            document.body.appendChild(liveRegion);
+            setTimeout(() => document.body.removeChild(liveRegion), 3000);
+        }
+
+        // --- Form Validation ---
+        function validateForm() {
+            let valid = true;
+            // Validate minutes
+            const minutesValue = parseInt(minutesInput.value, 10);
+            if (!minutesInput.value || isNaN(minutesValue) || minutesValue < 1 || minutesValue > 120) {
+                minutesError.textContent = 'Please enter a number between 1 and 120.';
+                minutesInput.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else {
+                minutesError.textContent = '';
+                minutesInput.removeAttribute('aria-invalid');
+            }
+            // Validate sound
+            if (!soundSelect.value) {
+                soundError.textContent = 'Please select a sound.';
+                soundSelect.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else {
+                soundError.textContent = '';
+                soundSelect.removeAttribute('aria-invalid');
+            }
+            return valid;
+        }
+
+        // --- Timer Display ---
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            timerTime.textContent = formatTime(remainingSeconds);
+        }
+
+        // --- Sound Control ---
+        function playSound(name) {
+            stopAllSounds();
+            switch(name) {
+                case 'rain':
+                    audioRain.currentTime = 0;
+                    audioRain.volume = 0.4;
+                    audioRain.play();
+                    currentSound = audioRain;
+                    break;
+                case 'waves':
+                    audioWaves.currentTime = 0;
+                    audioWaves.volume = 0.4;
+                    audioWaves.play();
+                    currentSound = audioWaves;
+                    break;
+                case 'forest':
+                    audioForest.currentTime = 0;
+                    audioForest.volume = 0.4;
+                    audioForest.play();
+                    currentSound = audioForest;
+                    break;
+                default:
+                    currentSound = null;
+            }
+        }
+
+        function stopAllSounds() {
+            [audioRain, audioWaves, audioForest].forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+            currentSound = null;
+        }
+
+        // --- Timer Functions ---
+        function startTimer(minutes, sound) {
+            totalSeconds = minutes * 60;
+            remainingSeconds = totalSeconds;
+            updateTimerDisplay();
+            playSound(sound);
+
+            timerTime.setAttribute('aria-label', `Time remaining: ${formatTime(remainingSeconds)}`);
+            timerTime.setAttribute('role', 'timer');
+
+            timer = setInterval(() => {
+                if (!isPaused) {
+                    remainingSeconds--;
+                    updateTimerDisplay();
+                    timerTime.setAttribute('aria-label', `Time remaining: ${formatTime(remainingSeconds)}`);
+                    if (remainingSeconds <= 0) {
+                        clearInterval(timer);
+                        timer = null;
+                        updateTimerDisplay();
+                        stopAllSounds();
+                        timerTime.setAttribute('aria-label', 'Session complete');
+                        announceCompletion();
+                        addProgressEntry(totalSeconds / 60, sound);
+                        setTimerControls('complete');
+                    }
+                }
+            }, 1000);
+
+            setTimerControls('running');
+        }
+
+        function pauseTimer() {
+            isPaused = true;
+            setTimerControls('paused');
+            if (currentSound) currentSound.pause();
+        }
+
+        function resumeTimer() {
+            isPaused = false;
+            setTimerControls('running');
+            if (currentSound) currentSound.play();
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            timer = null;
+            isPaused = false;
+            remainingSeconds = 0;
+            updateTimerDisplay();
+            stopAllSounds();
+            setTimerControls('reset');
+        }
+
+        // --- Timer Controls State ---
+        function setTimerControls(state) {
+            switch(state) {
+                case 'running':
+                    pauseBtn.disabled = false;
+                    resumeBtn.disabled = true;
+                    resetBtn.disabled = false;
+                    startBtn.disabled = true;
+                    pauseBtn.setAttribute('aria-pressed', 'false');
+                    resumeBtn.setAttribute('aria-pressed', 'false');
+                    break;
+                case 'paused':
+                    pauseBtn.disabled = true;
+                    resumeBtn.disabled = false;
+                    resetBtn.disabled = false;
+                    pauseBtn.setAttribute('aria-pressed', 'true');
+                    resumeBtn.setAttribute('aria-pressed', 'false');
+                    break;
+                case 'reset':
+                    pauseBtn.disabled = true;
+                    resumeBtn.disabled = true;
+                    resetBtn.disabled = true;
+                    startBtn.disabled = false;
+                    pauseBtn.setAttribute('aria-pressed', 'false');
+                    resumeBtn.setAttribute('aria-pressed', 'false');
+                    break;
+                case 'complete':
+                    pauseBtn.disabled = true;
+                    resumeBtn.disabled = true;
+                    resetBtn.disabled = false;
+                    startBtn.disabled = false;
+                    pauseBtn.setAttribute('aria-pressed', 'false');
+                    resumeBtn.setAttribute('aria-pressed', 'false');
+                    break;
+                default:
+                    pauseBtn.disabled = true;
+                    resumeBtn.disabled = true;
+                    resetBtn.disabled = true;
+                    startBtn.disabled = false;
+            }
+        }
+
+        // --- Progress Tracking ---
+        function addProgressEntry(minutes, sound) {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'});
+            const timeStr = now.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'});
+            const soundName = {
+                'rain': 'Gentle Rain',
+                'waves': 'Ocean Waves',
+                'forest': 'Forest Birds',
+                'none': 'No Sound'
+            }[sound] || 'Unknown';
+
+            const entry = document.createElement('li');
+            entry.innerHTML = `<strong>${minutes} min</strong> &mdash; ${soundName} <span aria-hidden="true">|</span> <span>${dateStr}, ${timeStr}</span>`;
+            progressList.insertBefore(entry, progressList.firstChild);
+
+            // Save to localStorage for persistence
+            let history = JSON.parse(localStorage.getItem('meditationProgress')) || [];
+            history.unshift({
+                minutes,
+                sound: soundName,
+                date: dateStr,
+                time: timeStr
+            });
+            if (history.length > 10) history = history.slice(0, 10);
+            localStorage.setItem('meditationProgress', JSON.stringify(history));
+        }
+
+        function loadProgress() {
+            const history = JSON.parse(localStorage.getItem('meditationProgress')) || [];
+            progressList.innerHTML = '';
+            if (history.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = 'No sessions yet. Your completed sessions will appear here.';
+                progressList.appendChild(li);
+            } else {
+                history.forEach(entry => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${entry.minutes} min</strong> &mdash; ${entry.sound} <span aria-hidden="true">|</span> <span>${entry.date}, ${entry.time}</span>`;
+                    progressList.appendChild(li);
+                });
+            }
+        }
+
+        // --- Form Submission ---
+        timerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!validateForm()) {
+                // Move focus to first error
+                if (minutesError.textContent) {
+                    minutesInput.focus();
+                } else if (soundError.textContent) {
+                    soundSelect.focus();
+                }
+                return;
+            }
+            // Start timer
+            const minutes = parseInt(minutesInput.value, 10);
+            const sound = soundSelect.value;
+            resetTimer();
+            startTimer(minutes, sound);
+        });
+
+        // --- Timer Controls: Keyboard Accessible ---
+        function handleInteraction(event, action) {
+            // Keyboard/mouse event handler for accessible controls
+            if (
+                event.type === 'click' ||
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))
+            ) {
+                event.preventDefault();
+                switch(action) {
+                    case 'pause':
+                        if (!pauseBtn.disabled) pauseTimer();
+                        break;
+                    case 'resume':
+                        if (!resumeBtn.disabled) resumeTimer();
+                        break;
+                    case 'reset':
+                        if (!resetBtn.disabled) resetTimer();
+                        break;
+                }
+            }
+        }
+
+        pauseBtn.addEventListener('click', e => handleInteraction(e, 'pause'));
+        pauseBtn.addEventListener('keydown', e => handleInteraction(e, 'pause'));
+        resumeBtn.addEventListener('click', e => handleInteraction(e, 'resume'));
+        resumeBtn.addEventListener('keydown', e => handleInteraction(e, 'resume'));
+        resetBtn.addEventListener('click', e => handleInteraction(e, 'reset'));
+        resetBtn.addEventListener('keydown', e => handleInteraction(e, 'reset'));
+
+        // --- Initialize ---
+        function init() {
+            setTimerControls();
+            updateTimerDisplay();
+            loadProgress();
+        }
+
+        // --- On page load ---
+        window.addEventListener('DOMContentLoaded', init);
+
+        // --- Accessibility: Reset form errors on input ---
+        minutesInput.addEventListener('input', validateForm);
+        soundSelect.addEventListener('change', validateForm);
+
+        // --- Responsive: Pause sound on page hide, resume on show ---
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && currentSound && !isPaused) {
+                currentSound.pause();
+            } else if (!document.hidden && currentSound && !isPaused) {
+                currentSound.play();
+            }
+        });
+
+        // --- Prevent screen readers from reading audio elements ---
+        [audioRain, audioWaves, audioForest].forEach(audio => {
+            audio.setAttribute('tabindex', '-1');
+            audio.setAttribute('aria-hidden', 'true');
+        });
+
+        // --- End of script ---
+    </script>
+</body>
+</html>

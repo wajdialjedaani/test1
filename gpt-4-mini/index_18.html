@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Travel Map</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header, footer {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px 20px;
+        }
+        main {
+            margin-top: 20px;
+        }
+        .pin {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+        }
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Interactive Travel Map</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Add a Travel Pin</h2>
+            <form id="pinForm" aria-labelledby="pinForm">
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" required aria-describedby="locationError">
+                <span id="locationError" class="error" aria-live="polite"></span>
+                
+                <label for="details">Details:</label>
+                <textarea id="details" name="details" required></textarea>
+                
+                <button type="submit">Add Pin</button>
+            </form>
+        </section>
+        <section>
+            <h2>Your Travel Pins</h2>
+            <div id="pinList"></div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Interactive Travel Map</p>
+    </footer>
+    <script>
+        document.getElementById('pinForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting
+            
+            const locationInput = document.getElementById('location');
+            const detailsInput = document.getElementById('details');
+            const locationError = document.getElementById('locationError');
+            
+            // Clear previous error messages
+            locationError.textContent = '';
+
+            // Validate location input
+            if (locationInput.value.trim() === '') {
+                locationError.textContent = 'Location is required.';
+                return;
+            }
+
+            // Create a new pin element
+            const pin = document.createElement('div');
+            pin.classList.add('pin');
+            pin.tabIndex = 0; // Make it keyboard accessible
+            pin.innerHTML = `<strong>${locationInput.value}</strong><p>${detailsInput.value}</p>`;
+            pin.setAttribute('role', 'region');
+            pin.setAttribute('aria-labelledby', locationInput.value);
+
+            // Add keyboard interaction
+            pin.addEventListener('keydown', handleInteraction);
+            pin.addEventListener('click', handleInteraction);
+
+            // Append the new pin to the pin list
+            document.getElementById('pinList').appendChild(pin);
+
+            // Clear the form inputs
+            locationInput.value = '';
+            detailsInput.value = '';
+        });
+
+        function handleInteraction(event) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                // You can define actions here when the pin is clicked or activated via keyboard
+                alert('Pin clicked: ' + this.querySelector('strong').textContent);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Space-Themed Website</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+        }
+        .constellations {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+        .constellation {
+            cursor: pointer;
+            position: relative;
+            outline: none;
+        }
+        .constellation:focus {
+            outline: 3px solid #ffffff;
+        }
+        .gallery {
+            display: flex;
+            overflow-x: auto;
+            padding: 20px;
+        }
+        .planet {
+            margin-right: 20px;
+            text-align: center;
+        }
+        .planet img {
+            width: 150px;
+            height: auto;
+            border-radius: 10px;
+        }
+        .planet p {
+            margin: 5px 0;
+        }
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <h1>Explore the Universe</h1>
+        </nav>
+    </header>
+    <main>
+        <section aria-labelledby="constellations-title">
+            <h2 id="constellations-title">Constellations</h2>
+            <div class="constellations">
+                <div class="constellation" tabindex="0" aria-label="Orion" onclick="showInfo('Orion')" onkeydown="handleInteraction(event)">
+                    <span>Orion</span>
+                </div>
+                <div class="constellation" tabindex="0" aria-label="Ursa Major" onclick="showInfo('Ursa Major')" onkeydown="handleInteraction(event)">
+                    <span>Ursa Major</span>
+                </div>
+                <div class="constellation" tabindex="0" aria-label="Cassiopeia" onclick="showInfo('Cassiopeia')" onkeydown="handleInteraction(event)">
+                    <span>Cassiopeia</span>
+                </div>
+            </div>
+        </section>
+        <section aria-labelledby="planets-title">
+            <h2 id="planets-title">Planets Gallery</h2>
+            <div class="gallery">
+                <div class="planet" tabindex="0" aria-label="Mars: The Red Planet">
+                    <img src="https://via.placeholder.com/150?text=Mars" alt="Mars">
+                    <p>Mars</p>
+                    <p>Fun Fact: Mars is known as the Red Planet.</p>
+                </div>
+                <div class="planet" tabindex="0" aria-label="Jupiter: The Giant Planet">
+                    <img src="https://via.placeholder.com/150?text=Jupiter" alt="Jupiter">
+                    <p>Jupiter</p>
+                    <p>Fun Fact: Jupiter is the largest planet in our solar system.</p>
+                </div>
+                <div class="planet" tabindex="0" aria-label="Saturn: The Ringed Planet">
+                    <img src="https://via.placeholder.com/150?text=Saturn" alt="Saturn">
+                    <p>Saturn</p>
+                    <p>Fun Fact: Saturn is famous for its stunning rings.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Explore the Universe. All rights reserved.</p>
+    </footer>
+    <script>
+        function showInfo(constellation) {
+            alert("You clicked on " + constellation + ". More information will be added soon!");
+        }
+
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                showInfo(event.currentTarget.getAttribute('aria-label'));
+            }
+        }
+    </script>
+</body>
+</html>

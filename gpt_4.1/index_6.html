@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Interactive Quiz - Test Your Knowledge</title>
+    <style>
+        :root {
+            --primary: #0057b8;
+            --primary-dark: #003a75;
+            --accent: #f9a825;
+            --background: #f5f7fa;
+            --text: #222;
+            --error: #c62828;
+            --success: #2e7d32;
+            --focus: #0066cc;
+            --border-radius: 1rem;
+            --transition: 0.3s cubic-bezier(.4,0,.2,1);
+        }
+
+        html {
+            box-sizing: border-box;
+            font-size: 100%;
+        }
+        *, *::before, *::after {
+            box-sizing: inherit;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--primary);
+            color: #fff;
+            padding: 1rem 0;
+        }
+
+        nav {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 2rem;
+            position: relative;
+            transition: color var(--transition);
+        }
+        nav a:focus,
+        nav a:hover {
+            color: var(--accent);
+        }
+
+        main {
+            flex: 1 0 auto;
+            max-width: 600px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 2rem 1.5rem;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 2rem;
+            color: var(--primary-dark);
+        }
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        /* Quiz Card Animation */
+        .quiz-card {
+            opacity: 0;
+            transform: translateY(40px) scale(0.98);
+            animation: fadeInUp 0.7s var(--transition) forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Option Buttons */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1.5rem 0;
+        }
+        .options-list li {
+            margin-bottom: 0.75rem;
+        }
+        .option-btn {
+            width: 100%;
+            background: #f0f4fa;
+            color: var(--text);
+            border: 2px solid #b0bec5;
+            border-radius: 0.6rem;
+            padding: 0.9rem 1.2rem;
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: 
+                background var(--transition),
+                border-color var(--transition),
+                color var(--transition),
+                box-shadow var(--transition);
+            position: relative;
+        }
+        .option-btn[aria-pressed="true"] {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary-dark);
+        }
+        .option-btn.correct {
+            background: var(--success);
+            color: #fff;
+            border-color: var(--success);
+            animation: pulseCorrect 0.4s;
+        }
+        .option-btn.incorrect {
+            background: var(--error);
+            color: #fff;
+            border-color: var(--error);
+            animation: shakeIncorrect 0.4s;
+        }
+        @keyframes pulseCorrect {
+            0% { box-shadow: 0 0 0 0 var(--success); }
+            70% { box-shadow: 0 0 0 8px rgba(46,125,50,0.3); }
+            100% { box-shadow: 0 0 0 0 var(--success); }
+        }
+        @keyframes shakeIncorrect {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        /* Focus Indicators (WCAG) */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus);
+            outline-offset: 2px;
+            z-index: 1;
+        }
+
+        /* Feedback */
+        .feedback {
+            min-height: 2.5em;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: color var(--transition);
+        }
+        .feedback[aria-live="polite"] {
+            /* visually distinguish live region */
+        }
+        .feedback.correct {
+            color: var(--success);
+        }
+        .feedback.incorrect {
+            color: var(--error);
+        }
+
+        /* Next/Restart Button */
+        .quiz-action-btn {
+            background: var(--accent);
+            color: #222;
+            border: none;
+            border-radius: 0.6rem;
+            padding: 0.8rem 1.8rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: background var(--transition), color var(--transition);
+        }
+        .quiz-action-btn:focus, .quiz-action-btn:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            background: #e3e8ee;
+            border-radius: 0.5rem;
+            height: 1.1rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.4s cubic-bezier(.4,0,.2,1);
+        }
+        .progress-label {
+            font-size: 1rem;
+            color: #444;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Results Section */
+        .results {
+            text-align: center;
+            animation: fadeInUp 0.7s var(--transition) forwards;
+        }
+        .results-score {
+            font-size: 2.3rem;
+            color: var(--primary-dark);
+            margin: 1rem 0 0.5rem 0;
+        }
+        .results-summary {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            main {
+                padding: 1rem 0.5rem;
+            }
+            .option-btn {
+                font-size: 0.98rem;
+                padding: 0.8rem 0.8rem;
+            }
+        }
+
+        /* Hide visually but keep accessible to screen readers */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#main-content">Skip to main content</a>
+            <a href="#" aria-current="page">Quiz Home</a>
+        </nav>
+    </header>
+    <main id="main-content" tabindex="-1">
+        <h1>Accessible Interactive Quiz</h1>
+        <section aria-label="Quiz Progress" class="quiz-card">
+            <div class="progress-label" id="progress-label">Question 1 of 3</div>
+            <div class="progress-bar-container" aria-hidden="true">
+                <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
+            </div>
+        </section>
+        <section aria-label="Quiz Questions" id="quiz-section" class="quiz-card">
+            <!-- Quiz question and options will be injected here by JS -->
+        </section>
+        <section aria-label="Quiz Results" id="results-section" class="results" hidden>
+            <!-- Results summary will be injected here by JS -->
+        </section>
+    </main>
+    <footer>
+        <div style="text-align:center; padding:1rem 0; font-size:0.97rem; color:#666;">
+            &copy; 2024 Accessible Quiz Demo | Designed with <span aria-label="love" role="img">❤️</span> for everyone
+        </div>
+    </footer>
+    <script>
+        // Quiz Data: Array of questions with options and correct answer
+        const quizData = [
+            {
+                question: "Which HTML element is used to define the most important heading?",
+                options: [
+                    { text: "<h1>", isCorrect: true },
+                    { text: "<heading>", isCorrect: false },
+                    { text: "<h6>", isCorrect: false },
+                    { text: "<header>", isCorrect: false }
+                ]
+            },
+            {
+                question: "What is the correct way to associate a label with an input in HTML?",
+                options: [
+                    { text: "Wrap the input inside the label", isCorrect: false },
+                    { text: "Use <label for='id'> and <input id='id'>", isCorrect: true },
+                    { text: "Use a placeholder attribute", isCorrect: false },
+                    { text: "Use aria-label only", isCorrect: false }
+                ]
+            },
+            {
+                question: "Which CSS property ensures visible focus indicators for keyboard users?",
+                options: [
+                    { text: "outline", isCorrect: true },
+                    { text: "border-radius", isCorrect: false },
+                    { text: "z-index", isCorrect: false },
+                    { text: "opacity", isCorrect: false }
+                ]
+            }
+        ];
+
+        // State
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let quizCompleted = false;
+
+        // Elements
+        const quizSection = document.getElementById('quiz-section');
+        const resultsSection = document.getElementById('results-section');
+        const progressBar = document.getElementById('progress-bar');
+        const progressLabel = document.getElementById('progress-label');
+
+        // Utility: Shuffle options (for variety)
+        function shuffle(array) {
+            return array
+                .map(value => ({ value, sort: Math.random() }))
+                .sort((a, b) => a.sort - b.sort)
+                .map(({ value }) => value);
+        }
+
+        // Render Progress Bar and Label
+        function renderProgress() {
+            const total = quizData.length;
+            const current = Math.min(currentQuestion + 1, total);
+            const percent = (current / total) * 100;
+            progressBar.style.width = percent + "%";
+            progressLabel.textContent = `Question ${current} of ${total}`;
+        }
+
+        // Render a single quiz question
+        function renderQuestion(index) {
+            quizSection.innerHTML = ''; // Clear previous
+            resultsSection.hidden = true;
+            quizSection.hidden = false;
+            renderProgress();
+
+            const q = quizData[index];
+            // Shuffle options for fairness
+            const options = shuffle([...q.options]);
+
+            // Question heading
+            const qHeading = document.createElement('h2');
+            qHeading.id = "question-label";
+            qHeading.textContent = q.question;
+            quizSection.appendChild(qHeading);
+
+            // Feedback region (aria-live for screen readers)
+            const feedback = document.createElement('div');
+            feedback.className = 'feedback';
+            feedback.id = 'feedback';
+            feedback.setAttribute('aria-live', 'polite');
+            feedback.setAttribute('aria-atomic', 'true');
+            quizSection.appendChild(feedback);
+
+            // Options list
+            const list = document.createElement('ul');
+            list.className = 'options-list';
+            list.setAttribute('role', 'list');
+            quizSection.appendChild(list);
+
+            options.forEach((opt, i) => {
+                const li = document.createElement('li');
+
+                // Each option is a button for accessibility
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'option-btn';
+                btn.setAttribute('aria-pressed', 'false');
+                btn.setAttribute('aria-describedby', 'feedback');
+                btn.setAttribute('data-correct', opt.isCorrect ? "true" : "false");
+                btn.id = `option-${i}`;
+                btn.innerHTML = `<span aria-hidden="true">${String.fromCharCode(65 + i)}.</span> ${opt.text}`;
+
+                // Keyboard & Mouse Accessible
+                btn.addEventListener('click', handleOptionSelect);
+                btn.addEventListener('keydown', function(event) {
+                    // Support Enter/Space as click
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        btn.click();
+                    }
+                });
+
+                li.appendChild(btn);
+                list.appendChild(li);
+            });
+
+            // Set focus to the question heading for screen readers
+            setTimeout(() => {
+                qHeading.focus && qHeading.focus();
+            }, 100);
+
+            // Hide next button if present
+            removeNextButton();
+        }
+
+        // Handle option selection (mouse or keyboard)
+        function handleOptionSelect(event) {
+            const btn = event.currentTarget;
+            // Prevent multiple answers
+            if (quizSection.querySelector('.option-btn[aria-pressed="true"]')) return;
+
+            // Mark as pressed
+            btn.setAttribute('aria-pressed', 'true');
+
+            // Mark all buttons as disabled (but keep focusable for review)
+            quizSection.querySelectorAll('.option-btn').forEach(b => {
+                b.disabled = true;
+            });
+
+            // Feedback and styling
+            const isCorrect = btn.getAttribute('data-correct') === "true";
+            const feedback = document.getElementById('feedback');
+            if (isCorrect) {
+                btn.classList.add('correct');
+                feedback.textContent = "Correct! Well done.";
+                feedback.className = 'feedback correct';
+            } else {
+                btn.classList.add('incorrect');
+                feedback.textContent = "Incorrect. Try to review the correct answer next time.";
+                feedback.className = 'feedback incorrect';
+                // Also highlight the correct answer for clarity (not color alone)
+                quizSection.querySelectorAll('.option-btn').forEach(b => {
+                    if (b.getAttribute('data-correct') === "true") {
+                        b.classList.add('correct');
+                        b.setAttribute('aria-label', b.textContent.trim() + " (Correct answer)");
+                    }
+                });
+            }
+            // Store user answer
+            userAnswers[currentQuestion] = isCorrect;
+
+            // Announce feedback for screen readers
+            feedback.setAttribute('tabindex', '-1');
+            feedback.focus();
+
+            // Add Next button after short delay for animation
+            setTimeout(() => {
+                addNextButton();
+            }, 500);
+        }
+
+        // Add the Next/Finish/Restart button after answering
+        function addNextButton() {
+            removeNextButton();
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'quiz-action-btn';
+            btn.id = 'next-btn';
+            btn.setAttribute('aria-label', 
+                currentQuestion < quizData.length - 1 ? 
+                'Next question' : 
+                'Show results'
+            );
+            btn.textContent = currentQuestion < quizData.length - 1 ? 'Next Question' : 'Show Results';
+            btn.addEventListener('click', handleNext);
+            btn.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    btn.click();
+                }
+            });
+            quizSection.appendChild(btn);
+            btn.focus();
+        }
+
+        // Remove Next/Restart button if present
+        function removeNextButton() {
+            const btn = document.getElementById('next-btn');
+            if (btn) btn.remove();
+        }
+
+        // Handle Next/Finish button
+        function handleNext(event) {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                renderQuestion(currentQuestion);
+            } else {
+                showResults();
+            }
+        }
+
+        // Show Results Summary
+        function showResults() {
+            quizCompleted = true;
+            quizSection.hidden = true;
+            resultsSection.hidden = false;
+
+            const correctCount = userAnswers.filter(Boolean).length;
+            const total = quizData.length;
+
+            resultsSection.innerHTML = `
+                <h2 id="results-heading">Quiz Results</h2>
+                <div class="results-score" aria-live="polite" aria-atomic="true">
+                    ${correctCount} / ${total}
+                </div>
+                <div class="results-summary">
+                    <p>
+                        <strong>
+                            ${correctCount === total ? "Outstanding! You got all answers correct." : 
+                            correctCount >= total / 2 ? "Great job! Review the explanations below to improve further." :
+                            "Keep practicing! Review the correct answers below."}
+                        </strong>
+                    </p>
+                </div>
+                <ol aria-label="Review of correct answers" style="text-align:left;max-width:420px;margin:0 auto 1.5rem auto;">
+                    ${quizData.map((q, i) => `
+                        <li>
+                            <strong>Q${i+1}:</strong> ${q.question}<br>
+                            <span>
+                                <span class="sr-only">Correct answer:</span>
+                                <span style="color:var(--success);font-weight:600;">
+                                    ${q.options.find(opt => opt.isCorrect).text}
+                                </span>
+                                ${userAnswers[i] ? 
+                                    '<span aria-label="You answered correctly" style="color:var(--success);margin-left:0.5em;">✓</span>' :
+                                    '<span aria-label="You answered incorrectly" style="color:var(--error);margin-left:0.5em;">✗</span>'
+                                }
+                            </span>
+                        </li>
+                    `).join('')}
+                </ol>
+                <button type="button" class="quiz-action-btn" id="restart-btn" aria-label="Restart quiz">Restart Quiz</button>
+            `;
+            // Keyboard support for restart
+            document.getElementById('restart-btn').addEventListener('click', restartQuiz);
+            document.getElementById('restart-btn').addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    restartQuiz();
+                }
+            });
+            // Focus results heading for screen readers
+            setTimeout(() => {
+                const resHead = document.getElementById('results-heading');
+                resHead && resHead.focus && resHead.focus();
+            }, 100);
+        }
+
+        // Restart the quiz
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = [];
+            quizCompleted = false;
+            resultsSection.hidden = true;
+            renderQuestion(currentQuestion);
+        }
+
+        // "Skip to main content" link support
+        document.querySelector('a[href="#main-content"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            const main = document.getElementById('main-content');
+            main.setAttribute('tabindex', '-1');
+            main.focus();
+        });
+
+        // Initial render
+        renderQuestion(currentQuestion);
+    </script>
+</body>
+</html>

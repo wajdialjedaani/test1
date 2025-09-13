@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Book Recommendation Page</title>
+    <style>
+        :root {
+            --primary: #0066cc;
+            --secondary: #e5f1fb;
+            --danger: #b00020;
+            --background: #ffffff;
+            --text: #222222;
+            --focus-outline: #0066cc;
+            --focus-outline-dark: #ffffff;
+            --border-radius: 6px;
+        }
+
+        html {
+            box-sizing: border-box;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background: var(--primary);
+            color: #fff;
+            padding: 1rem 0;
+        }
+
+        nav {
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        nav li {
+            margin: 0;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5em 1em;
+            border-radius: var(--border-radius);
+            transition: background 0.2s;
+        }
+
+        nav a:focus,
+        nav a:hover {
+            background: #004a99;
+            outline: 3px solid var(--focus-outline-dark);
+            outline-offset: 2px;
+        }
+
+        main {
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        section {
+            margin-bottom: 2.5rem;
+        }
+
+        form {
+            background: var(--secondary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4em;
+        }
+
+        .required-indicator {
+            color: var(--danger);
+            font-size: 1em;
+            margin-left: 0.2em;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 0.5em;
+            border: 1.5px solid #b3c6d6;
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            background: #fff;
+            color: var(--text);
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+            border-color: var(--focus-outline);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 0.5em;
+        }
+
+        button[type="submit"] {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0.7em 1.6em;
+            border-radius: var(--border-radius);
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 0.5em;
+        }
+
+        button[type="submit"]:hover,
+        button[type="submit"]:focus {
+            background: #004a99;
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 1em;
+            margin-top: 0.3em;
+        }
+
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0,0,0,0) !important;
+            border: 0 !important;
+        }
+
+        /* Book recommendations grid */
+        #recommendations[aria-live] {
+            margin-top: 2rem;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+        }
+
+        article.book {
+            background: #f9fafb;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-height: 360px;
+        }
+
+        .book img {
+            width: 100%;
+            max-width: 160px;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 1em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .book-title {
+            font-size: 1.15em;
+            font-weight: 700;
+            margin: 0.2em 0 0.4em 0;
+        }
+
+        .book-author {
+            font-size: 1em;
+            color: #333;
+            margin-bottom: 0.7em;
+        }
+
+        .book-desc {
+            font-size: 0.98em;
+            color: #222;
+            margin-bottom: 0.5em;
+        }
+
+        .book-genre {
+            display: inline-block;
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.95em;
+            border-radius: 3px;
+            padding: 0.18em 0.7em;
+            margin-top: auto;
+            margin-bottom: 0.5em;
+            letter-spacing: 0.01em;
+        }
+
+        /* Focus indicators for all interactive elements */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 700px) {
+            main {
+                padding: 0 0.5rem;
+            }
+            form {
+                padding: 1rem;
+            }
+            .book-grid {
+                gap: 1.2rem;
+            }
+        }
+
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 1.4rem;
+            }
+            .book-title {
+                font-size: 1em;
+            }
+            .book {
+                min-height: 260px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#form-section">Book Finder Form</a></li>
+                <li><a href="#recommendations">Recommendations</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Find Your Next Favorite Book</h1>
+        <section id="form-section" aria-labelledby="form-heading">
+            <h2 id="form-heading">Tell Us Your Preferences</h2>
+            <form id="book-form" novalidate aria-describedby="form-desc">
+                <p id="form-desc" class="sr-only">
+                    Select your favorite genres and optionally enter a favorite author. Required fields are marked.
+                </p>
+                <div class="form-group">
+                    <label for="genres">
+                        Favorite Genres
+                        <span class="required-indicator" aria-hidden="true">*</span>
+                    </label>
+                    <div id="genres" class="checkbox-group" role="group" aria-labelledby="genres-label">
+                        <!-- Genres will be rendered here by JS for flexibility and labeling -->
+                    </div>
+                    <div id="genres-error" class="error-message" aria-live="polite"></div>
+                </div>
+                <div class="form-group">
+                    <label for="author">
+                        Favorite Author
+                        <span class="sr-only">(optional)</span>
+                    </label>
+                    <input type="text" id="author" name="author" autocomplete="off" placeholder="e.g., Agatha Christie" aria-describedby="author-desc">
+                    <span id="author-desc" class="sr-only">Enter your favorite author. This field is optional.</span>
+                </div>
+                <button type="submit" id="submit-btn">Get Book Recommendations</button>
+            </form>
+        </section>
+        <section id="recommendations" aria-labelledby="rec-heading" aria-live="polite">
+            <h2 id="rec-heading">Book Recommendations</h2>
+            <!-- Recommendations will be rendered here -->
+            <div id="rec-content">
+                <p>Fill in your preferences above and click "Get Book Recommendations" to see suggestions!</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p style="text-align:center; font-size:0.98em; color:#555; margin:2rem 0 1rem 0;">
+            &copy; 2024 Accessible Book Finder. All rights reserved.
+        </p>
+    </footer>
+    <script>
+        // Data: Genres and Sample Books
+        const GENRES = [
+            { id: 'mystery', label: 'Mystery' },
+            { id: 'fantasy', label: 'Fantasy' },
+            { id: 'scifi', label: 'Science Fiction' },
+            { id: 'romance', label: 'Romance' },
+            { id: 'nonfiction', label: 'Non-Fiction' },
+            { id: 'historical', label: 'Historical' },
+            { id: 'thriller', label: 'Thriller' },
+            { id: 'youngadult', label: 'Young Adult' }
+        ];
+
+        // Book data: Each book has a title, author, genre, cover, and description
+        const BOOKS = [
+            {
+                title: "The Hound of the Baskervilles",
+                author: "Arthur Conan Doyle",
+                genre: "mystery",
+                cover: "https://covers.openlibrary.org/b/id/8231856-L.jpg",
+                alt: "Cover of The Hound of the Baskervilles by Arthur Conan Doyle",
+                desc: "Sherlock Holmes investigates the legend of a supernatural hound terrorizing the Baskerville family on the moors of Devonshire."
+            },
+            {
+                title: "Murder on the Orient Express",
+                author: "Agatha Christie",
+                genre: "mystery",
+                cover: "https://covers.openlibrary.org/b/id/8231991-L.jpg",
+                alt: "Cover of Murder on the Orient Express by Agatha Christie",
+                desc: "Detective Hercule Poirot must solve a murder aboard the luxurious Orient Express train."
+            },
+            {
+                title: "The Hobbit",
+                author: "J.R.R. Tolkien",
+                genre: "fantasy",
+                cover: "https://covers.openlibrary.org/b/id/6979861-L.jpg",
+                alt: "Cover of The Hobbit by J.R.R. Tolkien",
+                desc: "Bilbo Baggins embarks on an epic quest to reclaim a lost dwarf kingdom from the dragon Smaug."
+            },
+            {
+                title: "Harry Potter and the Sorcerer's Stone",
+                author: "J.K. Rowling",
+                genre: "fantasy",
+                cover: "https://covers.openlibrary.org/b/id/7984916-L.jpg",
+                alt: "Cover of Harry Potter and the Sorcerer's Stone by J.K. Rowling",
+                desc: "A young boy discovers he is a wizard and attends Hogwarts School of Witchcraft and Wizardry."
+            },
+            {
+                title: "Dune",
+                author: "Frank Herbert",
+                genre: "scifi",
+                cover: "https://covers.openlibrary.org/b/id/8101351-L.jpg",
+                alt: "Cover of Dune by Frank Herbert",
+                desc: "Paul Atreides navigates political intrigue and ecological dangers on the desert planet Arrakis."
+            },
+            {
+                title: "The Martian",
+                author: "Andy Weir",
+                genre: "scifi",
+                cover: "https://covers.openlibrary.org/b/id/8370221-L.jpg",
+                alt: "Cover of The Martian by Andy Weir",
+                desc: "Stranded on Mars, astronaut Mark Watney must use his ingenuity to survive until rescue."
+            },
+            {
+                title: "Pride and Prejudice",
+                author: "Jane Austen",
+                genre: "romance",
+                cover: "https://covers.openlibrary.org/b/id/8225260-L.jpg",
+                alt: "Cover of Pride and Prejudice by Jane Austen",
+                desc: "Elizabeth Bennet navigates issues of manners, upbringing, and marriage in 19th-century England."
+            },
+            {
+                title: "The Fault in Our Stars",
+                author: "John Green",
+                genre: "youngadult",
+                cover: "https://covers.openlibrary.org/b/id/7269091-L.jpg",
+                alt: "Cover of The Fault in Our Stars by John Green",
+                desc: "Two teenagers with cancer fall in love and embark on a journey of hope and heartbreak."
+            },
+            {
+                title: "Educated",
+                author: "Tara Westover",
+                genre: "nonfiction",
+                cover: "https://covers.openlibrary.org/b/id/8936861-L.jpg",
+                alt: "Cover of Educated by Tara Westover",
+                desc: "A memoir of a woman who grows up in a survivalist family and eventually escapes to learn about the wider world through education."
+            },
+            {
+                title: "Sapiens: A Brief History of Humankind",
+                author: "Yuval Noah Harari",
+                genre: "nonfiction",
+                cover: "https://covers.openlibrary.org/b/id/8231992-L.jpg",
+                alt: "Cover of Sapiens by Yuval Noah Harari",
+                desc: "A thought-provoking exploration of the history and impact of Homo sapiens."
+            },
+            {
+                title: "The Girl with the Dragon Tattoo",
+                author: "Stieg Larsson",
+                genre: "thriller",
+                cover: "https://covers.openlibrary.org/b/id/8231857-L.jpg",
+                alt: "Cover of The Girl with the Dragon Tattoo by Stieg Larsson",
+                desc: "A journalist and a hacker investigate a decades-old disappearance in Sweden."
+            },
+            {
+                title: "Gone Girl",
+                author: "Gillian Flynn",
+                genre: "thriller",
+                cover: "https://covers.openlibrary.org/b/id/8231858-L.jpg",
+                alt: "Cover of Gone Girl by Gillian Flynn",
+                desc: "A psychological thriller about a marriage gone terribly wrong."
+            },
+            {
+                title: "The Book Thief",
+                author: "Markus Zusak",
+                genre: "historical",
+                cover: "https://covers.openlibrary.org/b/id/8228781-L.jpg",
+                alt: "Cover of The Book Thief by Markus Zusak",
+                desc: "A young girl in Nazi Germany finds solace by stealing books and sharing them with others."
+            },
+            {
+                title: "All the Light We Cannot See",
+                author: "Anthony Doerr",
+                genre: "historical",
+                cover: "https://covers.openlibrary.org/b/id/8231859-L.jpg",
+                alt: "Cover of All the Light We Cannot See by Anthony Doerr",
+                desc: "The story of a blind French girl and a German boy whose paths collide in occupied France during World War II."
+            },
+            {
+                title: "To All the Boys I've Loved Before",
+                author: "Jenny Han",
+                genre: "youngadult",
+                cover: "https://covers.openlibrary.org/b/id/8231860-L.jpg",
+                alt: "Cover of To All the Boys I've Loved Before by Jenny Han",
+                desc: "Lara Jean's secret love letters are exposed, turning her high school life upside down."
+            }
+        ];
+
+        // Render genre checkboxes dynamically for proper labeling and easy updates
+        function renderGenres() {
+            const genresDiv = document.getElementById('genres');
+            genresDiv.innerHTML = '';
+            GENRES.forEach((genre, idx) => {
+                const checkboxId = `genre-${genre.id}`;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'checkbox-item';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = checkboxId;
+                checkbox.name = 'genres';
+                checkbox.value = genre.id;
+                checkbox.tabIndex = 0;
+                // Keyboard accessibility: native checkbox is fully accessible
+
+                const label = document.createElement('label');
+                label.setAttribute('for', checkboxId);
+                label.textContent = genre.label;
+
+                wrapper.appendChild(checkbox);
+                wrapper.appendChild(label);
+                genresDiv.appendChild(wrapper);
+            });
+        }
+
+        // Form validation and error handling
+        function validateForm(selectedGenres) {
+            let valid = true;
+            // Genres must have at least one selected
+            if (selectedGenres.length === 0) {
+                const genresError = document.getElementById('genres-error');
+                genresError.textContent = 'Please select at least one genre.';
+                valid = false;
+            } else {
+                document.getElementById('genres-error').textContent = '';
+            }
+            return valid;
+        }
+
+        // Filter books based on genres and author
+        function getRecommendations(selectedGenres, authorInput) {
+            // Case-insensitive author matching (partial match allowed)
+            const author = authorInput.trim().toLowerCase();
+            let results = BOOKS.filter(book => selectedGenres.includes(book.genre));
+            if (author.length > 0) {
+                results = results.filter(book =>
+                    book.author.toLowerCase().includes(author)
+                );
+            }
+            return results;
+        }
+
+        // Render recommendations to the page
+        function renderRecommendations(books, selectedGenres, authorInput) {
+            const recContent = document.getElementById('rec-content');
+            recContent.innerHTML = '';
+            if (books.length === 0) {
+                // No matches
+                const p = document.createElement('p');
+                p.textContent = "Sorry, we couldn't find any books matching your preferences. Try selecting different genres or leaving the author blank.";
+                recContent.appendChild(p);
+                return;
+            }
+
+            // Accessible description of filters used
+            let filterDesc = '';
+            if (selectedGenres.length > 0) {
+                const genreLabels = GENRES.filter(g => selectedGenres.includes(g.id)).map(g => g.label);
+                filterDesc += `Genres: ${genreLabels.join(', ')}. `;
+            }
+            if (authorInput.trim().length > 0) {
+                filterDesc += `Author contains: "${authorInput.trim()}".`;
+            }
+            const descP = document.createElement('p');
+            descP.textContent = `Showing results for: ${filterDesc}`;
+            recContent.appendChild(descP);
+
+            // Books grid
+            const grid = document.createElement('div');
+            grid.className = 'book-grid';
+            books.forEach(book => {
+                const article = document.createElement('article');
+                article.className = 'book';
+                article.setAttribute('tabindex', '0'); // Allow keyboard users to focus on book cards
+
+                // Book cover image with descriptive alt
+                const img = document.createElement('img');
+                img.src = book.cover;
+                img.alt = book.alt;
+
+                // Book title
+                const title = document.createElement('h3');
+                title.className = 'book-title';
+                title.textContent = book.title;
+
+                // Book author
+                const author = document.createElement('div');
+                author.className = 'book-author';
+                author.textContent = `by ${book.author}`;
+
+                // Book description
+                const desc = document.createElement('div');
+                desc.className = 'book-desc';
+                desc.textContent = book.desc;
+
+                // Genre badge
+                const genreObj = GENRES.find(g => g.id === book.genre);
+                const genre = document.createElement('span');
+                genre.className = 'book-genre';
+                genre.textContent = genreObj ? genreObj.label : book.genre;
+
+                article.appendChild(img);
+                article.appendChild(title);
+                article.appendChild(author);
+                article.appendChild(desc);
+                article.appendChild(genre);
+
+                grid.appendChild(article);
+            });
+            recContent.appendChild(grid);
+        }
+
+        // Handle form submission
+        document.addEventListener('DOMContentLoaded', function () {
+            renderGenres();
+
+            const form = document.getElementById('book-form');
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                // Get selected genres
+                const genreCheckboxes = document.querySelectorAll('input[name="genres"]:checked');
+                const selectedGenres = Array.from(genreCheckboxes).map(cb => cb.value);
+
+                // Get author input
+                const authorInput = document.getElementById('author').value;
+
+                // Validate
+                const valid = validateForm(selectedGenres);
+
+                if (!valid) {
+                    // Focus the first error for accessibility
+                    const genresError = document.getElementById('genres-error');
+                    genresError.focus && genresError.focus();
+                    return;
+                }
+
+                // Get and render recommendations
+                const books = getRecommendations(selectedGenres, authorInput);
+                renderRecommendations(books, selectedGenres, authorInput);
+
+                // Move focus to recommendations for screen reader users
+                const recSection = document.getElementById('recommendations');
+                recSection.setAttribute('tabindex', '-1');
+                recSection.focus();
+                setTimeout(() => recSection.removeAttribute('tabindex'), 100); // Remove tabindex after focus
+            });
+
+            // Keyboard accessibility for genre checkboxes group (arrow navigation)
+            const genresDiv = document.getElementById('genres');
+            genresDiv.addEventListener('keydown', function (event) {
+                const checkboxes = Array.from(genresDiv.querySelectorAll('input[type="checkbox"]'));
+                const current = document.activeElement;
+                const idx = checkboxes.indexOf(current);
+                if (idx === -1) return;
+
+                if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    const next = checkboxes[(idx + 1) % checkboxes.length];
+                    next.focus();
+                } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    const prev = checkboxes[(idx - 1 + checkboxes.length) % checkboxes.length];
+                    prev.focus();
+                }
+            });
+
+            // Ensure recommendations section is focusable for accessibility
+            const recSection = document.getElementById('recommendations');
+            recSection.setAttribute('tabindex', '-1');
+        });
+
+        // Required for focus indicators on dark backgrounds (if used in nav)
+        document.querySelectorAll('nav').forEach(nav => {
+            nav.classList.add('dark-bg');
+        });
+    </script>
+</body>
+</html>

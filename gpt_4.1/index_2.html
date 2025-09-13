@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showcase Your Pet - Accessible Pet Gallery</title>
+    <style>
+        /* Base styles and color palette for high contrast */
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #004a99;
+            --secondary: #f4f4f4;
+            --accent: #ffe066;
+            --text: #222222;
+            --background: #ffffff;
+            --focus-outline: #0066cc;
+            --focus-outline-dark: #ffffff;
+        }
+
+        html {
+            background: var(--background);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--background);
+        }
+
+        header {
+            background: var(--primary);
+            color: #fff;
+            padding: 1rem 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.25em 0.5em;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        nav a:focus, nav a:hover {
+            background: var(--primary-dark);
+            outline: 3px solid var(--focus-outline-dark);
+            outline-offset: 2px;
+        }
+
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1rem 2rem 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5em;
+        }
+
+        .gallery-section {
+            margin-top: 2rem;
+        }
+
+        .pet-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 2rem;
+        }
+
+        article.pet-card {
+            background: var(--secondary);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            padding: 1.5rem 1rem 1rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: box-shadow 0.2s;
+        }
+
+        article.pet-card:focus-within {
+            box-shadow: 0 0 0 4px var(--accent);
+        }
+
+        .pet-photo {
+            width: 160px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid var(--primary);
+            background: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .pet-details {
+            text-align: center;
+            width: 100%;
+        }
+
+        .pet-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 0.5em 0 0.25em 0;
+        }
+
+        .pet-meta {
+            font-size: 1rem;
+            color: #444;
+            margin-bottom: 0.5em;
+        }
+
+        .pet-fact {
+            background: var(--accent);
+            color: #222;
+            border-radius: 6px;
+            padding: 0.5em 1em;
+            margin-top: 0.5em;
+            font-size: 1rem;
+        }
+
+        /* Add Pet Form Styles */
+        .add-pet-section {
+            margin-top: 2.5rem;
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 2rem 1rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .add-pet-section h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        form#add-pet-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 0.2em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"],
+        textarea {
+            font-size: 1rem;
+            padding: 0.5em;
+            border: 1.5px solid #bbb;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 100%;
+            background: #fff;
+            color: #222;
+        }
+
+        input[type="file"] {
+            padding: 0.25em 0;
+        }
+
+        textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        .required-indicator {
+            color: #c00;
+            margin-left: 0.2em;
+            font-size: 1em;
+        }
+
+        .error-message {
+            color: #c00;
+            font-size: 0.97em;
+            margin-top: 0.25em;
+        }
+
+        button[type="submit"] {
+            background: var(--primary);
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 6px;
+            padding: 0.7em 1.7em;
+            margin-top: 0.7em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button[type="submit"]:hover,
+        button[type="submit"]:focus {
+            background: var(--primary-dark);
+        }
+
+        /* Focus indicators (required) */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 700px) {
+            .pet-gallery {
+                grid-template-columns: 1fr;
+            }
+            main {
+                padding: 1rem 0.3rem;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .add-pet-section {
+                padding: 1rem 0.2rem;
+            }
+        }
+
+        /* Hide visually but keep for screen readers */
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0,0,0,0) !important;
+            border: 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#gallery" id="nav-gallery">Pet Gallery</a>
+            <a href="#add-pet" id="nav-add-pet">Add Your Pet</a>
+        </nav>
+    </header>
+    <main>
+        <h1 id="page-title">Showcase Your Pet</h1>
+        <section class="gallery-section" id="gallery" aria-labelledby="gallery-heading">
+            <h2 id="gallery-heading">Pet Gallery</h2>
+            <div class="pet-gallery" id="pet-gallery" aria-live="polite">
+                <!-- Pet cards inserted here by JS -->
+            </div>
+        </section>
+        <section class="add-pet-section" id="add-pet" aria-labelledby="add-pet-heading">
+            <h2 id="add-pet-heading">Add Your Pet</h2>
+            <form id="add-pet-form" autocomplete="off" novalidate aria-describedby="form-desc">
+                <p id="form-desc" class="sr-only">
+                    Use this form to add your pet to the gallery. All fields marked with an asterisk are required.
+                </p>
+                <div class="form-group">
+                    <label for="pet-photo">
+                        Pet Photo
+                        <span class="required-indicator" aria-hidden="true">*</span>
+                    </label>
+                    <input type="file" id="pet-photo" name="pet-photo" accept="image/*" required aria-required="true" aria-describedby="pet-photo-desc pet-photo-error">
+                    <span id="pet-photo-desc" class="sr-only">Upload a clear photo of your pet. Accepted formats: JPG, PNG, GIF.</span>
+                    <span id="pet-photo-error" class="error-message" aria-live="assertive"></span>
+                </div>
+                <div class="form-group">
+                    <label for="pet-name">
+                        Pet Name
+                        <span class="required-indicator" aria-hidden="true">*</span>
+                    </label>
+                    <input type="text" id="pet-name" name="pet-name" maxlength="32" required aria-required="true" aria-describedby="pet-name-error">
+                    <span id="pet-name-error" class="error-message" aria-live="assertive"></span>
+                </div>
+                <div class="form-group">
+                    <label for="pet-breed">
+                        Breed
+                        <span class="required-indicator" aria-hidden="true">*</span>
+                    </label>
+                    <input type="text" id="pet-breed" name="pet-breed" maxlength="32" required aria-required="true" aria-describedby="pet-breed-error">
+                    <span id="pet-breed-error" class="error-message" aria-live="assertive"></span>
+                </div>
+                <div class="form-group">
+                    <label for="pet-age">
+                        Age (years)
+                        <span class="required-indicator" aria-hidden="true">*</span>
+                    </label>
+                    <input type="number" id="pet-age" name="pet-age" min="0" max="99" required aria-required="true" aria-describedby="pet-age-error">
+                    <span id="pet-age-error" class="error-message" aria-live="assertive"></span>
+                </div>
+                <div class="form-group">
+                    <label for="pet-fact">
+                        Fun Fact
+                        <span class="required-indicator" aria-hidden="true">*</span>
+                    </label>
+                    <textarea id="pet-fact" name="pet-fact" maxlength="120" required aria-required="true" aria-describedby="pet-fact-desc pet-fact-error"></textarea>
+                    <span id="pet-fact-desc" class="sr-only">Share something fun or unique about your pet (max 120 characters).</span>
+                    <span id="pet-fact-error" class="error-message" aria-live="assertive"></span>
+                </div>
+                <button type="submit" id="submit-pet">Add Pet to Gallery</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p style="text-align:center; margin:1.5em 0 1em 0; font-size:1rem;">
+            &copy; 2024 Pet Gallery | Made with <span aria-label="love">❤️</span> for all pet lovers.
+        </p>
+    </footer>
+    <script>
+        // Accessible navigation: enable smooth scroll and keyboard support
+        function handleNavInteraction(event) {
+            if (event.type === 'click' ||
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.preventDefault();
+                const targetId = event.target.getAttribute('href').substring(1);
+                const section = document.getElementById(targetId);
+                if (section) {
+                    section.scrollIntoView({behavior: 'smooth'});
+                    section.setAttribute('tabindex', '-1');
+                    section.focus();
+                    setTimeout(() => section.removeAttribute('tabindex'), 1000);
+                }
+            }
+        }
+
+        document.getElementById('nav-gallery').addEventListener('click', handleNavInteraction);
+        document.getElementById('nav-gallery').addEventListener('keydown', handleNavInteraction);
+        document.getElementById('nav-add-pet').addEventListener('click', handleNavInteraction);
+        document.getElementById('nav-add-pet').addEventListener('keydown', handleNavInteraction);
+
+        // Demo pet data (could be loaded from a server)
+        const demoPets = [
+            {
+                name: 'Luna',
+                breed: 'Siberian Husky',
+                age: 3,
+                fact: 'Loves to sing along with the piano!',
+                photo: 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=400&h=400&facepad=3',
+                photoAlt: 'A smiling Siberian Husky with blue eyes'
+            },
+            {
+                name: 'Milo',
+                breed: 'Orange Tabby Cat',
+                age: 2,
+                fact: 'Can fetch small toys like a dog.',
+                photo: 'https://images.unsplash.com/photo-1518715308788-3005759c61b3?auto=format&fit=facearea&w=400&h=400&facepad=3',
+                photoAlt: 'An orange tabby cat sitting and looking at the camera'
+            },
+            {
+                name: 'Bella',
+                breed: 'Mini Lop Rabbit',
+                age: 1,
+                fact: 'Does binkies every morning after breakfast.',
+                photo: 'https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=facearea&w=400&h=400&facepad=3',
+                photoAlt: 'A brown and white Mini Lop rabbit with floppy ears'
+            }
+        ];
+
+        // Utility: Escape HTML to prevent XSS
+        function escapeHTML(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        // Render pet cards
+        function renderPets(pets) {
+            const gallery = document.getElementById('pet-gallery');
+            gallery.innerHTML = '';
+            pets.forEach((pet, idx) => {
+                // Use article and proper heading structure for each pet
+                const article = document.createElement('article');
+                article.className = 'pet-card';
+                article.setAttribute('tabindex', '0');
+                article.setAttribute('aria-labelledby', `pet-name-${idx}`);
+                // Accessible image
+                const img = document.createElement('img');
+                img.className = 'pet-photo';
+                img.src = pet.photo;
+                img.alt = pet.photoAlt;
+                img.width = 160;
+                img.height = 160;
+                article.appendChild(img);
+
+                const details = document.createElement('div');
+                details.className = 'pet-details';
+
+                const name = document.createElement('h3');
+                name.className = 'pet-name';
+                name.id = `pet-name-${idx}`;
+                name.textContent = pet.name;
+                details.appendChild(name);
+
+                const meta = document.createElement('p');
+                meta.className = 'pet-meta';
+                meta.innerHTML = 
+                    `<strong>Breed:</strong> ${escapeHTML(pet.breed)}<br>` +
+                    `<strong>Age:</strong> ${escapeHTML(pet.age)} year${pet.age === 1 ? '' : 's'}`;
+                details.appendChild(meta);
+
+                const fact = document.createElement('div');
+                fact.className = 'pet-fact';
+                fact.textContent = pet.fact;
+                details.appendChild(fact);
+
+                article.appendChild(details);
+                gallery.appendChild(article);
+            });
+        }
+
+        // Initial render
+        let pets = [...demoPets];
+        renderPets(pets);
+
+        // Add Pet Form Handling
+        const form = document.getElementById('add-pet-form');
+        const fields = {
+            photo: document.getElementById('pet-photo'),
+            name: document.getElementById('pet-name'),
+            breed: document.getElementById('pet-breed'),
+            age: document.getElementById('pet-age'),
+            fact: document.getElementById('pet-fact')
+        };
+        const errors = {
+            photo: document.getElementById('pet-photo-error'),
+            name: document.getElementById('pet-name-error'),
+            breed: document.getElementById('pet-breed-error'),
+            age: document.getElementById('pet-age-error'),
+            fact: document.getElementById('pet-fact-error')
+        };
+
+        // Helper: Clear error messages
+        function clearErrors() {
+            Object.values(errors).forEach(span => span.textContent = '');
+        }
+
+        // Helper: Validate form fields and return data or null
+        function validateForm() {
+            clearErrors();
+            let valid = true;
+
+            // Photo
+            const photoFile = fields.photo.files[0];
+            if (!photoFile) {
+                errors.photo.textContent = 'Please upload a photo of your pet.';
+                fields.photo.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else if (!photoFile.type.match(/^image\//)) {
+                errors.photo.textContent = 'File must be an image (JPG, PNG, GIF, etc.).';
+                fields.photo.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else {
+                fields.photo.removeAttribute('aria-invalid');
+            }
+
+            // Name
+            const name = fields.name.value.trim();
+            if (!name) {
+                errors.name.textContent = 'Pet name is required.';
+                fields.name.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else if (name.length > 32) {
+                errors.name.textContent = 'Name must be 32 characters or fewer.';
+                fields.name.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else {
+                fields.name.removeAttribute('aria-invalid');
+            }
+
+            // Breed
+            const breed = fields.breed.value.trim();
+            if (!breed) {
+                errors.breed.textContent = 'Breed is required.';
+                fields.breed.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else if (breed.length > 32) {
+                errors.breed.textContent = 'Breed must be 32 characters or fewer.';
+                fields.breed.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else {
+                fields.breed.removeAttribute('aria-invalid');
+            }
+
+            // Age
+            const age = fields.age.value.trim();
+            const ageNum = Number(age);
+            if (!age) {
+                errors.age.textContent = 'Age is required.';
+                fields.age.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else if (!/^\d+$/.test(age) || ageNum < 0 || ageNum > 99) {
+                errors.age.textContent = 'Enter a valid age (0-99).';
+                fields.age.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else {
+                fields.age.removeAttribute('aria-invalid');
+            }
+
+            // Fun Fact
+            const fact = fields.fact.value.trim();
+            if (!fact) {
+                errors.fact.textContent = 'Fun fact is required.';
+                fields.fact.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else if (fact.length > 120) {
+                errors.fact.textContent = 'Fun fact must be 120 characters or fewer.';
+                fields.fact.setAttribute('aria-invalid', 'true');
+                valid = false;
+            } else {
+                fields.fact.removeAttribute('aria-invalid');
+            }
+
+            if (!valid) return null;
+
+            return {photoFile, name, breed, age: ageNum, fact};
+        }
+
+        // Read image file as data URL for display
+        function readImageFile(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                callback(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Handle form submission
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const data = validateForm();
+            if (!data) {
+                // Focus first invalid field
+                for (const key of Object.keys(fields)) {
+                    if (fields[key].hasAttribute('aria-invalid')) {
+                        fields[key].focus();
+                        break;
+                    }
+                }
+                return;
+            }
+            // Read photo and add pet
+            readImageFile(data.photoFile, function(dataUrl) {
+                // Add new pet to gallery
+                pets.unshift({
+                    name: escapeHTML(data.name),
+                    breed: escapeHTML(data.breed),
+                    age: data.age,
+                    fact: escapeHTML(data.fact),
+                    photo: dataUrl,
+                    photoAlt: `Photo of ${escapeHTML(data.name)}, a ${escapeHTML(data.breed)}`
+                });
+                renderPets(pets);
+                // Announce to screen readers
+                const gallery = document.getElementById('pet-gallery');
+                gallery.setAttribute('aria-live', 'polite');
+                // Reset form
+                form.reset();
+                clearErrors();
+                // Move focus to the new pet card
+                setTimeout(() => {
+                    const firstCard = gallery.querySelector('.pet-card');
+                    if (firstCard) firstCard.focus();
+                }, 150);
+            });
+        });
+
+        // Keyboard accessibility for file input (trigger file dialog with Enter/Space)
+        fields.photo.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                fields.photo.click();
+            }
+        });
+
+        // Real-time validation on blur
+        Object.keys(fields).forEach(key => {
+            fields[key].addEventListener('blur', validateForm);
+        });
+
+        // Accessibility: Allow tabbing to sections for skip navigation
+        document.getElementById('gallery').setAttribute('tabindex', '-1');
+        document.getElementById('add-pet').setAttribute('tabindex', '-1');
+    </script>
+</body>
+</html>

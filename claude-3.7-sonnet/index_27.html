@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible To-Do List Application</title>
+    <style>
+        /* Base styles with accessibility in mind */
+        :root {
+            --primary-color: #0066cc;
+            --primary-dark: #004c99;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #343a40;
+            --white: #ffffff;
+            --focus-outline: 3px solid var(--primary-color);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--light-gray);
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, 
+        input:focus, 
+        select:focus, 
+        textarea:focus, 
+        a:focus,
+        [role="button"]:focus {
+            outline: var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        /* Skip link for keyboard users */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            margin: 1.5rem 0 1rem;
+            color: var(--dark-gray);
+        }
+
+        /* Form styles */
+        .task-form {
+            background-color: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input, 
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: var(--danger-color);
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button.delete-btn {
+            background-color: var(--danger-color);
+            padding: 0.5rem;
+            margin-left: 0.5rem;
+        }
+
+        button.delete-btn:hover {
+            background-color: #bd2130;
+        }
+
+        /* Task list styles */
+        .tasks-container {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--medium-gray);
+            transition: background-color 0.2s;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item:hover {
+            background-color: var(--light-gray);
+        }
+
+        .task-checkbox {
+            margin-right: 1rem;
+            width: 20px;
+            height: 20px;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .task-details {
+            display: flex;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .task-priority {
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .priority-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+
+        .priority-high {
+            background-color: var(--danger-color);
+        }
+
+        .priority-medium {
+            background-color: var(--warning-color);
+        }
+
+        .priority-low {
+            background-color: var(--success-color);
+        }
+
+        .task-completed .task-title {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        /* Filter controls */
+        .filter-controls {
+            display: flex;
+            margin-bottom: 1rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-label {
+            margin-right: 0.5rem;
+            font-weight: bold;
+        }
+
+        .filter-select {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 600px) {
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .task-details {
+                flex-direction: column;
+            }
+            
+            .task-priority {
+                margin-bottom: 0.25rem;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (forced-colors: active) {
+            button, 
+            .priority-indicator {
+                forced-color-adjust: none;
+            }
+        }
+
+        /* Announcement area for screen readers */
+        .sr-announcements {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header>
+        <h1>Accessible To-Do List</h1>
+    </header>
+    
+    <main id="main-content">
+        <section class="task-form" aria-labelledby="form-heading">
+            <h2 id="form-heading">Add New Task</h2>
+            
+            <form id="new-task-form">
+                <div class="form-group">
+                    <label for="task-title" class="required-field">Task Title</label>
+                    <input 
+                        type="text" 
+                        id="task-title" 
+                        name="task-title" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="title-error"
+                    >
+                    <div id="title-error" class="error-message">Please enter a task title</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="task-priority">Priority Level</label>
+                    <select id="task-priority" name="task-priority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="task-date">Due Date</label>
+                    <input 
+                        type="date" 
+                        id="task-date" 
+                        name="task-date"
+                        min="2023-01-01"
+                    >
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" id="add-task-btn">Add Task</button>
+                </div>
+            </form>
+        </section>
+        
+        <section class="tasks-section" aria-labelledby="tasks-heading">
+            <h2 id="tasks-heading">Your Tasks</h2>
+            
+            <div class="filter-controls" role="group" aria-labelledby="filter-heading">
+                <h3 id="filter-heading" class="sr-only">Filter Tasks</h3>
+                
+                <div class="filter-group">
+                    <label for="filter-status" class="filter-label">Status:</label>
+                    <select id="filter-status" class="filter-select">
+                        <option value="all">All</option>
+                        <option value="active">Active</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-priority" class="filter-label">Priority:</label>
+                    <select id="filter-priority" class="filter-select">
+                        <option value="all">All</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="tasks-container">
+                <ul id="task-list" class="task-list" aria-live="polite">
+                    <!-- Tasks will be added here dynamically -->
+                    <li class="empty-state">
+                        <p>You have no tasks yet. Add a task to get started!</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </main>
+    
+    <div id="sr-announcements" class="sr-announcements" aria-live="polite"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const taskForm = document.getElementById('new-task-form');
+            const taskTitleInput = document.getElementById('task-title');
+            const taskPrioritySelect = document.getElementById('task-priority');
+            const taskDateInput = document.getElementById('task-date');
+            const taskList = document.getElementById('task-list');
+            const titleError = document.getElementById('title-error');
+            const filterStatus = document.getElementById('filter-status');
+            const filterPriority = document.getElementById('filter-priority');
+            const srAnnouncements = document.getElementById('sr-announcements');
+            
+            // Set min date to today
+            const today = new Date().toISOString().split('T')[0];
+            taskDateInput.setAttribute('min', today);
+            
+            // Initialize tasks array from localStorage or empty array
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            
+            // Render initial tasks
+            renderTasks();
+            
+            // Form submission handler
+            taskForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Validate form
+                if (!taskTitleInput.value.trim()) {
+                    titleError.style.display = 'block';
+                    taskTitleInput.setAttribute('aria-invalid', 'true');
+                    return;
+                }
+                
+                // Clear any previous errors
+                titleError.style.display = 'none';
+                taskTitleInput.setAttribute('aria-invalid', 'false');
+                
+                // Create new task object
+                const newTask = {
+                    id: Date.now().toString(),
+                    title: taskTitleInput.value.trim(),
+                    priority: taskPrioritySelect.value,
+                    date: taskDateInput.value || '',
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Add task to array
+                tasks.push(newTask);
+                
+                // Save to localStorage
+                saveTasks();
+                
+                // Reset form
+                taskForm.reset();
+                
+                // Render updated tasks
+                renderTasks();
+                
+                // Announce to screen readers
+                announceToScreenReader(`Task added: ${newTask.title}`);
+                
+                // Set focus back to title input for adding another task
+                taskTitleInput.focus();
+            });
+            
+            // Task list event delegation for checkboxes and delete buttons
+            taskList.addEventListener('click', function(event) {
+                const target = event.target;
+                
+                // Handle task completion checkbox
+                if (target.classList.contains('task-checkbox')) {
+                    const taskId = target.getAttribute('data-id');
+                    toggleTaskCompletion(taskId);
+                }
+                
+                // Handle delete button
+                if (target.classList.contains('delete-btn')) {
+                    const taskId = target.getAttribute('data-id');
+                    deleteTask(taskId);
+                }
+            });
+            
+            // Task list keyboard event handling
+            taskList.addEventListener('keydown', function(event) {
+                const target = event.target;
+                
+                // Handle checkbox with keyboard
+                if (target.classList.contains('task-checkbox') && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    const taskId = target.getAttribute('data-id');
+                    toggleTaskCompletion(taskId);
+                }
+                
+                // Handle delete button with keyboard
+                if (target.classList.contains('delete-btn') && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    const taskId = target.getAttribute('data-id');
+                    deleteTask(taskId);
+                }
+            });
+            
+            // Filter change handlers
+            filterStatus.addEventListener('change', renderTasks);
+            filterPriority.addEventListener('change', renderTasks);
+            
+            // Toggle task completion status
+            function toggleTaskCompletion(taskId) {
+                const taskIndex = tasks.findIndex(task => task.id === taskId);
+                
+                if (taskIndex !== -1) {
+                    tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                    saveTasks();
+                    renderTasks();
+                    
+                    const status = tasks[taskIndex].completed ? 'completed' : 'active';
+                    announceToScreenReader(`Task marked as ${status}: ${tasks[taskIndex].title}`);
+                }
+            }
+            
+            // Delete task
+            function deleteTask(taskId) {
+                const taskIndex = tasks.findIndex(task => task.id === taskId);
+                
+                if (taskIndex !== -1) {
+                    const deletedTask = tasks[taskIndex];
+                    tasks = tasks.filter(task => task.id !== taskId);
+                    saveTasks();
+                    renderTasks();
+                    
+                    announceToScreenReader(`Task deleted: ${deletedTask.title}`);
+                }
+            }
+            
+            // Save tasks to localStorage
+            function saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+            }
+            
+            // Render tasks based on current filters
+            function renderTasks() {
+                const statusFilter = filterStatus.value;
+                const priorityFilter = filterPriority.value;
+                
+                // Filter tasks based on selected filters
+                let filteredTasks = tasks;
+                
+                if (statusFilter !== 'all') {
+                    const isCompleted = statusFilter === 'completed';
+                    filteredTasks = filteredTasks.filter(task => task.completed === isCompleted);
+                }
+                
+                if (priorityFilter !== 'all') {
+                    filteredTasks = filteredTasks.filter(task => task.priority === priorityFilter);
+                }
+                
+                // Clear current task list
+                taskList.innerHTML = '';
+                
+                // Show empty state if no tasks
+                if (filteredTasks.length === 0) {
+                    const emptyState = document.createElement('li');
+                    emptyState.className = 'empty-state';
+                    
+                    // Different message based on whether we have tasks but they're filtered out
+                    if (tasks.length > 0) {
+                        emptyState.innerHTML = '<p>No tasks match your current filters.</p>';
+                    } else {
+                        emptyState.innerHTML = '<p>You have no tasks yet. Add a task to get started!</p>';
+                    }
+                    
+                    taskList.appendChild(emptyState);
+                    return;
+                }
+                
+                // Sort tasks: incomplete first, then by priority (high to low), then by date
+                filteredTasks.sort((a, b) => {
+                    // First by completion status
+                    if (a.completed !== b.completed) {
+                        return a.completed ? 1 : -1;
+                    }
+                    
+                    // Then by priority
+                    const priorityOrder = { high: 0, medium: 1, low: 2 };
+                    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+                        return priorityOrder[a.priority] - priorityOrder[b.priority];
+                    }
+                    
+                    // Then by due date if both have dates
+                    if (a.date && b.date) {
+                        return new Date(a.date) - new Date(b.date);
+                    }
+                    
+                    // Tasks with dates come before tasks without dates
+                    if (a.date && !b.date) return -1;
+                    if (!a.date && b.date) return 1;
+                    
+                    // Finally by creation date
+                    return new Date(a.createdAt) - new Date(b.createdAt);
+                });
+                
+                // Render each task
+                filteredTasks.forEach(task => {
+                    const taskItem = document.createElement('li');
+                    taskItem.className = `task-item ${task.completed ? 'task-completed' : ''}`;
+                    taskItem.setAttribute('data-id', task.id);
+                    
+                    // Format date for display
+                    let formattedDate = '';
+                    if (task.date) {
+                        const dateObj = new Date(task.date);
+                        formattedDate = dateObj.toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+                    }
+                    
+                    // Priority label for screen readers
+                    const priorityLabel = {
+                        high: 'High priority',
+                        medium: 'Medium priority',
+                        low: 'Low priority'
+                    };
+                    
+                    // Create task HTML
+                    taskItem.innerHTML = `
+                        <input 
+                            type="checkbox" 
+                            id="task-${task.id}" 
+                            class="task-checkbox" 
+                            data-id="${task.id}" 
+                            ${task.completed ? 'checked' : ''}
+                            aria-label="Mark task as ${task.completed ? 'active' : 'completed'}: ${task.title}"
+                        >
+                        <div class="task-content">
+                            <div class="task-title">${escapeHTML(task.title)}</div>
+                            <div class="task-details">
+                                <div class="task-priority" aria-label="${priorityLabel[task.priority]}">
+                                    <span class="priority-indicator priority-${task.priority}" aria-hidden="true"></span>
+                                    ${capitalizeFirst(task.priority)}
+                                </div>
+                                ${task.date ? `<div class="task-date">Due: ${formattedDate}</div>` : ''}
+                            </div>
+                        </div>
+                        <button 
+                            type="button" 
+                            class="delete-btn" 
+                            data-id="${task.id}" 
+                            aria-label="Delete task: ${task.title}"
+                        >
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    `;
+                    
+                    taskList.appendChild(taskItem);
+                });
+            }
+            
+            // Helper function to capitalize first letter
+            function capitalizeFirst(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+            
+            // Helper function to escape HTML
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+            
+            // Announce messages to screen readers
+            function announceToScreenReader(message) {
+                srAnnouncements.textContent = message;
+            }
+            
+            // Set up validation on input
+            taskTitleInput.addEventListener('input', function() {
+                if (taskTitleInput.value.trim()) {
+                    titleError.style.display = 'none';
+                    taskTitleInput.setAttribute('aria-invalid', 'false');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

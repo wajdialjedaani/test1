@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Book Recommendations</title>
+    <style>
+        /* Base styles with accessibility in mind */
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #004080;
+            --text-color: #333333;
+            --background-color: #ffffff;
+            --error-color: #d32f2f;
+            --success-color: #388e3c;
+            --focus-color: #0066cc;
+            --light-gray: #f5f5f5;
+            --border-color: #cccccc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, 
+        input:focus, 
+        select:focus, 
+        textarea:focus, 
+        a:focus {
+            outline: 3px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        main {
+            padding: 1rem 0 3rem;
+        }
+
+        section {
+            margin-bottom: 2rem;
+        }
+
+        h1, h2, h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .required-indicator {
+            color: var(--error-color);
+            margin-left: 0.25rem;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .checkbox-group {
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-weight: normal;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 0.5rem;
+            min-width: 18px;
+            min-height: 18px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        button:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            min-height: 1.25rem;
+        }
+
+        /* Results section */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .book-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .book-card:hover,
+        .book-card:focus-within {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .book-info {
+            padding: 1rem;
+        }
+
+        .book-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-author {
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+
+        .book-description {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .book-link {
+            display: inline-block;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .book-link:hover,
+        .book-link:focus {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .no-results.active {
+            display: block;
+        }
+
+        .reset-button {
+            background-color: #666;
+            margin-top: 1rem;
+        }
+
+        footer {
+            background-color: var(--light-gray);
+            padding: 1.5rem 0;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .book-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .book-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        /* Skip link for keyboard users */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Announcement for screen readers */
+        .sr-announcement {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header>
+        <div class="container">
+            <h1>Personalized Book Recommendations</h1>
+        </div>
+    </header>
+
+    <main id="main-content" class="container">
+        <section class="intro-section">
+            <h2>Find Your Next Great Read</h2>
+            <p>Tell us about your reading preferences, and we'll suggest books you might enjoy. Fill out the form below to get personalized recommendations based on your favorite genres and authors.</p>
+        </section>
+
+        <section class="form-section">
+            <h2>Your Reading Preferences</h2>
+            <form id="preferences-form">
+                <div class="form-group">
+                    <label for="name">Your Name<span class="required-indicator">*</span></label>
+                    <input type="text" id="name" name="name" required aria-required="true" aria-describedby="name-error">
+                    <div id="name-error" class="error-message" aria-live="polite"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="favorite-author">Favorite Author (Optional)</label>
+                    <input type="text" id="favorite-author" name="favorite-author">
+                </div>
+
+                <div class="form-group">
+                    <fieldset>
+                        <legend>Preferred Genres<span class="required-indicator">*</span></legend>
+                        <div id="genres-error" class="error-message" aria-live="polite"></div>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="genre" value="fiction"> Fiction
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="genre" value="mystery"> Mystery & Thriller
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="genre" value="scifi"> Science Fiction
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="genre" value="fantasy"> Fantasy
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="genre" value="romance"> Romance
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="genre" value="nonfiction"> Non-Fiction
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="genre" value="biography"> Biography
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="genre" value="history"> History
+                            </label>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="form-group">
+                    <label for="reading-level">Reading Level Preference</label>
+                    <select id="reading-level" name="reading-level">
+                        <option value="any">Any Reading Level</option>
+                        <option value="easy">Light & Easy Reading</option>
+                        <option value="medium">Moderate Complexity</option>
+                        <option value="challenging">Challenging & Complex</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="additional-info">Additional Information (Optional)</label>
+                    <textarea id="additional-info" name="additional-info" rows="3" placeholder="Tell us more about what you like to read..."></textarea>
+                </div>
+
+                <button type="submit" id="submit-button">Get Recommendations</button>
+            </form>
+        </section>
+
+        <div id="loading" class="loading" aria-live="polite">
+            <div class="spinner" aria-hidden="true"></div>
+            <p>Finding the perfect books for you...</p>
+        </div>
+
+        <section id="results-section" class="results-section" aria-live="polite">
+            <h2>Your Personalized Recommendations</h2>
+            <p>Based on your preferences, we think you'll enjoy these books:</p>
+            <div id="book-grid" class="book-grid">
+                <!-- Book recommendations will be populated here -->
+            </div>
+            <button type="button" id="reset-button" class="reset-button">Start Over</button>
+        </section>
+
+        <div id="no-results" class="no-results">
+            <h2>No Recommendations Found</h2>
+            <p>We couldn't find any books matching your specific preferences. Please try again with different selections.</p>
+            <button type="button" class="reset-button" onclick="resetForm()">Try Again</button>
+        </div>
+
+        <div id="sr-announcement" class="sr-announcement" aria-live="assertive"></div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2023 Book Recommendation Service. All book information is for demonstration purposes only.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Book database for demonstration purposes
+        const bookDatabase = [
+            {
+                id: 1,
+                title: "The Midnight Library",
+                author: "Matt Haig",
+                genres: ["fiction", "fantasy"],
+                readingLevel: "medium",
+                description: "Between life and death there is a library, and within that library, the shelves go on forever. Every book provides a chance to try another life you could have lived.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?book,library",
+                altText: "Book cover of The Midnight Library by Matt Haig showing a library at night"
+            },
+            {
+                id: 2,
+                title: "Project Hail Mary",
+                author: "Andy Weir",
+                genres: ["scifi", "fiction"],
+                readingLevel: "medium",
+                description: "A lone astronaut must save the earth from disaster in this incredible new science-based thriller from the #1 New York Times bestselling author of The Martian.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?space,astronaut",
+                altText: "Book cover of Project Hail Mary by Andy Weir featuring a spacecraft in deep space"
+            },
+            {
+                id: 3,
+                title: "The Silent Patient",
+                author: "Alex Michaelides",
+                genres: ["mystery", "fiction"],
+                readingLevel: "medium",
+                description: "A woman shoots her husband five times and then never speaks another word. A criminal psychotherapist is determined to get her to talk and unravel the mystery.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?silhouette,mystery",
+                altText: "Book cover of The Silent Patient by Alex Michaelides showing a silhouette of a person's face"
+            },
+            {
+                id: 4,
+                title: "Educated",
+                author: "Tara Westover",
+                genres: ["nonfiction", "biography"],
+                readingLevel: "medium",
+                description: "A memoir about a young girl who, kept out of school, leaves her survivalist family and goes on to earn a PhD from Cambridge University.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?education,books",
+                altText: "Book cover of Educated by Tara Westover showing a pencil and notebook"
+            },
+            {
+                id: 5,
+                title: "The Four Winds",
+                author: "Kristin Hannah",
+                genres: ["fiction", "history"],
+                readingLevel: "medium",
+                description: "An epic novel of love and heroism and hope, set against the backdrop of one of America's most defining eras—the Great Depression.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?wind,field",
+                altText: "Book cover of The Four Winds by Kristin Hannah showing a dusty field during the Great Depression"
+            },
+            {
+                id: 6,
+                title: "Klara and the Sun",
+                author: "Kazuo Ishiguro",
+                genres: ["fiction", "scifi"],
+                readingLevel: "challenging",
+                description: "From the Nobel Prize-winning author, a novel about an Artificial Friend with outstanding observational qualities, who watches carefully the behavior of those who come to the store to browse.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?robot,sun",
+                altText: "Book cover of Klara and the Sun by Kazuo Ishiguro showing a robot silhouette against a sunset"
+            },
+            {
+                id: 7,
+                title: "The Vanishing Half",
+                author: "Brit Bennett",
+                genres: ["fiction"],
+                readingLevel: "medium",
+                description: "The Vignes twin sisters will always be identical. But after growing up together in a small, southern black community and running away at age sixteen, one sister lives with her black daughter in the same southern town, while the other secretly passes for white.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?mirror,reflection",
+                altText: "Book cover of The Vanishing Half by Brit Bennett showing a mirror with a reflection"
+            },
+            {
+                id: 8,
+                title: "Sapiens: A Brief History of Humankind",
+                author: "Yuval Noah Harari",
+                genres: ["nonfiction", "history"],
+                readingLevel: "challenging",
+                description: "A groundbreaking narrative of humanity's creation and evolution that explores the ways in which biology and history have defined us.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?evolution,human",
+                altText: "Book cover of Sapiens by Yuval Noah Harari showing human evolution timeline"
+            },
+            {
+                id: 9,
+                title: "Beach Read",
+                author: "Emily Henry",
+                genres: ["romance", "fiction"],
+                readingLevel: "easy",
+                description: "A romance writer who no longer believes in love and a literary writer stuck in a rut engage in a summer-long challenge that may just upend everything they believe about happily ever afters.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?beach,sunset",
+                altText: "Book cover of Beach Read by Emily Henry showing a sunset at the beach"
+            },
+            {
+                id: 10,
+                title: "The Night Watchman",
+                author: "Louise Erdrich",
+                genres: ["fiction", "history"],
+                readingLevel: "medium",
+                description: "Based on the extraordinary life of the author's grandfather who worked as a night watchman and carried the fight against Native dispossession from rural North Dakota all the way to Washington, D.C.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?night,moon",
+                altText: "Book cover of The Night Watchman by Louise Erdrich showing a night sky with moon"
+            },
+            {
+                id: 11,
+                title: "A Promised Land",
+                author: "Barack Obama",
+                genres: ["nonfiction", "biography"],
+                readingLevel: "challenging",
+                description: "A riveting, deeply personal account of history in the making—from the president who inspired us to believe in the power of democracy.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?president,flag",
+                altText: "Book cover of A Promised Land by Barack Obama showing the American flag"
+            },
+            {
+                id: 12,
+                title: "The House in the Cerulean Sea",
+                author: "TJ Klune",
+                genres: ["fantasy", "fiction"],
+                readingLevel: "easy",
+                description: "A magical island. A dangerous task. A burning secret. An enchanting love story, masterfully told, The House in the Cerulean Sea is about the profound experience of discovering an unlikely family in an unexpected place.",
+                imageUrl: "https://source.unsplash.com/random/300x450/?island,sea",
+                altText: "Book cover of The House in the Cerulean Sea by TJ Klune showing a house by a blue sea"
+            }
+        ];
+
+        // DOM Elements
+        const form = document.getElementById('preferences-form');
+        const nameInput = document.getElementById('name');
+        const nameError = document.getElementById('name-error');
+        const genresError = document.getElementById('genres-error');
+        const loadingSection = document.getElementById('loading');
+        const resultsSection = document.getElementById('results-section');
+        const bookGrid = document.getElementById('book-grid');
+        const noResults = document.getElementById('no-results');
+        const resetButton = document.getElementById('reset-button');
+        const srAnnouncement = document.getElementById('sr-announcement');
+
+        // Form validation and submission
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Reset error messages
+            nameError.textContent = '';
+            genresError.textContent = '';
+            
+            let isValid = true;
+            
+            // Validate name
+            if (!nameInput.value.trim()) {
+                nameError.textContent = 'Please enter your name';
+                isValid = false;
+                nameInput.focus();
+            }
+            
+            // Validate genres (at least one must be selected)
+            const genreCheckboxes = document.querySelectorAll('input[name="genre"]:checked');
+            if (genreCheckboxes.length === 0) {
+                genresError.textContent = 'Please select at least one genre';
+                isValid = false;
+                if (nameInput.value.trim()) {
+                    document.querySelector('input[name="genre"]').focus();
+                }
+            }
+            
+            if (isValid) {
+                // Show loading indicator
+                loadingSection.classList.add('active');
+                resultsSection.classList.remove('active');
+                noResults.classList.remove('active');
+                
+                // Announce to screen readers that we're loading
+                announceToScreenReader('Finding book recommendations. Please wait.');
+                
+                // Simulate API call with setTimeout
+                setTimeout(function() {
+                    getRecommendations();
+                }, 1500);
+            }
+        });
+
+        // Reset form and results
+        resetButton.addEventListener('click', resetForm);
+
+        function resetForm() {
+            form.reset();
+            resultsSection.classList.remove('active');
+            noResults.classList.remove('active');
+            loadingSection.classList.remove('active');
+            nameError.textContent = '';
+            genresError.textContent = '';
+            announceToScreenReader('Form has been reset. You can enter new preferences.');
+        }
+
+        // Function to get book recommendations based on form data
+        function getRecommendations() {
+            // Get form values
+            const name = nameInput.value.trim();
+            const favoriteAuthor = document.getElementById('favorite-author').value.trim();
+            const selectedGenres = Array.from(document.querySelectorAll('input[name="genre"]:checked')).map(cb => cb.value);
+            const readingLevel = document.getElementById('reading-level').value;
+            
+            // Filter books based on selected genres and reading level
+            let recommendations = bookDatabase.filter(book => {
+                // Check if any of the book's genres match the selected genres
+                const genreMatch = book.genres.some(genre => selectedGenres.includes(genre));
+                
+                // Check reading level match (if "any" is selected, all books match)
+                const levelMatch = readingLevel === 'any' || book.readingLevel === readingLevel;
+                
+                return genreMatch && levelMatch;
+            });
+            
+            // If favorite author is provided, prioritize books by that author
+            if (favoriteAuthor) {
+                recommendations.sort((a, b) => {
+                    const aAuthorMatch = a.author.toLowerCase().includes(favoriteAuthor.toLowerCase());
+                    const bAuthorMatch = b.author.toLowerCase().includes(favoriteAuthor.toLowerCase());
+                    
+                    if (aAuthorMatch && !bAuthorMatch) return -1;
+                    if (!aAuthorMatch && bAuthorMatch) return 1;
+                    return 0;
+                });
+            }
+            
+            // Hide loading indicator
+            loadingSection.classList.remove('active');
+            
+            // Display results or no results message
+            if (recommendations.length > 0) {
+                displayRecommendations(recommendations, name);
+                resultsSection.classList.add('active');
+                announceToScreenReader(`${recommendations.length} book recommendations found. Results are now displayed.`);
+            } else {
+                noResults.classList.add('active');
+                announceToScreenReader('No book recommendations found matching your criteria. Please try different selections.');
+            }
+        }
+
+        // Function to display book recommendations
+        function displayRecommendations(books, userName) {
+            // Clear previous results
+            bookGrid.innerHTML = '';
+            
+            // Create and append book cards
+            books.forEach(book => {
+                const bookCard = document.createElement('article');
+                bookCard.className = 'book-card';
+                
+                bookCard.innerHTML = `
+                    <img 
+                        src="${book.imageUrl}" 
+                        alt="${book.altText}" 
+                        class="book-image"
+                    >
+                    <div class="book-info">
+                        <h3 class="book-title">${book.title}</h3>
+                        <p class="book-author">by ${book.author}</p>
+                        <p class="book-description">${book.description}</p>
+                        <a href="#" class="book-link" 
+                           onclick="handleInteraction(event)" 
+                           onkeydown="handleInteraction(event)"
+                           aria-label="Learn more about ${book.title} by ${book.author}">
+                            Learn More
+                        </a>
+                    </div>
+                `;
+                
+                bookGrid.appendChild(bookCard);
+            });
+            
+            // Update heading to personalize
+            const resultsHeading = resultsSection.querySelector('h2');
+            resultsHeading.textContent = `${userName}'s Personalized Recommendations`;
+        }
+
+        // Function to handle both click and keyboard interactions
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                
+                event.preventDefault();
+                
+                // Get the book title and author from the aria-label
+                const linkText = event.currentTarget.getAttribute('aria-label');
+                alert(`This would take you to more details about ${linkText}. This feature is not implemented in this demo.`);
+            }
+        }
+
+        // Function to announce messages to screen readers
+        function announceToScreenReader(message) {
+            srAnnouncement.textContent = message;
+            
+            // Clear the announcement after 5 seconds to prevent it from being read again
+            // when the user navigates back to that part of the page
+            setTimeout(() => {
+                srAnnouncement.textContent = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

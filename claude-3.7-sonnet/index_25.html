@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event RSVP - Confirm Your Attendance</title>
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header styles */
+        header {
+            background-color: #3a0ca3;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Navigation styles */
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav li {
+            margin-left: 1.5rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover, nav a:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            text-decoration: underline;
+        }
+
+        /* Main content styles */
+        main {
+            padding: 2rem 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #3a0ca3;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin: 1.5rem 0 1rem;
+            color: #4361ee;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin: 1rem 0 0.5rem;
+            color: #4361ee;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Card styles */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #e63946;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: 3px solid #4361ee;
+            outline-offset: 2px;
+            border-color: #4361ee;
+        }
+
+        .error-message {
+            color: #e63946;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .form-group.error input, 
+        .form-group.error select, 
+        .form-group.error textarea {
+            border-color: #e63946;
+        }
+
+        .form-group.error .error-message {
+            display: block;
+        }
+
+        /* Button styles */
+        .btn {
+            display: inline-block;
+            background-color: #4361ee;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #3a0ca3;
+        }
+
+        .btn:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Attendee list styles */
+        .attendees-list {
+            list-style: none;
+        }
+
+        .attendee-item {
+            background-color: #f8f9fa;
+            border-left: 4px solid #4361ee;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0 4px 4px 0;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Two-column layout for larger screens */
+        .flex-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .flex-container {
+                flex-direction: row;
+            }
+
+            .flex-item {
+                flex: 1;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Success message */
+        .success-message {
+            background-color: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Footer styles */
+        footer {
+            background-color: #3a0ca3;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        footer a:hover, footer a:focus {
+            text-decoration: none;
+        }
+
+        /* Skip link for keyboard users */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #4361ee;
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+            outline: 3px solid #0066cc;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        /* Visually hidden elements (for screen readers) */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header>
+        <div class="container">
+            <div class="logo" role="banner">Event RSVP</div>
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="#event-details">Event Details</a></li>
+                    <li><a href="#rsvp-form">RSVP Form</a></li>
+                    <li><a href="#attendees">Attendees</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" class="container">
+        <h1>Annual Community Gathering</h1>
+        
+        <section id="event-details" class="card" aria-labelledby="event-details-heading">
+            <h2 id="event-details-heading">Event Details</h2>
+            <p>Join us for our annual community gathering! This year's event will feature guest speakers, networking opportunities, and a catered lunch.</p>
+            
+            <div class="flex-container">
+                <div class="flex-item">
+                    <h3>When and Where</h3>
+                    <p><strong>Date:</strong> September 15, 2023</p>
+                    <p><strong>Time:</strong> 10:00 AM - 4:00 PM</p>
+                    <p><strong>Location:</strong> Community Center, 123 Main Street</p>
+                </div>
+                <div class="flex-item">
+                    <h3>What to Expect</h3>
+                    <ul>
+                        <li>Keynote presentations from industry leaders</li>
+                        <li>Interactive workshops</li>
+                        <li>Networking lunch</li>
+                        <li>Community awards ceremony</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="rsvp-form" class="card" aria-labelledby="rsvp-heading">
+            <h2 id="rsvp-heading">RSVP for the Event</h2>
+            <p>Please fill out the form below to confirm your attendance. Fields marked with an asterisk (*) are required.</p>
+            
+            <div id="success-message" class="success-message" role="alert" aria-live="polite">
+                Thank you for your RSVP! We look forward to seeing you at the event.
+            </div>
+            
+            <form id="rsvp-form-element" novalidate>
+                <div class="flex-container">
+                    <div class="flex-item">
+                        <div class="form-group">
+                            <label for="full-name" class="required-field">Full Name</label>
+                            <input 
+                                type="text" 
+                                id="full-name" 
+                                name="full-name" 
+                                required 
+                                aria-required="true"
+                                aria-describedby="full-name-error"
+                            >
+                            <div id="full-name-error" class="error-message">Please enter your full name</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email" class="required-field">Email Address</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                required 
+                                aria-required="true"
+                                aria-describedby="email-error"
+                            >
+                            <div id="email-error" class="error-message">Please enter a valid email address</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number (optional)</label>
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                name="phone"
+                                aria-describedby="phone-error"
+                            >
+                            <div id="phone-error" class="error-message">Please enter a valid phone number</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-item">
+                        <div class="form-group">
+                            <label for="attendance" class="required-field">Will you be attending?</label>
+                            <select 
+                                id="attendance" 
+                                name="attendance" 
+                                required 
+                                aria-required="true"
+                                aria-describedby="attendance-error"
+                            >
+                                <option value="">Please select an option</option>
+                                <option value="yes">Yes, I will attend</option>
+                                <option value="no">No, I cannot attend</option>
+                                <option value="maybe">Maybe, I'm not sure yet</option>
+                            </select>
+                            <div id="attendance-error" class="error-message">Please select your attendance status</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="guests">Number of Additional Guests</label>
+                            <select id="guests" name="guests">
+                                <option value="0">0 - Just myself</option>
+                                <option value="1">1 guest</option>
+                                <option value="2">2 guests</option>
+                                <option value="3">3 guests</option>
+                                <option value="4">4 guests</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dietary">Dietary Restrictions (optional)</label>
+                            <textarea 
+                                id="dietary" 
+                                name="dietary" 
+                                rows="3"
+                                placeholder="Please list any dietary restrictions or allergies"
+                            ></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="btn" 
+                    id="submit-rsvp"
+                    onmousedown="handleInteraction(event)" 
+                    onkeydown="handleInteraction(event)"
+                >
+                    Submit RSVP
+                </button>
+            </form>
+        </section>
+        
+        <section id="attendees" class="card" aria-labelledby="attendees-heading">
+            <h2 id="attendees-heading">Confirmed Attendees</h2>
+            <p>The following people have confirmed their attendance:</p>
+            
+            <ul id="attendees-list" class="attendees-list" aria-live="polite">
+                <li class="attendee-item">
+                    <strong>Jane Smith</strong> - Attending with 2 guests
+                </li>
+                <li class="attendee-item">
+                    <strong>John Doe</strong> - Attending alone
+                </li>
+                <li class="attendee-item">
+                    <strong>Alex Johnson</strong> - Attending with 1 guest
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <footer class="dark-bg">
+        <div class="container">
+            <p>© 2023 Community Event Organization. All rights reserved.</p>
+            <p>For questions about the event or accessibility needs, please contact us at <a href="mailto:events@example.com">events@example.com</a> or call <a href="tel:+15551234567">(555) 123-4567</a>.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('rsvp-form-element');
+            const attendeesList = document.getElementById('attendees-list');
+            const successMessage = document.getElementById('success-message');
+            
+            // Form validation and submission
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Reset previous error states
+                const formGroups = form.querySelectorAll('.form-group');
+                formGroups.forEach(group => group.classList.remove('error'));
+                
+                // Validate required fields
+                let isValid = true;
+                
+                // Validate name
+                const nameInput = document.getElementById('full-name');
+                if (!nameInput.value.trim()) {
+                    showError(nameInput, 'full-name-error');
+                    isValid = false;
+                }
+                
+                // Validate email
+                const emailInput = document.getElementById('email');
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(emailInput.value.trim())) {
+                    showError(emailInput, 'email-error');
+                    isValid = false;
+                }
+                
+                // Validate phone (if provided)
+                const phoneInput = document.getElementById('phone');
+                if (phoneInput.value.trim() !== '') {
+                    const phonePattern = /^[\d\s\-\(\)]+$/;
+                    if (!phonePattern.test(phoneInput.value.trim())) {
+                        showError(phoneInput, 'phone-error');
+                        isValid = false;
+                    }
+                }
+                
+                // Validate attendance selection
+                const attendanceSelect = document.getElementById('attendance');
+                if (!attendanceSelect.value) {
+                    showError(attendanceSelect, 'attendance-error');
+                    isValid = false;
+                }
+                
+                // If form is valid, process submission
+                if (isValid) {
+                    // Get form values
+                    const name = nameInput.value.trim();
+                    const attendance = attendanceSelect.value;
+                    const guests = document.getElementById('guests').value;
+                    
+                    // Only add to attendee list if attending
+                    if (attendance === 'yes') {
+                        // Create new attendee item
+                        const newAttendee = document.createElement('li');
+                        newAttendee.className = 'attendee-item';
+                        
+                        // Set attendee text based on number of guests
+                        const guestText = guests === '0' ? 
+                            'Attending alone' : 
+                            `Attending with ${guests} guest${guests > 1 ? 's' : ''}`;
+                        
+                        newAttendee.innerHTML = `<strong>${name}</strong> - ${guestText}`;
+                        
+                        // Add to list
+                        attendeesList.appendChild(newAttendee);
+                    }
+                    
+                    // Show success message
+                    successMessage.style.display = 'block';
+                    
+                    // Reset form
+                    form.reset();
+                    
+                    // Scroll to success message
+                    successMessage.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Set focus to success message for screen readers
+                    successMessage.setAttribute('tabindex', '-1');
+                    successMessage.focus();
+                    
+                    // Hide success message after 5 seconds
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 5000);
+                }
+            });
+            
+            // Function to show error for a field
+            function showError(inputElement, errorId) {
+                const formGroup = inputElement.closest('.form-group');
+                formGroup.classList.add('error');
+                inputElement.setAttribute('aria-invalid', 'true');
+                
+                // Set focus on first error field
+                if (document.querySelector('.form-group.error input, .form-group.error select, .form-group.error textarea') === inputElement) {
+                    inputElement.focus();
+                }
+            }
+            
+            // Add keyboard support for interactive elements
+            const interactiveElements = document.querySelectorAll('button, a');
+            interactiveElements.forEach(element => {
+                element.addEventListener('keydown', handleInteraction);
+                element.addEventListener('mousedown', handleInteraction);
+            });
+        });
+        
+        // For any element with mouse events, add keyboard support
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'mousedown' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                
+                // Prevent default space bar scrolling
+                if (event.key === ' ') {
+                    event.preventDefault();
+                }
+                
+                // If it's a keydown event, simulate click
+                if (event.type === 'keydown') {
+                    // For buttons, the click event will fire automatically
+                    // For other elements, we might need to trigger it manually
+                    if (event.target.tagName !== 'BUTTON') {
+                        event.target.click();
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

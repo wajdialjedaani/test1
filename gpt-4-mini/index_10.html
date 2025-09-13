@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Friendly Products Showcase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4CAF50; /* Green theme */
+            color: white;
+            padding: 10px 20px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2em;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .product-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .product-card:hover {
+            transform: scale(1.05);
+        }
+
+        .quick-view {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .product-card:hover .quick-view {
+            display: block;
+        }
+
+        /* Accessibility-focused CSS with focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        .product-image {
+            width: 100%;
+            height: auto;
+        }
+
+        .category-filter, .sort-options {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#products">Products</a>
+            <a href="#about">About Us</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Eco-Friendly Products Showcase</h1>
+        <section class="filter-section">
+            <label for="category" class="category-filter">Filter by Category:</label>
+            <select id="category" aria-label="Select product category">
+                <option value="all">All</option>
+                <option value="bamboo">Bamboo Products</option>
+                <option value="recycled">Recycled Materials</option>
+                <option value="organic">Organic Products</option>
+            </select>
+
+            <label for="sort" class="sort-options">Sort by:</label>
+            <select id="sort" aria-label="Select sorting option">
+                <option value="popularity">Popularity</option>
+                <option value="price">Price</option>
+            </select>
+        </section>
+        <section id="products" aria-labelledby="products-heading">
+            <h2 id="products-heading">Available Products</h2>
+            <div class="product-grid" role="grid">
+                <article class="product-card" role="gridcell" tabindex="0">
+                    <img src="bamboo-toothbrush.jpg" alt="Bamboo Toothbrush" class="product-image">
+                    <h3>Bamboo Toothbrush</h3>
+                    <p>Price: $5.00</p>
+                    <button class="quick-view" aria-label="Quick view of Bamboo Toothbrush">Quick View</button>
+                </article>
+                <article class="product-card" role="gridcell" tabindex="0">
+                    <img src="recycled-bag.jpg" alt="Recycled Shopping Bag" class="product-image">
+                    <h3>Recycled Shopping Bag</h3>
+                    <p>Price: $15.00</p>
+                    <button class="quick-view" aria-label="Quick view of Recycled Shopping Bag">Quick View</button>
+                </article>
+                <article class="product-card" role="gridcell" tabindex="0">
+                    <img src="organic-soap.jpg" alt="Organic Soap" class="product-image">
+                    <h3>Organic Soap</h3>
+                    <p>Price: $8.00</p>
+                    <button class="quick-view" aria-label="Quick view of Organic Soap">Quick View</button>
+                </article>
+                <!-- Additional products can be added here -->
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Eco-Friendly Products. All rights reserved.</p>
+    </footer>
+    <script>
+        // For any element with mouse events, add keyboard support
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                alert('Quick view functionality is not implemented yet.');
+            }
+        }
+
+        // Attach event listeners to all quick view buttons
+        const quickViewButtons = document.querySelectorAll('.quick-view');
+        quickViewButtons.forEach(button => {
+            button.addEventListener('click', handleInteraction);
+            button.addEventListener('keydown', handleInteraction);
+        });
+    </script>
+</body>
+</html>

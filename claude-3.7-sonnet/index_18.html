@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Travel Map - Share Your Journeys</title>
+    <style>
+        /* Base styles with accessibility in mind */
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #004080;
+            --text-color: #333333;
+            --light-bg: #f5f5f5;
+            --error-color: #d32f2f;
+            --success-color: #2e7d32;
+            --focus-color: #0066cc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #ffffff;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        header {
+            padding: 20px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            margin: 20px 0;
+            font-size: 1.8rem;
+        }
+
+        h3 {
+            margin: 15px 0;
+            font-size: 1.3rem;
+        }
+
+        main {
+            padding: 20px 0;
+            min-height: 70vh;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border: 2px solid #ddd;
+            margin: 20px 0;
+            background-color: var(--light-bg);
+            overflow: hidden;
+        }
+
+        .map {
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e6f2ff"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="%23cce0ff" stroke-width="1"/></svg>');
+            position: relative;
+        }
+
+        .map-pin {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            transform: translate(-50%, -100%);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .map-pin::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 24px;
+            background-color: var(--primary-color);
+            border-radius: 50% 50% 0 50%;
+            transform: rotate(45deg);
+        }
+
+        .map-pin:focus {
+            outline: 3px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        .pin-info {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            width: 250px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 20;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .pin-info h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .pin-info p {
+            margin: 10px 0;
+        }
+
+        .pin-info .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .form-container {
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .required-field::after {
+            content: "*";
+            color: var(--error-color);
+            margin-left: 5px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            color: var(--success-color);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .experiences-list {
+            margin: 20px 0;
+        }
+
+        .experience-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: white;
+        }
+
+        .experience-card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        .instructions {
+            background-color: #e6f2ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding: 20px 0;
+            border-top: 1px solid #ddd;
+            text-align: center;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .map-container {
+                height: 350px;
+            }
+
+            .pin-info {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .map-container {
+                height: 300px;
+            }
+
+            .pin-info {
+                width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Interactive Travel Map</h1>
+        <p>Share your travel experiences and discover new destinations!</p>
+    </header>
+
+    <main>
+        <section aria-labelledby="map-section-heading">
+            <h2 id="map-section-heading">Your Travel Map</h2>
+            
+            <div class="instructions" aria-labelledby="instructions-heading">
+                <h3 id="instructions-heading">How to Use This Map</h3>
+                <p>Click or tap anywhere on the map to add a new location pin. You can then enter details about your experience at that location.</p>
+                <p>Use the tab key to navigate through pins and press Enter to view details.</p>
+            </div>
+
+            <div class="map-container" id="map-container">
+                <div id="map" class="map" 
+                     role="application" 
+                     aria-label="Interactive travel map. Click anywhere to add a pin."
+                     tabindex="0">
+                    <!-- Map pins will be added here dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <section aria-labelledby="add-experience-heading">
+            <h2 id="add-experience-heading">Add Your Travel Experience</h2>
+            
+            <div class="form-container">
+                <form id="experience-form" novalidate>
+                    <div class="form-group">
+                        <label for="location-name" class="required-field">Location Name</label>
+                        <input type="text" id="location-name" name="location-name" required aria-required="true" aria-describedby="location-name-error">
+                        <div id="location-name-error" class="error-message" aria-live="polite"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="country" class="required-field">Country</label>
+                        <input type="text" id="country" name="country" required aria-required="true" aria-describedby="country-error">
+                        <div id="country-error" class="error-message" aria-live="polite"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="visit-date" class="required-field">Date of Visit</label>
+                        <input type="date" id="visit-date" name="visit-date" required aria-required="true" aria-describedby="visit-date-error">
+                        <div id="visit-date-error" class="error-message" aria-live="polite"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience" class="required-field">Your Experience</label>
+                        <textarea id="experience" name="experience" rows="4" required aria-required="true" aria-describedby="experience-error"></textarea>
+                        <div id="experience-error" class="error-message" aria-live="polite"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rating">Rating (1-5)</label>
+                        <select id="rating" name="rating">
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="3" selected>3 - Good</option>
+                            <option value="2">2 - Fair</option>
+                            <option value="1">1 - Poor</option>
+                        </select>
+                    </div>
+                    
+                    <input type="hidden" id="pin-x" name="pin-x" value="">
+                    <input type="hidden" id="pin-y" name="pin-y" value="">
+                    
+                    <button type="submit" id="submit-btn">Add Experience</button>
+                    <div id="form-status" class="success-message" aria-live="polite"></div>
+                </form>
+            </div>
+        </section>
+
+        <section aria-labelledby="experiences-heading">
+            <h2 id="experiences-heading">Shared Experiences</h2>
+            <div id="experiences-list" class="experiences-list" aria-live="polite">
+                <!-- Experiences will be added here dynamically -->
+                <p id="no-experiences">No experiences have been shared yet. Be the first to add your travel story!</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Interactive Travel Map. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // State management
+            const state = {
+                pins: [],
+                experiences: [],
+                activePinInfo: null,
+                selectedPinCoords: null
+            };
+
+            // DOM elements
+            const map = document.getElementById('map');
+            const form = document.getElementById('experience-form');
+            const pinXInput = document.getElementById('pin-x');
+            const pinYInput = document.getElementById('pin-y');
+            const experiencesList = document.getElementById('experiences-list');
+            const noExperiencesMsg = document.getElementById('no-experiences');
+            const formStatus = document.getElementById('form-status');
+
+            // Form fields
+            const locationNameInput = document.getElementById('location-name');
+            const countryInput = document.getElementById('country');
+            const visitDateInput = document.getElementById('visit-date');
+            const experienceInput = document.getElementById('experience');
+            const ratingInput = document.getElementById('rating');
+
+            // Error message elements
+            const locationNameError = document.getElementById('location-name-error');
+            const countryError = document.getElementById('country-error');
+            const visitDateError = document.getElementById('visit-date-error');
+            const experienceError = document.getElementById('experience-error');
+
+            // Initialize map click handler
+            initializeMap();
+
+            // Initialize form submission
+            initializeForm();
+
+            // Load any saved experiences from localStorage
+            loadSavedExperiences();
+
+            // Map initialization
+            function initializeMap() {
+                // Add click event to map for adding pins
+                map.addEventListener('click', handleMapClick);
+                map.addEventListener('keydown', handleMapKeydown);
+            }
+
+            // Handle map keyboard navigation
+            function handleMapKeydown(event) {
+                // Allow users to add a pin with Enter key when map is focused
+                if (event.key === 'Enter') {
+                    // Since we can't determine coordinates from keyboard,
+                    // we'll place a pin in the center of the map
+                    const mapRect = map.getBoundingClientRect();
+                    const centerX = mapRect.width / 2;
+                    const centerY = mapRect.height / 2;
+                    
+                    addPin(centerX, centerY);
+                    setSelectedPinCoords(centerX, centerY);
+                    
+                    // Announce to screen readers
+                    announceToScreenReader('Pin added to center of map. You can now fill in the experience details.');
+                    
+                    // Focus the first form field
+                    locationNameInput.focus();
+                }
+            }
+
+            // Handle map click for adding pins
+            function handleMapClick(event) {
+                const mapRect = map.getBoundingClientRect();
+                const x = event.clientX - mapRect.left;
+                const y = event.clientY - mapRect.top;
+                
+                addPin(x, y);
+                setSelectedPinCoords(x, y);
+                
+                // Announce to screen readers
+                announceToScreenReader('Pin added to map. You can now fill in the experience details.');
+                
+                // Focus the first form field
+                locationNameInput.focus();
+            }
+
+            // Add a pin to the map
+            function addPin(x, y) {
+                // Create pin element
+                const pin = document.createElement('div');
+                pin.className = 'map-pin';
+                pin.style.left = `${x}px`;
+                pin.style.top = `${y}px`;
+                pin.setAttribute('tabindex', '0');
+                pin.setAttribute('role', 'button');
+                pin.setAttribute('aria-label', 'Map pin. Press Enter to add details.');
+                
+                // Add event listeners for pin interaction
+                pin.addEventListener('click', function() {
+                    setSelectedPinCoords(x, y);
+                    locationNameInput.focus();
+                });
+                
+                pin.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setSelectedPinCoords(x, y);
+                        locationNameInput.focus();
+                    }
+                });
+                
+                // Add pin to map
+                map.appendChild(pin);
+                
+                // Store pin data
+                state.pins.push({
+                    element: pin,
+                    x: x,
+                    y: y
+                });
+            }
+
+            // Set the selected pin coordinates for the form
+            function setSelectedPinCoords(x, y) {
+                state.selectedPinCoords = { x, y };
+                pinXInput.value = x;
+                pinYInput.value = y;
+            }
+
+            // Initialize form submission
+            function initializeForm() {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    
+                    // Validate form
+                    if (validateForm()) {
+                        // Create experience object
+                        const experience = {
+                            id: Date.now(), // Unique ID based on timestamp
+                            location: locationNameInput.value.trim(),
+                            country: countryInput.value.trim(),
+                            date: visitDateInput.value,
+                            experience: experienceInput.value.trim(),
+                            rating: parseInt(ratingInput.value),
+                            coordinates: {
+                                x: parseFloat(pinXInput.value),
+                                y: parseFloat(pinYInput.value)
+                            }
+                        };
+                        
+                        // Add experience to state
+                        state.experiences.push(experience);
+                        
+                        // Save to localStorage
+                        saveExperiences();
+                        
+                        // Update UI
+                        renderExperiences();
+                        
+                        // Reset form
+                        form.reset();
+                        pinXInput.value = '';
+                        pinYInput.value = '';
+                        state.selectedPinCoords = null;
+                        
+                        // Show success message
+                        formStatus.textContent = 'Experience added successfully!';
+                        setTimeout(() => {
+                            formStatus.textContent = '';
+                        }, 3000);
+                        
+                        // Announce to screen readers
+                        announceToScreenReader('Experience added successfully!');
+                    }
+                });
+            }
+
+            // Validate form inputs
+            function validateForm() {
+                let isValid = true;
+                
+                // Reset error messages
+                locationNameError.textContent = '';
+                countryError.textContent = '';
+                visitDateError.textContent = '';
+                experienceError.textContent = '';
+                
+                // Validate location name
+                if (!locationNameInput.value.trim()) {
+                    locationNameError.textContent = 'Please enter a location name';
+                    isValid = false;
+                }
+                
+                // Validate country
+                if (!countryInput.value.trim()) {
+                    countryError.textContent = 'Please enter a country';
+                    isValid = false;
+                }
+                
+                // Validate visit date
+                if (!visitDateInput.value) {
+                    visitDateError.textContent = 'Please select a date of visit';
+                    isValid = false;
+                }
+                
+                // Validate experience
+                if (!experienceInput.value.trim()) {
+                    experienceError.textContent = 'Please share your experience';
+                    isValid = false;
+                }
+                
+                // Validate pin coordinates
+                if (!pinXInput.value || !pinYInput.value) {
+                    formStatus.textContent = 'Please select a location on the map first';
+                    formStatus.className = 'error-message';
+                    setTimeout(() => {
+                        formStatus.textContent = '';
+                        formStatus.className = 'success-message';
+                    }, 3000);
+                    isValid = false;
+                }
+                
+                return isValid;
+            }
+
+            // Render experiences list
+            function renderExperiences() {
+                // Clear current list except for the "no experiences" message
+                const children = Array.from(experiencesList.children);
+                children.forEach(child => {
+                    if (child.id !== 'no-experiences') {
+                        experiencesList.removeChild(child);
+                    }
+                });
+                
+                // Show/hide "no experiences" message
+                if (state.experiences.length === 0) {
+                    noExperiencesMsg.style.display = 'block';
+                } else {
+                    noExperiencesMsg.style.display = 'none';
+                    
+                    // Add experiences to the list
+                    state.experiences.forEach(exp => {
+                        const card = document.createElement('article');
+                        card.className = 'experience-card';
+                        card.setAttribute('aria-labelledby', `exp-title-${exp.id}`);
+                        
+                        const title = document.createElement('h3');
+                        title.id = `exp-title-${exp.id}`;
+                        title.textContent = `${exp.location}, ${exp.country}`;
+                        
+                        const date = document.createElement('p');
+                        date.innerHTML = `<strong>Date:</strong> ${formatDate(exp.date)}`;
+                        
+                        const rating = document.createElement('p');
+                        rating.innerHTML = `<strong>Rating:</strong> ${getRatingStars(exp.rating)}`;
+                        
+                        const expText = document.createElement('p');
+                        expText.textContent = exp.experience;
+                        
+                        card.appendChild(title);
+                        card.appendChild(date);
+                        card.appendChild(rating);
+                        card.appendChild(expText);
+                        
+                        experiencesList.appendChild(card);
+                    });
+                }
+            }
+
+            // Format date for display
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+
+            // Generate rating stars
+            function getRatingStars(rating) {
+                const fullStar = '★';
+                const emptyStar = '☆';
+                const stars = fullStar.repeat(rating) + emptyStar.repeat(5 - rating);
+                return `<span aria-label="${rating} out of 5 stars">${stars}</span>`;
+            }
+
+            // Save experiences to localStorage
+            function saveExperiences() {
+                try {
+                    localStorage.setItem('travelExperiences', JSON.stringify(state.experiences));
+                } catch (error) {
+                    console.error('Error saving to localStorage:', error);
+                }
+            }
+
+            // Load experiences from localStorage
+            function loadSavedExperiences() {
+                try {
+                    const savedExperiences = localStorage.getItem('travelExperiences');
+                    if (savedExperiences) {
+                        state.experiences = JSON.parse(savedExperiences);
+                        
+                        // Render experiences
+                        renderExperiences();
+                        
+                        // Recreate pins for saved experiences
+                        state.experiences.forEach(exp => {
+                            addPin(exp.coordinates.x, exp.coordinates.y);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading from localStorage:', error);
+                }
+            }
+
+            // Utility function to announce messages to screen readers
+            function announceToScreenReader(message) {
+                const announcement = document.createElement('div');
+                announcement.setAttribute('aria-live', 'assertive');
+                announcement.classList.add('sr-only');
+                announcement.textContent = message;
+                document.body.appendChild(announcement);
+                
+                // Remove after announcement is read
+                setTimeout(() => {
+                    document.body.removeChild(announcement);
+                }, 3000);
+            }
+
+            // Handle interaction events for both mouse and keyboard
+            function handleInteraction(event) {
+                if (event.type === 'click' || 
+                    (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                    // Your action here
+                    if (event.type === 'keydown') {
+                        event.preventDefault(); // Prevent scrolling with space key
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

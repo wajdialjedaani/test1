@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Event Countdown Timer - Days, Hours, Minutes, Seconds</title>
+    <style>
+        :root {
+            --primary-color: #0057b8;
+            --secondary-color: #f7f7f7;
+            --accent-color: #ffcc00;
+            --text-color: #222222;
+            --progress-bg: #e0e0e0;
+            --progress-fg: #0057b8;
+            --focus-outline: #0066cc;
+            --progress-height: 24px;
+        }
+
+        html {
+            box-sizing: border-box;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin: 0;
+            font-family: system-ui, Arial, sans-serif;
+            background: var(--secondary-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 1rem 0;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+        nav li {
+            margin: 0 1rem;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            position: relative;
+        }
+        nav a:focus, nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem 1rem 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .countdown-section {
+            width: 100%;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .countdown-label {
+            font-size: 1.15rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .countdown-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+        }
+        .countdown-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            line-height: 1.1;
+            letter-spacing: 0.04em;
+        }
+        .countdown-desc {
+            font-size: 1rem;
+            color: #555;
+            margin-top: 0.3em;
+        }
+        /* Progress Bar Styles */
+        .progressbar-section {
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            margin-bottom: 0.3em;
+        }
+        .progress-label span {
+            font-size: 1rem;
+        }
+        .progressbar {
+            width: 100%;
+            height: var(--progress-height);
+            background: var(--progress-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progressbar[role="progressbar"] {
+            /* visually distinguish for screen readers */
+        }
+        .progressbar-value {
+            background: linear-gradient(90deg, var(--progress-fg), var(--accent-color));
+            height: 100%;
+            width: 0;
+            transition: width 0.5s cubic-bezier(.4,2,.6,1);
+        }
+        .progressbar-text {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1rem;
+            color: #fff;
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+        /* Focus indicators for all interactive elements */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .countdown-timer {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .countdown-section {
+                padding: 1.2rem 0.7rem 1rem 0.7rem;
+            }
+            .progressbar-section {
+                margin-top: 1rem;
+            }
+        }
+        /* Visually hidden utility class for screen readers */
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            border: 0 !important;
+            white-space: nowrap !important;
+        }
+        /* High contrast focus for dark backgrounds (not used here, but included per requirement) */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#main-content">Skip to main content</a></li>
+                <!-- Add more navigation links as needed -->
+            </ul>
+        </nav>
+    </header>
+    <main id="main-content" tabindex="-1">
+        <h1>Countdown to the Event</h1>
+        <section class="countdown-section" aria-labelledby="event-countdown-heading">
+            <h2 id="event-countdown-heading" class="countdown-label">
+                Time Remaining Until: <span id="event-date-label"></span>
+            </h2>
+            <div class="countdown-timer" aria-live="polite" aria-atomic="true">
+                <div class="countdown-unit">
+                    <span class="countdown-value" id="days" aria-label="Days">--</span>
+                    <span class="countdown-desc">Days</span>
+                </div>
+                <div class="countdown-unit">
+                    <span class="countdown-value" id="hours" aria-label="Hours">--</span>
+                    <span class="countdown-desc">Hours</span>
+                </div>
+                <div class="countdown-unit">
+                    <span class="countdown-value" id="minutes" aria-label="Minutes">--</span>
+                    <span class="countdown-desc">Minutes</span>
+                </div>
+                <div class="countdown-unit">
+                    <span class="countdown-value" id="seconds" aria-label="Seconds">--</span>
+                    <span class="countdown-desc">Seconds</span>
+                </div>
+            </div>
+            <div class="progressbar-section">
+                <div class="progress-label">
+                    <span id="progress-label">Event Progress</span>
+                    <span id="progress-percent" aria-live="polite" aria-atomic="true">0%</span>
+                </div>
+                <div
+                    class="progressbar"
+                    role="progressbar"
+                    aria-labelledby="progress-label"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow="0"
+                    tabindex="0"
+                >
+                    <div class="progressbar-value" id="progressbar-value"></div>
+                    <span class="progressbar-text" id="progressbar-text">0%</span>
+                </div>
+            </div>
+            <p id="event-ended-message" class="sr-only" aria-live="assertive"></p>
+        </section>
+    </main>
+    <footer>
+        <section aria-label="Footer information" style="text-align:center; padding: 1.5rem 0 1rem 0;">
+            <small>
+                &copy; <span id="year"></span> Accessible Countdown Timer. All rights reserved.
+            </small>
+        </section>
+    </footer>
+    <script>
+        // ==== CONFIGURATION ====
+        // Set your event's target date and time (YYYY-MM-DDTHH:MM:SS in local time)
+        // Example: July 31, 2024 at 18:00:00
+        const EVENT_TITLE = "July 31, 2024, 6:00 PM";
+        const EVENT_DATE = new Date("2024-07-31T18:00:00"); // Set your event date here
+
+        // Set the countdown's start date (when to start the progress bar)
+        // If you want the progress bar to start now, use new Date()
+        // If you want to show progress from a specific date, set it below
+        const PROGRESS_START_DATE = new Date(); // Progress starts now
+
+        // ==== END CONFIGURATION ====
+
+        // Utility: Pad numbers with leading zeros
+        function pad(num, size) {
+            let s = String(num);
+            while (s.length < size) s = "0" + s;
+            return s;
+        }
+
+        // Accessibility: Set the event date label
+        document.getElementById('event-date-label').textContent = EVENT_TITLE;
+
+        // Accessibility: Set current year in footer
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Countdown logic
+        function updateCountdown() {
+            const now = new Date();
+            let distance = EVENT_DATE - now;
+            let ended = false;
+
+            if (distance < 0) {
+                distance = 0;
+                ended = true;
+            }
+
+            // Calculate time units
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Update DOM
+            document.getElementById('days').textContent = pad(days, 2);
+            document.getElementById('hours').textContent = pad(hours, 2);
+            document.getElementById('minutes').textContent = pad(minutes, 2);
+            document.getElementById('seconds').textContent = pad(seconds, 2);
+
+            // Progress bar calculation
+            let total = EVENT_DATE - PROGRESS_START_DATE;
+            let elapsed = now - PROGRESS_START_DATE;
+            if (total <= 0) {
+                // If event date is before or same as start, set progress to 100%
+                total = 1;
+                elapsed = 1;
+            }
+            let percent = Math.min(Math.max((elapsed / total) * 100, 0), 100);
+            percent = ended ? 100 : percent;
+
+            // Update progress bar
+            const progressBar = document.getElementById('progressbar-value');
+            const progressBarText = document.getElementById('progressbar-text');
+            const progressBarContainer = progressBar.parentElement;
+            const progressPercent = document.getElementById('progress-percent');
+            progressBar.style.width = percent + "%";
+            progressBarText.textContent = Math.round(percent) + "%";
+            progressBarContainer.setAttribute('aria-valuenow', Math.round(percent));
+            progressPercent.textContent = Math.round(percent) + "%";
+
+            // If event ended
+            const endedMsg = document.getElementById('event-ended-message');
+            if (ended) {
+                endedMsg.textContent = "The event has ended.";
+                // Visually indicate event ended for all users
+                progressBar.style.background = "#aaa";
+                progressBarText.textContent = "100%";
+                document.getElementById('days').textContent = "00";
+                document.getElementById('hours').textContent = "00";
+                document.getElementById('minutes').textContent = "00";
+                document.getElementById('seconds').textContent = "00";
+            } else {
+                endedMsg.textContent = "";
+            }
+        }
+
+        // Initial update
+        updateCountdown();
+        // Update every second
+        setInterval(updateCountdown, 1000);
+
+        // Keyboard accessibility for skip link
+        document.querySelector('a[href="#main-content"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            const main = document.getElementById('main-content');
+            main.focus();
+        });
+
+        // Progress bar: Make sure keyboard users can focus and get info
+        const progressBarContainer = document.querySelector('.progressbar');
+        progressBarContainer.addEventListener('keydown', function(event) {
+            // Space or Enter will read out the current progress
+            if (event.key === ' ' || event.key === 'Enter') {
+                event.preventDefault();
+                // Announce progress via alert
+                const percent = progressBarContainer.getAttribute('aria-valuenow');
+                alert('Event progress is ' + percent + ' percent.');
+            }
+        });
+
+        // For mouse click, also provide info (optional)
+        progressBarContainer.addEventListener('click', function() {
+            const percent = progressBarContainer.getAttribute('aria-valuenow');
+            alert('Event progress is ' + percent + ' percent.');
+        });
+    </script>
+</body>
+</html>

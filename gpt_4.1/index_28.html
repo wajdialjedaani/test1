@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GardenShare Community – Share Your Plants and Gardens</title>
+    <style>
+        /* Reset and base styles */
+        html {
+            box-sizing: border-box;
+            font-size: 100%;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5faf5;
+            color: #222;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        header {
+            background: #338a4e;
+            color: #fff;
+            padding: 1rem 0;
+        }
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .site-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .nav-links {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 1.2rem;
+        }
+        .nav-links li {
+            display: inline;
+        }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: text-decoration 0.2s;
+        }
+        .nav-links a:focus, .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem 3rem 1rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            color: #22663a;
+        }
+        h2 {
+            font-size: 1.4rem;
+            color: #22663a;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Upload Form */
+        .upload-section {
+            background: #e8f6ea;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 2px 8px rgba(34,102,58,0.07);
+        }
+        .upload-section label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        .required {
+            color: #b1001c;
+            font-size: 1rem;
+            margin-left: 0.2rem;
+        }
+        .form-row {
+            margin-bottom: 1.1rem;
+        }
+        .upload-section input[type="file"] {
+            display: block;
+            margin-top: 0.2rem;
+        }
+        .upload-section input[type="text"], 
+        .upload-section textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1.5px solid #a2c6b6;
+            border-radius: 4px;
+            font-size: 1rem;
+            background: #fff;
+        }
+        .upload-section textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+        .upload-section button[type="submit"] {
+            background: #338a4e;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.7rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .upload-section button[type="submit"]:hover,
+        .upload-section button[type="submit"]:focus {
+            background: #22663a;
+        }
+        .error-message {
+            color: #b1001c;
+            font-size: 1rem;
+            margin-top: 0.2rem;
+        }
+        .visually-hidden {
+            position: absolute;
+            left: -10000px;
+            width: 1px;
+            height: 1px;
+            top: auto;
+            overflow: hidden;
+        }
+
+        /* Posts Feed */
+        .feed-section {
+            margin-bottom: 2rem;
+        }
+        .feed-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .feed-list li {
+            margin-bottom: 2rem;
+        }
+        article.post {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(34,102,58,0.07);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .post-img {
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #e8f6ea;
+            border: 1.5px solid #a2c6b6;
+            flex-shrink: 0;
+        }
+        .post-content {
+            flex: 1;
+        }
+        .post-desc {
+            margin: 0.7rem 0 0.5rem 0;
+        }
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .like-btn {
+            background: #e8f6ea;
+            color: #22663a;
+            border: 1.5px solid #a2c6b6;
+            border-radius: 4px;
+            padding: 0.4rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .like-btn[aria-pressed="true"] {
+            background: #338a4e;
+            color: #fff;
+            border-color: #22663a;
+        }
+        .like-btn:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .like-count {
+            font-weight: 600;
+        }
+
+        /* Comments */
+        .comments-section {
+            margin-top: 1.2rem;
+        }
+        .comments-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem 0;
+        }
+        .comment {
+            background: #f5faf5;
+            border-radius: 4px;
+            padding: 0.7rem 1rem;
+            margin-bottom: 0.7rem;
+            font-size: 1rem;
+        }
+        .comment-meta {
+            font-size: 0.95rem;
+            color: #22663a;
+            font-weight: 600;
+        }
+        .add-comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .add-comment-form label {
+            font-weight: 500;
+        }
+        .add-comment-form input[type="text"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1.5px solid #a2c6b6;
+            border-radius: 4px;
+            font-size: 1rem;
+            background: #fff;
+        }
+        .add-comment-form button[type="submit"] {
+            align-self: flex-start;
+            background: #338a4e;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .add-comment-form button[type="submit"]:hover,
+        .add-comment-form button[type="submit"]:focus {
+            background: #22663a;
+        }
+
+        /* Footer */
+        footer {
+            background: #338a4e;
+            color: #fff;
+            text-align: center;
+            padding: 1.2rem 0 1rem 0;
+            font-size: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* Focus indicators (WCAG required) */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        /* Responsive design */
+        @media (max-width: 700px) {
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.7rem;
+            }
+            .post-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .post-img {
+                width: 100%;
+                height: 170px;
+            }
+        }
+        @media (max-width: 500px) {
+            main {
+                padding: 1rem 0.2rem 2rem 0.2rem;
+            }
+            .upload-section, article.post {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <span class="site-title">GardenShare Community</span>
+            <ul class="nav-links">
+                <li><a href="#upload" id="nav-upload">Upload Plant/Garden</a></li>
+                <li><a href="#feed" id="nav-feed">Community Feed</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Share Your Plants and Gardens</h1>
+        <section id="upload" class="upload-section" aria-labelledby="upload-heading">
+            <h2 id="upload-heading">Upload a New Plant or Garden Photo</h2>
+            <form id="postForm" autocomplete="off" novalidate>
+                <div class="form-row">
+                    <label for="plantImage">
+                        Photo
+                        <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <input type="file" id="plantImage" name="plantImage" accept="image/*" required aria-required="true" aria-describedby="plantImageError plantImageHelp">
+                    <div id="plantImageHelp" class="visually-hidden">Choose a photo of your plant or garden. Only image files are allowed.</div>
+                    <div id="plantImageError" class="error-message" aria-live="polite"></div>
+                </div>
+                <div class="form-row">
+                    <label for="plantTitle">
+                        Title
+                        <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <input type="text" id="plantTitle" name="plantTitle" maxlength="60" required aria-required="true" aria-describedby="plantTitleError plantTitleHelp">
+                    <div id="plantTitleHelp" class="visually-hidden">Enter a short, descriptive title for your post.</div>
+                    <div id="plantTitleError" class="error-message" aria-live="polite"></div>
+                </div>
+                <div class="form-row">
+                    <label for="plantDesc">
+                        Description
+                        <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <textarea id="plantDesc" name="plantDesc" maxlength="300" required aria-required="true" aria-describedby="plantDescError plantDescHelp"></textarea>
+                    <div id="plantDescHelp" class="visually-hidden">Describe your plant or garden, care tips, or story.</div>
+                    <div id="plantDescError" class="error-message" aria-live="polite"></div>
+                </div>
+                <button type="submit" id="submitPost">Post to Community</button>
+            </form>
+        </section>
+        <section id="feed" class="feed-section" aria-labelledby="feed-heading">
+            <h2 id="feed-heading">Community Feed</h2>
+            <ul id="feedList" class="feed-list" aria-live="polite" aria-relevant="additions">
+                <!-- Posts will be dynamically inserted here -->
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <span>© 2024 GardenShare Community. All gardeners welcome!</span>
+    </footer>
+    <script>
+        // Utility for generating unique IDs for posts/comments
+        function uniqueId(prefix) {
+            return prefix + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Helper: Escape HTML to prevent XSS
+        function escapeHTML(str) {
+            return str.replace(/[&<>"']/g, function (m) {
+                return ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                })[m];
+            });
+        }
+
+        // Focus management for navigation links (skip to section)
+        document.getElementById('nav-upload').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('upload-heading').focus();
+        });
+        document.getElementById('nav-feed').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('feed-heading').focus();
+        });
+
+        // Initial focusable headings for skip links
+        document.getElementById('upload-heading').setAttribute('tabindex', '-1');
+        document.getElementById('feed-heading').setAttribute('tabindex', '-1');
+
+        // Accessible form handling
+        const postForm = document.getElementById('postForm');
+        const feedList = document.getElementById('feedList');
+        let posts = []; // In-memory post storage
+
+        // Error message elements
+        const plantImageError = document.getElementById('plantImageError');
+        const plantTitleError = document.getElementById('plantTitleError');
+        const plantDescError = document.getElementById('plantDescError');
+
+        // Live region for dynamic feedback
+        function announce(message) {
+            let region = document.getElementById('aria-live-region');
+            if (!region) {
+                region = document.createElement('div');
+                region.id = 'aria-live-region';
+                region.setAttribute('aria-live', 'polite');
+                region.className = 'visually-hidden';
+                document.body.appendChild(region);
+            }
+            region.textContent = message;
+        }
+
+        // Validate upload form
+        function validatePostForm(form) {
+            let valid = true;
+            // Reset errors
+            plantImageError.textContent = '';
+            plantTitleError.textContent = '';
+            plantDescError.textContent = '';
+
+            // Validate image
+            const imageInput = form.plantImage;
+            if (!imageInput.files || !imageInput.files[0]) {
+                plantImageError.textContent = 'Please select a photo to upload.';
+                valid = false;
+            } else if (!imageInput.files[0].type.startsWith('image/')) {
+                plantImageError.textContent = 'The selected file must be an image.';
+                valid = false;
+            }
+
+            // Validate title
+            const titleInput = form.plantTitle;
+            if (!titleInput.value.trim()) {
+                plantTitleError.textContent = 'Please enter a title for your post.';
+                valid = false;
+            } else if (titleInput.value.trim().length > 60) {
+                plantTitleError.textContent = 'Title must be 60 characters or fewer.';
+                valid = false;
+            }
+
+            // Validate description
+            const descInput = form.plantDesc;
+            if (!descInput.value.trim()) {
+                plantDescError.textContent = 'Please enter a description.';
+                valid = false;
+            } else if (descInput.value.trim().length > 300) {
+                plantDescError.textContent = 'Description must be 300 characters or fewer.';
+                valid = false;
+            }
+            return valid;
+        }
+
+        // Handle post form submission
+        postForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!validatePostForm(postForm)) {
+                return;
+            }
+            const file = postForm.plantImage.files[0];
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                // Create post object
+                const post = {
+                    id: uniqueId('post'),
+                    imageSrc: ev.target.result,
+                    imageAlt: `Photo of ${escapeHTML(postForm.plantTitle.value.trim())}`,
+                    title: escapeHTML(postForm.plantTitle.value.trim()),
+                    desc: escapeHTML(postForm.plantDesc.value.trim()),
+                    likes: 0,
+                    liked: false,
+                    comments: []
+                };
+                posts.unshift(post); // Add to top
+                renderFeed();
+                announce('Post added to community feed.');
+                postForm.reset();
+                // Set focus to feed heading for context
+                document.getElementById('feed-heading').focus();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Render all posts in the feed
+        function renderFeed() {
+            feedList.innerHTML = '';
+            if (posts.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = 'No posts yet. Be the first to share your plant or garden!';
+                feedList.appendChild(li);
+                return;
+            }
+            posts.forEach(post => {
+                feedList.appendChild(renderPost(post));
+            });
+        }
+
+        // Render a single post (returns <li>)
+        function renderPost(post) {
+            const li = document.createElement('li');
+            const article = document.createElement('article');
+            article.className = 'post';
+            article.setAttribute('aria-labelledby', `${post.id}-title`);
+
+            // Post header: image + content
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'post-header';
+
+            // Image
+            const img = document.createElement('img');
+            img.className = 'post-img';
+            img.src = post.imageSrc;
+            img.alt = post.imageAlt;
+            img.width = 120;
+            img.height = 90;
+            img.setAttribute('loading', 'lazy');
+
+            // Content
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'post-content';
+
+            const h3 = document.createElement('h3');
+            h3.id = `${post.id}-title`;
+            h3.textContent = post.title;
+
+            const descP = document.createElement('p');
+            descP.className = 'post-desc';
+            descP.textContent = post.desc;
+
+            contentDiv.appendChild(h3);
+            contentDiv.appendChild(descP);
+
+            headerDiv.appendChild(img);
+            headerDiv.appendChild(contentDiv);
+
+            // Actions: Like button and count
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'post-actions';
+
+            const likeBtn = document.createElement('button');
+            likeBtn.type = 'button';
+            likeBtn.className = 'like-btn';
+            likeBtn.setAttribute('aria-pressed', post.liked ? 'true' : 'false');
+            likeBtn.setAttribute('aria-label', post.liked ? 'Unlike this post' : 'Like this post');
+            likeBtn.innerHTML = `<span aria-hidden="true">👍</span> <span class="like-count">${post.likes}</span> <span class="like-text">${post.liked ? 'Liked' : 'Like'}</span>`;
+            likeBtn.id = `${post.id}-like`;
+
+            // Keyboard and mouse event handler for like
+            likeBtn.addEventListener('click', function(event) {
+                handleLike(event, post.id);
+            });
+            likeBtn.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handleLike(event, post.id);
+                }
+            });
+
+            actionsDiv.appendChild(likeBtn);
+
+            // Comments section
+            const commentsSection = document.createElement('section');
+            commentsSection.className = 'comments-section';
+            commentsSection.setAttribute('aria-labelledby', `${post.id}-comments-heading`);
+
+            const commentsHeading = document.createElement('h4');
+            commentsHeading.id = `${post.id}-comments-heading`;
+            commentsHeading.style.fontSize = '1.05rem';
+            commentsHeading.style.margin = '0 0 0.5rem 0';
+            commentsHeading.textContent = 'Comments';
+
+            // Comments list
+            const commentsList = document.createElement('ul');
+            commentsList.className = 'comments-list';
+            commentsList.id = `${post.id}-comments-list`;
+
+            if (post.comments.length === 0) {
+                const emptyLi = document.createElement('li');
+                emptyLi.textContent = 'No comments yet. Be the first to comment!';
+                commentsList.appendChild(emptyLi);
+            } else {
+                post.comments.forEach(comment => {
+                    commentsList.appendChild(renderComment(comment));
+                });
+            }
+
+            // Add comment form
+            const addCommentForm = document.createElement('form');
+            addCommentForm.className = 'add-comment-form';
+            addCommentForm.setAttribute('aria-label', 'Add a comment');
+            addCommentForm.setAttribute('autocomplete', 'off');
+            addCommentForm.noValidate = true;
+
+            // Name field
+            const nameLabel = document.createElement('label');
+            nameLabel.setAttribute('for', `${post.id}-commenter`);
+            nameLabel.innerHTML = 'Name <span class="required" aria-hidden="true">*</span>';
+
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.id = `${post.id}-commenter`;
+            nameInput.name = 'commenter';
+            nameInput.maxLength = 40;
+            nameInput.required = true;
+            nameInput.setAttribute('aria-required', 'true');
+            nameInput.setAttribute('aria-describedby', `${post.id}-commenter-error`);
+            nameInput.autocomplete = 'off';
+
+            const nameError = document.createElement('div');
+            nameError.id = `${post.id}-commenter-error`;
+            nameError.className = 'error-message';
+            nameError.setAttribute('aria-live', 'polite');
+
+            // Comment field
+            const commentLabel = document.createElement('label');
+            commentLabel.setAttribute('for', `${post.id}-comment-text`);
+            commentLabel.innerHTML = 'Comment <span class="required" aria-hidden="true">*</span>';
+
+            const commentInput = document.createElement('input');
+            commentInput.type = 'text';
+            commentInput.id = `${post.id}-comment-text`;
+            commentInput.name = 'comment';
+            commentInput.maxLength = 160;
+            commentInput.required = true;
+            commentInput.setAttribute('aria-required', 'true');
+            commentInput.setAttribute('aria-describedby', `${post.id}-comment-error`);
+            commentInput.autocomplete = 'off';
+
+            const commentError = document.createElement('div');
+            commentError.id = `${post.id}-comment-error`;
+            commentError.className = 'error-message';
+            commentError.setAttribute('aria-live', 'polite');
+
+            // Submit button
+            const submitBtn = document.createElement('button');
+            submitBtn.type = 'submit';
+            submitBtn.textContent = 'Add Comment';
+
+            // Accessible form submission
+            addCommentForm.appendChild(nameLabel);
+            addCommentForm.appendChild(nameInput);
+            addCommentForm.appendChild(nameError);
+            addCommentForm.appendChild(commentLabel);
+            addCommentForm.appendChild(commentInput);
+            addCommentForm.appendChild(commentError);
+            addCommentForm.appendChild(submitBtn);
+
+            addCommentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Validate comment form
+                nameError.textContent = '';
+                commentError.textContent = '';
+                let valid = true;
+                if (!nameInput.value.trim()) {
+                    nameError.textContent = 'Please enter your name.';
+                    valid = false;
+                } else if (nameInput.value.trim().length > 40) {
+                    nameError.textContent = 'Name must be 40 characters or fewer.';
+                    valid = false;
+                }
+                if (!commentInput.value.trim()) {
+                    commentError.textContent = 'Please enter your comment.';
+                    valid = false;
+                } else if (commentInput.value.trim().length > 160) {
+                    commentError.textContent = 'Comment must be 160 characters or fewer.';
+                    valid = false;
+                }
+                if (!valid) return;
+                // Add comment
+                const commentObj = {
+                    id: uniqueId('comment'),
+                    name: escapeHTML(nameInput.value.trim()),
+                    text: escapeHTML(commentInput.value.trim())
+                };
+                const idx = posts.findIndex(p => p.id === post.id);
+                if (idx > -1) {
+                    posts[idx].comments.push(commentObj);
+                    renderFeed();
+                    announce('Comment added.');
+                    // Set focus to new comment for screen reader
+                    setTimeout(() => {
+                        const newComment = document.getElementById(`${commentObj.id}-li`);
+                        if (newComment) newComment.focus();
+                    }, 100);
+                }
+            });
+
+            // Compose post article
+            article.appendChild(headerDiv);
+            article.appendChild(actionsDiv);
+
+            commentsSection.appendChild(commentsHeading);
+            commentsSection.appendChild(commentsList);
+            commentsSection.appendChild(addCommentForm);
+
+            article.appendChild(commentsSection);
+            li.appendChild(article);
+            return li;
+        }
+
+        // Render a single comment (returns <li>)
+        function renderComment(comment) {
+            const li = document.createElement('li');
+            li.className = 'comment';
+            li.id = `${comment.id}-li`;
+            li.setAttribute('tabindex', '-1');
+            // Accessible structure: name, then comment
+            const meta = document.createElement('span');
+            meta.className = 'comment-meta';
+            meta.textContent = comment.name + ': ';
+            li.appendChild(meta);
+            li.appendChild(document.createTextNode(comment.text));
+            return li;
+        }
+
+        // Handle like button interaction (keyboard and mouse)
+        function handleLike(event, postId) {
+            // Find the post
+            const idx = posts.findIndex(p => p.id === postId);
+            if (idx === -1) return;
+            const post = posts[idx];
+            post.liked = !post.liked;
+            post.likes += post.liked ? 1 : -1;
+            if (post.likes < 0) post.likes = 0;
+            renderFeed();
+            announce(post.liked ? 'You liked this post.' : 'You unliked this post.');
+            // Set focus back to like button for accessibility
+            setTimeout(() => {
+                const likeBtn = document.getElementById(`${postId}-like`);
+                if (likeBtn) likeBtn.focus();
+            }, 100);
+        }
+
+        // Initial render (with no posts)
+        renderFeed();
+
+        // Accessibility: Allow "Enter" and "Space" on all buttons
+        document.addEventListener('keydown', function(event) {
+            if (event.target.tagName === 'BUTTON' && !event.target.disabled) {
+                if (event.key === ' ' || event.key === 'Enter') {
+                    event.preventDefault();
+                    event.target.click();
+                }
+            }
+        });
+
+        // Accessibility: Prevent form submission on Enter in text inputs except on submit
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type === 'text') {
+                    // Only submit if the input is the last in the form
+                    const inputs = Array.from(form.querySelectorAll('input[type="text"]'));
+                    if (inputs[inputs.length - 1] !== e.target) {
+                        e.preventDefault();
+                        // Move focus to next input
+                        const idx = inputs.indexOf(e.target);
+                        if (idx !== -1 && idx < inputs.length - 1) {
+                            inputs[idx + 1].focus();
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

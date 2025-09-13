@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Calorie Tracker - Log Meals, Activities, and Goals</title>
+    <style>
+        :root {
+            --primary: #0066cc;
+            --secondary: #e6f2ff;
+            --accent: #1a8cff;
+            --danger: #b30000;
+            --success: #006600;
+            --bg: #ffffff;
+            --text: #222222;
+            --muted: #555555;
+        }
+        html {
+            font-size: 100%;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        header, footer {
+            background: var(--secondary);
+            padding: 1rem 0;
+        }
+        header {
+            border-bottom: 2px solid var(--primary);
+        }
+        footer {
+            border-top: 2px solid var(--primary);
+            text-align: center;
+            font-size: 1rem;
+        }
+        nav {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 2rem;
+        }
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.25em 0.5em;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        nav a:focus, nav a:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        h1, h2, h3 {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        h1 {
+            font-size: 2.1rem;
+            margin-top: 0;
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+        }
+        h3 {
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+        }
+        section {
+            margin-bottom: 2.5rem;
+        }
+        .form-section {
+            background: var(--secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem 2rem;
+            align-items: flex-end;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 180px;
+            flex: 1 1 180px;
+            margin-bottom: 0.5rem;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 0.3em;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"] {
+            padding: 0.45em 0.5em;
+            border: 1.5px solid #bbb;
+            border-radius: 4px;
+            font-size: 1rem;
+            background: #fff;
+            color: var(--text);
+            transition: border 0.2s;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus {
+            border-color: var(--primary);
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+        button, input[type="submit"] {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            padding: 0.5em 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:focus, input[type="submit"]:focus {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+        button:hover, input[type="submit"]:hover {
+            background: var(--accent);
+        }
+        .required {
+            color: var(--danger);
+            margin-left: 0.2em;
+            font-size: 1.1em;
+        }
+        .error-message {
+            color: var(--danger);
+            font-size: 0.98em;
+            margin-top: 0.1em;
+        }
+        .visually-hidden {
+            position: absolute !important;
+            height: 1px; width: 1px;
+            overflow: hidden;
+            clip: rect(1px,1px,1px,1px);
+            white-space: nowrap;
+        }
+        /* List styling */
+        .entries-list {
+            list-style: none;
+            padding: 0;
+            margin: 0.5em 0 0 0;
+        }
+        .entries-list li {
+            background: #f9f9f9;
+            border: 1px solid #e2e2e2;
+            border-radius: 5px;
+            padding: 0.7em 1em;
+            margin-bottom: 0.5em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .entry-info {
+            flex: 1 1 auto;
+        }
+        .entry-actions {
+            margin-left: 1em;
+        }
+        .entry-actions button {
+            background: none;
+            color: var(--danger);
+            border: none;
+            padding: 0.2em 0.6em;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+        .entry-actions button:focus {
+            outline: 3px solid var(--danger);
+        }
+        /* Summary and goal panels */
+        .summary-panel, .goal-panel {
+            background: #f5faff;
+            border: 1.5px solid var(--primary);
+            border-radius: 7px;
+            padding: 1.2em 1em;
+            margin-bottom: 1.5em;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2em;
+            align-items: center;
+        }
+        .summary-block {
+            min-width: 140px;
+            margin-bottom: 0.5em;
+        }
+        .summary-label {
+            font-size: 1em;
+            color: var(--muted);
+        }
+        .summary-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .goal-status {
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+        .goal-status.success {
+            color: var(--success);
+        }
+        .goal-status.danger {
+            color: var(--danger);
+        }
+        /* Responsive design */
+        @media (max-width: 700px) {
+            main, nav {
+                max-width: 100%;
+                padding: 0 0.5rem;
+            }
+            .summary-panel, .goal-panel {
+                flex-direction: column;
+                gap: 1em;
+            }
+            form {
+                flex-direction: column;
+                gap: 1.2rem 0;
+            }
+        }
+        /* Focus indicators for all interactive elements */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#food-section">Log Meal</a></li>
+                <li><a href="#exercise-section">Log Activity</a></li>
+                <li><a href="#goal-section">Set Goal</a></li>
+                <li><a href="#summary-section">Daily Summary</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Accessible Calorie Tracker</h1>
+        <section class="summary-panel" id="summary-section" aria-live="polite">
+            <div class="summary-block">
+                <span class="summary-label">Calories Consumed</span><br>
+                <span class="summary-value" id="total-consumed">0</span>
+            </div>
+            <div class="summary-block">
+                <span class="summary-label">Calories Burned</span><br>
+                <span class="summary-value" id="total-burned">0</span>
+            </div>
+            <div class="summary-block">
+                <span class="summary-label">Net Calories</span><br>
+                <span class="summary-value" id="net-calories">0</span>
+            </div>
+            <div class="summary-block" aria-live="polite">
+                <span class="summary-label">Goal Status</span><br>
+                <span id="goal-status" class="goal-status">No goal set</span>
+            </div>
+        </section>
+
+        <section class="form-section" id="food-section" aria-labelledby="food-heading">
+            <h2 id="food-heading">Log a Meal</h2>
+            <form id="food-form" autocomplete="off" novalidate>
+                <div class="form-group">
+                    <label for="food-name">Food Name <span class="required" aria-hidden="true">*</span></label>
+                    <input type="text" id="food-name" name="food-name" required aria-required="true" aria-describedby="food-name-error" maxlength="40" />
+                    <span class="error-message" id="food-name-error" role="alert"></span>
+                </div>
+                <div class="form-group">
+                    <label for="food-calories">Calories <span class="required" aria-hidden="true">*</span></label>
+                    <input type="number" id="food-calories" name="food-calories" min="0" step="1" required aria-required="true" aria-describedby="food-calories-error" />
+                    <span class="error-message" id="food-calories-error" role="alert"></span>
+                </div>
+                <div class="form-group">
+                    <label for="food-date">Date <span class="required" aria-hidden="true">*</span></label>
+                    <input type="date" id="food-date" name="food-date" required aria-required="true" aria-describedby="food-date-error" />
+                    <span class="error-message" id="food-date-error" role="alert"></span>
+                </div>
+                <div class="form-group" style="align-self: flex-end;">
+                    <button type="submit" id="add-food-btn">Add Meal</button>
+                </div>
+            </form>
+            <h3 id="food-list-heading">Meals Logged Today</h3>
+            <ul class="entries-list" id="food-list" aria-labelledby="food-list-heading"></ul>
+        </section>
+
+        <section class="form-section" id="exercise-section" aria-labelledby="exercise-heading">
+            <h2 id="exercise-heading">Log Physical Activity</h2>
+            <form id="exercise-form" autocomplete="off" novalidate>
+                <div class="form-group">
+                    <label for="exercise-name">Activity Name <span class="required" aria-hidden="true">*</span></label>
+                    <input type="text" id="exercise-name" name="exercise-name" required aria-required="true" aria-describedby="exercise-name-error" maxlength="40" />
+                    <span class="error-message" id="exercise-name-error" role="alert"></span>
+                </div>
+                <div class="form-group">
+                    <label for="exercise-calories">Calories Burned <span class="required" aria-hidden="true">*</span></label>
+                    <input type="number" id="exercise-calories" name="exercise-calories" min="0" step="1" required aria-required="true" aria-describedby="exercise-calories-error" />
+                    <span class="error-message" id="exercise-calories-error" role="alert"></span>
+                </div>
+                <div class="form-group">
+                    <label for="exercise-date">Date <span class="required" aria-hidden="true">*</span></label>
+                    <input type="date" id="exercise-date" name="exercise-date" required aria-required="true" aria-describedby="exercise-date-error" />
+                    <span class="error-message" id="exercise-date-error" role="alert"></span>
+                </div>
+                <div class="form-group" style="align-self: flex-end;">
+                    <button type="submit" id="add-exercise-btn">Add Activity</button>
+                </div>
+            </form>
+            <h3 id="exercise-list-heading">Activities Logged Today</h3>
+            <ul class="entries-list" id="exercise-list" aria-labelledby="exercise-list-heading"></ul>
+        </section>
+
+        <section class="goal-panel" id="goal-section" aria-labelledby="goal-heading">
+            <div style="flex: 2 1 300px;">
+                <h2 id="goal-heading">Set Your Daily Net Calorie Goal</h2>
+                <form id="goal-form" autocomplete="off" novalidate>
+                    <div class="form-group">
+                        <label for="goal-value">Net Calorie Goal <span class="required" aria-hidden="true">*</span></label>
+                        <input type="number" id="goal-value" name="goal-value" min="0" step="1" required aria-required="true" aria-describedby="goal-value-error" />
+                        <span class="error-message" id="goal-value-error" role="alert"></span>
+                    </div>
+                    <div class="form-group" style="align-self: flex-end;">
+                        <button type="submit" id="set-goal-btn">Set Goal</button>
+                    </div>
+                </form>
+            </div>
+            <div style="flex: 1 1 120px;">
+                <h3 id="current-goal-heading">Current Goal</h3>
+                <div id="current-goal" aria-labelledby="current-goal-heading" class="summary-value">No goal set</div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>
+            &copy; 2024 Accessible Calorie Tracker. 
+            <span aria-hidden="true">|</span> 
+            <a href="#main" style="color: var(--primary);">Skip to Main Content</a>
+        </p>
+    </footer>
+    <script>
+        // Helper functions for date
+        function getTodayISO() {
+            const now = new Date();
+            return now.toISOString().slice(0,10);
+        }
+
+        // Accessibility: set default date fields to today
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('food-date').value = getTodayISO();
+            document.getElementById('exercise-date').value = getTodayISO();
+        });
+
+        // State: Store entries and goal in memory
+        let foodEntries = [];
+        let exerciseEntries = [];
+        let calorieGoal = null;
+
+        // Utility: Filter entries for today
+        function entriesForToday(entries) {
+            const today = getTodayISO();
+            return entries.filter(e => e.date === today);
+        }
+
+        // Utility: Sum calories for today
+        function sumCalories(entries) {
+            return entriesForToday(entries).reduce((sum, e) => sum + e.calories, 0);
+        }
+
+        // Update Summary Panel and Goal Status
+        function updateSummary() {
+            const totalConsumed = sumCalories(foodEntries);
+            const totalBurned = sumCalories(exerciseEntries);
+            const netCalories = totalConsumed - totalBurned;
+            document.getElementById('total-consumed').textContent = totalConsumed;
+            document.getElementById('total-burned').textContent = totalBurned;
+            document.getElementById('net-calories').textContent = netCalories;
+
+            // Goal status logic
+            const goalStatus = document.getElementById('goal-status');
+            if (calorieGoal === null) {
+                goalStatus.textContent = 'No goal set';
+                goalStatus.className = 'goal-status';
+            } else {
+                if (netCalories <= calorieGoal) {
+                    goalStatus.textContent = 'On track!';
+                    goalStatus.className = 'goal-status success';
+                } else {
+                    goalStatus.textContent = 'Above goal';
+                    goalStatus.className = 'goal-status danger';
+                }
+            }
+        }
+
+        // Update Current Goal Display
+        function updateCurrentGoalDisplay() {
+            const cg = document.getElementById('current-goal');
+            if (calorieGoal === null) {
+                cg.textContent = 'No goal set';
+            } else {
+                cg.textContent = calorieGoal + ' kcal';
+            }
+        }
+
+        // Render Entries List
+        function renderEntries(listId, entries, type) {
+            const ul = document.getElementById(listId);
+            ul.innerHTML = '';
+            const todayEntries = entriesForToday(entries);
+            if (todayEntries.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = type === 'food' ? 'No meals logged for today.' : 'No activities logged for today.';
+                ul.appendChild(li);
+                return;
+            }
+            todayEntries.forEach((entry, idx) => {
+                const li = document.createElement('li');
+                li.setAttribute('tabindex', '-1');
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'entry-info';
+                infoDiv.innerHTML = `<strong>${entry.name}</strong> 
+                    <span aria-label="calories">${entry.calories} kcal</span> 
+                    <span class="visually-hidden">on ${entry.date}</span>`;
+                li.appendChild(infoDiv);
+
+                // Remove button with accessible label
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'entry-actions';
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.setAttribute('aria-label', `Remove ${type === 'food' ? 'meal' : 'activity'}: ${entry.name}, ${entry.calories} calories`);
+                removeBtn.innerHTML = 'Remove';
+                // Accessibility: keyboard/mouse events
+                removeBtn.onclick = function(event) {
+                    handleRemoveEntry(event, type, entry.id);
+                };
+                removeBtn.onkeydown = function(event) {
+                    handleInteraction(event, () => handleRemoveEntry(event, type, entry.id));
+                };
+                actionsDiv.appendChild(removeBtn);
+                li.appendChild(actionsDiv);
+
+                ul.appendChild(li);
+            });
+        }
+
+        // Remove entry handler
+        function handleRemoveEntry(event, type, id) {
+            if (type === 'food') {
+                foodEntries = foodEntries.filter(e => e.id !== id);
+                renderEntries('food-list', foodEntries, 'food');
+            } else {
+                exerciseEntries = exerciseEntries.filter(e => e.id !== id);
+                renderEntries('exercise-list', exerciseEntries, 'exercise');
+            }
+            updateSummary();
+        }
+
+        // Keyboard/mouse interaction handler for accessibility
+        function handleInteraction(event, callback) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.preventDefault();
+                callback();
+            }
+        }
+
+        // Form Validation Utilities
+        function showError(inputId, message) {
+            const errorEl = document.getElementById(inputId + '-error');
+            errorEl.textContent = message;
+            document.getElementById(inputId).setAttribute('aria-invalid', 'true');
+        }
+        function clearError(inputId) {
+            const errorEl = document.getElementById(inputId + '-error');
+            errorEl.textContent = '';
+            document.getElementById(inputId).removeAttribute('aria-invalid');
+        }
+
+        // Food Form Handling
+        document.getElementById('food-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let valid = true;
+            const name = document.getElementById('food-name').value.trim();
+            const calories = document.getElementById('food-calories').value.trim();
+            const date = document.getElementById('food-date').value;
+
+            // Validation
+            if (!name) {
+                showError('food-name', 'Please enter the food name.');
+                valid = false;
+            } else {
+                clearError('food-name');
+            }
+            if (!calories || isNaN(calories) || parseInt(calories) < 0) {
+                showError('food-calories', 'Enter a valid calorie amount (0 or more).');
+                valid = false;
+            } else {
+                clearError('food-calories');
+            }
+            if (!date) {
+                showError('food-date', 'Please select a date.');
+                valid = false;
+            } else {
+                clearError('food-date');
+            }
+
+            if (!valid) return;
+
+            // Add entry
+            foodEntries.push({
+                id: Date.now() + Math.random(),
+                name: name,
+                calories: parseInt(calories),
+                date: date
+            });
+            // Reset form
+            this.reset();
+            document.getElementById('food-date').value = getTodayISO();
+            // Update UI
+            renderEntries('food-list', foodEntries, 'food');
+            updateSummary();
+        });
+
+        // Exercise Form Handling
+        document.getElementById('exercise-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let valid = true;
+            const name = document.getElementById('exercise-name').value.trim();
+            const calories = document.getElementById('exercise-calories').value.trim();
+            const date = document.getElementById('exercise-date').value;
+
+            // Validation
+            if (!name) {
+                showError('exercise-name', 'Please enter the activity name.');
+                valid = false;
+            } else {
+                clearError('exercise-name');
+            }
+            if (!calories || isNaN(calories) || parseInt(calories) < 0) {
+                showError('exercise-calories', 'Enter a valid calorie amount (0 or more).');
+                valid = false;
+            } else {
+                clearError('exercise-calories');
+            }
+            if (!date) {
+                showError('exercise-date', 'Please select a date.');
+                valid = false;
+            } else {
+                clearError('exercise-date');
+            }
+
+            if (!valid) return;
+
+            // Add entry
+            exerciseEntries.push({
+                id: Date.now() + Math.random(),
+                name: name,
+                calories: parseInt(calories),
+                date: date
+            });
+            // Reset form
+            this.reset();
+            document.getElementById('exercise-date').value = getTodayISO();
+            // Update UI
+            renderEntries('exercise-list', exerciseEntries, 'exercise');
+            updateSummary();
+        });
+
+        // Goal Form Handling
+        document.getElementById('goal-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let valid = true;
+            const goal = document.getElementById('goal-value').value.trim();
+
+            if (!goal || isNaN(goal) || parseInt(goal) < 0) {
+                showError('goal-value', 'Enter a valid calorie goal (0 or more).');
+                valid = false;
+            } else {
+                clearError('goal-value');
+            }
+
+            if (!valid) return;
+
+            calorieGoal = parseInt(goal);
+            this.reset();
+            updateCurrentGoalDisplay();
+            updateSummary();
+        });
+
+        // Initial rendering
+        document.addEventListener('DOMContentLoaded', function() {
+            renderEntries('food-list', foodEntries, 'food');
+            renderEntries('exercise-list', exerciseEntries, 'exercise');
+            updateSummary();
+            updateCurrentGoalDisplay();
+        });
+
+        // Accessibility: Skip to main content link
+        document.querySelector('a[href="#main"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('main').setAttribute('tabindex', '-1');
+            document.querySelector('main').focus();
+        });
+    </script>
+</body>
+</html>

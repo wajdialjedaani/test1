@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header, footer {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        main {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, button, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:focus, input:focus, select:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+        }
+        .calorie-summary {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Calorie Tracker</h1>
+    </header>
+    <main>
+        <section aria-labelledby="food-log">
+            <h2 id="food-log">Log Your Meals</h2>
+            <form id="food-form" aria-describedby="food-error">
+                <label for="food-item">Food Item:</label>
+                <input type="text" id="food-item" required aria-required="true">
+                <label for="calories-consumed">Calories:</label>
+                <input type="number" id="calories-consumed" required aria-required="true">
+                <button type="submit">Add Food</button>
+                <div id="food-error" class="error" aria-live="polite"></div>
+            </form>
+        </section>
+
+        <section aria-labelledby="exercise-log">
+            <h2 id="exercise-log">Log Your Exercise</h2>
+            <form id="exercise-form" aria-describedby="exercise-error">
+                <label for="exercise-item">Exercise Activity:</label>
+                <input type="text" id="exercise-item" required aria-required="true">
+                <label for="calories-burned">Calories Burned:</label>
+                <input type="number" id="calories-burned" required aria-required="true">
+                <button type="submit">Add Exercise</button>
+                <div id="exercise-error" class="error" aria-live="polite"></div>
+            </form>
+        </section>
+
+        <section class="calorie-summary" aria-labelledby="calorie-summary">
+            <h2 id="calorie-summary">Daily Totals</h2>
+            <p>Total Calories Consumed: <span id="total-consumed">0</span></p>
+            <p>Total Calories Burned: <span id="total-burned">0</span></p>
+            <p>Net Calories: <span id="net-calories">0</span></p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Calorie Tracker</p>
+    </footer>
+    <script>
+        let totalConsumed = 0;
+        let totalBurned = 0;
+
+        document.getElementById('food-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const foodItem = document.getElementById('food-item').value;
+            const calories = parseInt(document.getElementById('calories-consumed').value);
+            if (!isNaN(calories)) {
+                totalConsumed += calories;
+                document.getElementById('total-consumed').textContent = totalConsumed;
+                document.getElementById('food-item').value = '';
+                document.getElementById('calories-consumed').value = '';
+                document.getElementById('food-error').textContent = '';
+            } else {
+                document.getElementById('food-error').textContent = 'Please enter a valid number for calories.';
+            }
+        });
+
+        document.getElementById('exercise-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const exerciseItem = document.getElementById('exercise-item').value;
+            const calories = parseInt(document.getElementById('calories-burned').value);
+            if (!isNaN(calories)) {
+                totalBurned += calories;
+                document.getElementById('total-burned').textContent = totalBurned;
+                document.getElementById('calories-burned').value = '';
+                document.getElementById('exercise-item').value = '';
+                document.getElementById('exercise-error').textContent = '';
+            } else {
+                document.getElementById('exercise-error').textContent = 'Please enter a valid number for calories burned.';
+            }
+            document.getElementById('net-calories').textContent = totalConsumed - totalBurned;
+        });
+    </script>
+</body>
+</html>

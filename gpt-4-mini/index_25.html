@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event RSVP - Confirm Your Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        main {
+            margin: 20px 0;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .attendees-list {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #fff;
+        }
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Event RSVP</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Confirm Your Attendance</h2>
+            <form id="rsvpForm" aria-labelledby="rsvpFormLabel">
+                <label for="name">Your Name <span aria-hidden="true">*</span></label>
+                <input type="text" id="name" name="name" required aria-describedby="nameError">
+                <div id="nameError" class="error-message" aria-live="assertive"></div>
+
+                <label for="email">Your Email <span aria-hidden="true">*</span></label>
+                <input type="email" id="email" name="email" required aria-describedby="emailError">
+                <div id="emailError" class="error-message" aria-live="assertive"></div>
+
+                <button type="submit">Submit RSVP</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Attendees List</h2>
+            <div class="attendees-list" id="attendeesList" aria-live="polite">
+                <p>No attendees yet.</p>
+            </div>
+        </section>
+    </main>
+    <script>
+        document.getElementById('rsvpForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            let hasError = false;
+
+            // Clear previous error messages
+            document.getElementById('nameError').textContent = '';
+            document.getElementById('emailError').textContent = '';
+
+            // Validate name
+            if (name === '') {
+                document.getElementById('nameError').textContent = 'Name is required.';
+                hasError = true;
+            }
+
+            // Validate email
+            if (email === '') {
+                document.getElementById('emailError').textContent = 'Email is required.';
+                hasError = true;
+            } else if (!validateEmail(email)) {
+                document.getElementById('emailError').textContent = 'Please enter a valid email address.';
+                hasError = true;
+            }
+
+            // If no errors, add attendee to list
+            if (!hasError) {
+                addAttendee(name, email);
+                document.getElementById('rsvpForm').reset();
+            }
+        });
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        function addAttendee(name, email) {
+            const attendeesList = document.getElementById('attendeesList');
+            const newAttendee = document.createElement('p');
+            newAttendee.textContent = `${name} (${email})`;
+            attendeesList.appendChild(newAttendee);
+        }
+    </script>
+</body>
+</html>

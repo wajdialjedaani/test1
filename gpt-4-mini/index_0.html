@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Task Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        h1 {
+            color: #0066cc;
+        }
+
+        h2 {
+            color: #ffffff;
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .task-item {
+            background: white;
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .reward-message {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        @media (max-width: 600px) {
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <h2>Task Tracker</h2>
+        </nav>
+    </header>
+    <main>
+        <h1>Your Daily Tasks</h1>
+        <form id="task-form" aria-labelledby="task-form">
+            <label for="task-input">Add a new task:</label>
+            <input type="text" id="task-input" required aria-required="true" placeholder="Enter task" />
+            <button type="submit">Add Task</button>
+        </form>
+        <ul class="task-list" id="task-list" role="list" aria-live="polite">
+            <!-- Tasks will be dynamically added here -->
+        </ul>
+        <div class="reward-message" id="reward-message" aria-live="polite"></div>
+    </main>
+    <footer>
+        <p>&copy; 2023 Daily Task Tracker</p>
+    </footer>
+    <script>
+        const taskForm = document.getElementById('task-form');
+        const taskInput = document.getElementById('task-input');
+        const taskList = document.getElementById('task-list');
+        const rewardMessage = document.getElementById('reward-message');
+
+        taskForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const taskText = taskInput.value.trim();
+
+            if (taskText) {
+                const taskItem = document.createElement('li');
+                taskItem.classList.add('task-item');
+                taskItem.tabIndex = 0; // Make it keyboard accessible
+
+                taskItem.innerHTML = `
+                    <span>${taskText}</span>
+                    <button onclick="completeTask(this)">Complete</button>
+                `;
+
+                taskItem.onkeydown = function(event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        completeTask(this.querySelector('button'));
+                    }
+                };
+
+                taskList.appendChild(taskItem);
+                taskInput.value = '';
+                rewardMessage.textContent = ''; // Clear previous message
+            }
+        });
+
+        function completeTask(button) {
+            const taskItem = button.parentElement;
+            taskItem.remove();
+            rewardMessage.textContent = 'Well done! You earned a reward for completing a task!';
+        }
+    </script>
+</body>
+</html>

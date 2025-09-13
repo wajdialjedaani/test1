@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Fitness Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        main {
+            margin-top: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="number"], input[type="submit"] {
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #005bb5;
+        }
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .progress-chart {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fitness Tracker</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Log Your Workout</h2>
+            <form id="workoutForm" aria-labelledby="workoutForm">
+                <label for="exerciseType">Exercise Type <span aria-hidden="true">*</span></label>
+                <input type="text" id="exerciseType" name="exerciseType" required aria-required="true" placeholder="e.g., Running">
+
+                <label for="duration">Duration (minutes) <span aria-hidden="true">*</span></label>
+                <input type="number" id="duration" name="duration" required aria-required="true" placeholder="e.g., 30">
+
+                <label for="calories">Calories Burned <span aria-hidden="true">*</span></label>
+                <input type="number" id="calories" name="calories" required aria-required="true" placeholder="e.g., 300">
+
+                <input type="submit" value="Log Workout">
+            </form>
+        </section>
+        <section class="progress-chart" aria-live="polite">
+            <h2>Your Progress</h2>
+            <div id="progressList" role="list" aria-label="Logged workouts">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Fitness Tracker. All rights reserved.</p>
+    </footer>
+    <script>
+        document.getElementById('workoutForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+            
+            // Gather input values
+            const exerciseType = document.getElementById('exerciseType').value;
+            const duration = document.getElementById('duration').value;
+            const calories = document.getElementById('calories').value;
+
+            // Create a new workout entry
+            const workoutEntry = document.createElement('div');
+            workoutEntry.setAttribute('role', 'listitem');
+            workoutEntry.textContent = `${exerciseType} - ${duration} minutes - ${calories} calories burned`;
+
+            // Append to the progress list
+            document.getElementById('progressList').appendChild(workoutEntry);
+
+            // Clear form fields
+            document.getElementById('workoutForm').reset();
+        });
+
+        // Accessibility: Adding keyboard support
+        function handleInteraction(event) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                // Trigger form submission
+                document.getElementById('workoutForm').dispatchEvent(new Event('submit'));
+            }
+        }
+
+        // Apply keyboard support to the submit button
+        document.querySelector('input[type="submit"]').addEventListener('keydown', handleInteraction);
+    </script>
+</body>
+</html>

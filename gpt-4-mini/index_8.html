@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Landing Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .light-bg {
+            background-color: #ffffff;
+            color: #333333;
+        }
+
+        .dark-bg {
+            background-color: #333333;
+            color: #ffffff;
+        }
+
+        header {
+            padding: 20px;
+            text-align: center;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin: 20px 0 10px;
+        }
+
+        section {
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (min-width: 600px) {
+            .features {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body class="light-bg">
+    <header>
+        <h1>Welcome to Our Interactive Landing Page!</h1>
+        <button id="theme-toggle" aria-label="Toggle dark/light theme">Toggle Theme</button>
+    </header>
+    <main>
+        <section>
+            <h2>Key Benefits</h2>
+            <div class="features">
+                <article>
+                    <h3>Feature One</h3>
+                    <p>Benefit description for feature one.</p>
+                </article>
+                <article>
+                    <h3>Feature Two</h3>
+                    <p>Benefit description for feature two.</p>
+                </article>
+                <article>
+                    <h3>Feature Three</h3>
+                    <p>Benefit description for feature three.</p>
+                </article>
+            </div>
+        </section>
+        <section>
+            <h2>Sign Up Now!</h2>
+            <button id="signup-button" aria-label="Sign up for our service">Sign Up</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Interactive Landing Page. All rights reserved.</p>
+    </footer>
+    <script>
+        // Theme toggle functionality
+        const themeToggleButton = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        themeToggleButton.addEventListener('click', () => {
+            if (body.classList.contains('light-bg')) {
+                body.classList.remove('light-bg');
+                body.classList.add('dark-bg');
+            } else {
+                body.classList.remove('dark-bg');
+                body.classList.add('light-bg');
+            }
+        });
+
+        // Ensure keyboard accessibility for the button
+        themeToggleButton.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                themeToggleButton.click();
+            }
+        });
+
+        // Sign up button event
+        const signupButton = document.getElementById('signup-button');
+        signupButton.addEventListener('click', () => {
+            alert('Thank you for signing up!');
+        });
+
+        // Keyboard accessibility for sign up button
+        signupButton.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                signupButton.click();
+            }
+        });
+    </script>
+</body>
+</html>

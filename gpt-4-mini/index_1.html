@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Work Upload and Share</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background: #0066cc;
+            color: #fff;
+            padding: 10px 20px;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        h1 {
+            color: #0066cc;
+        }
+
+        .upload-form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="file"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #0066cc;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px 0;
+            background: #0066cc;
+            color: #fff;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#upload">Upload</a>
+            <a href="#gallery">Gallery</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Upload and Share Your Creative Work</h1>
+        <section id="upload" class="upload-form">
+            <h2>Upload Your Work</h2>
+            <form id="uploadForm" aria-labelledby="upload">
+                <label for="fileInput">Choose an image or artwork to upload:</label>
+                <input type="file" id="fileInput" accept="image/*" required aria-required="true">
+                
+                <label for="description">Description:</label>
+                <textarea id="description" rows="4" required aria-required="true" aria-describedby="descriptionHelp"></textarea>
+                <div id="descriptionHelp" class="visually-hidden">Provide a brief description of your work.</div>
+                
+                <label for="tags">Tags (comma-separated):</label>
+                <input type="text" id="tags" placeholder="e.g. nature, art, photography" aria-describedby="tagsHelp">
+                <div id="tagsHelp" class="visually-hidden">Use commas to separate tags.</div>
+                
+                <button type="submit">Upload</button>
+            </form>
+        </section>
+        <section id="gallery">
+            <h2>Gallery</h2>
+            <div id="galleryDisplay"></div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Creative Work Sharing</p>
+    </footer>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            const description = document.getElementById('description').value;
+            const tags = document.getElementById('tags').value;
+
+            if (fileInput.files.length === 0) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const galleryDisplay = document.getElementById('galleryDisplay');
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = description; // Using description as alt text
+                img.style.width = '100%';
+                img.style.maxWidth = '400px';
+                img.style.margin = '10px 0';
+                galleryDisplay.appendChild(img);
+
+                // Optional: display description and tags
+                const descElem = document.createElement('p');
+                descElem.textContent = `Description: ${description} | Tags: ${tags}`;
+                galleryDisplay.appendChild(descElem);
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        });
+
+        // Keyboard support for button
+        document.querySelector('button').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                this.click();
+            }
+        });
+    </script>
+</body>
+</html>

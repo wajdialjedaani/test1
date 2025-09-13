@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Task Management</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background: #007bff;
+            color: white;
+            padding: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+        }
+
+        nav a:focus {
+            outline: 3px solid #ffffff;
+            outline-offset: 2px;
+        }
+
+        main {
+            padding: 1rem;
+        }
+
+        button, input[type="submit"] {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+
+        button:focus, input[type="submit"]:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        label {
+            display: block;
+            margin: 0.5rem 0 0.2rem;
+        }
+
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background: #007bff;
+            color: white;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#login" id="loginLink">Login</a>
+            <a href="#dashboard" id="dashboardLink" style="display:none;">Dashboard</a>
+        </nav>
+    </header>
+    <main>
+        <h1 id="pageTitle">User Login</h1>
+        <section id="loginSection">
+            <form id="loginForm" aria-labelledby="pageTitle">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required aria-describedby="emailError">
+                <span id="emailError" class="error" aria-live="polite"></span>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" required aria-describedby="passwordError">
+                <span id="passwordError" class="error" aria-live="polite"></span>
+
+                <input type="submit" value="Login">
+            </form>
+        </section>
+        <section id="dashboardSection" style="display:none;">
+            <h2>Your Dashboard</h2>
+            <p>Welcome to your task management dashboard!</p>
+            <button id="logoutButton">Logout</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Task Management App</p>
+    </footer>
+    <script>
+        // Function to handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            let valid = true;
+
+            // Simple validation
+            if (!email) {
+                document.getElementById('emailError').textContent = 'Email is required.';
+                valid = false;
+            } else {
+                document.getElementById('emailError').textContent = '';
+            }
+
+            if (!password) {
+                document.getElementById('passwordError').textContent = 'Password is required.';
+                valid = false;
+            } else {
+                document.getElementById('passwordError').textContent = '';
+            }
+
+            // If valid, switch to dashboard
+            if (valid) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('dashboardSection').style.display = 'block';
+                document.getElementById('loginLink').style.display = 'none';
+                document.getElementById('dashboardLink').style.display = 'inline';
+                document.getElementById('pageTitle').textContent = 'Your Dashboard';
+            }
+        });
+
+        // Function to handle logout
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('loginLink').style.display = 'inline';
+            document.getElementById('dashboardLink').style.display = 'none';
+            document.getElementById('pageTitle').textContent = 'User Login';
+        });
+
+        // Handle keyboard events for interactive elements
+        function handleInteraction(event) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.target.click();
+            }
+        }
+
+        // Apply keyboard support to buttons
+        document.getElementById('logoutButton').onmousedown = handleInteraction;
+        document.getElementById('logoutButton').onkeydown = handleInteraction;
+    </script>
+</body>
+</html>

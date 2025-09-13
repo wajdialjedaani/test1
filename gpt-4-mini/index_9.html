@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Recipe Sharing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        main {
+            margin: 20px 0;
+        }
+        .recipe {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #fff;
+        }
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Recipe Sharing Platform</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Submit Your Recipe</h2>
+            <form id="recipeForm" aria-labelledby="recipeFormLabel">
+                <label for="recipeName">Recipe Name <span aria-hidden="true">*</span></label>
+                <input type="text" id="recipeName" required aria-describedby="recipeNameError">
+                <div id="recipeNameError" class="error" aria-live="assertive"></div>
+
+                <label for="ingredients">Ingredients <span aria-hidden="true">*</span></label>
+                <textarea id="ingredients" required aria-describedby="ingredientsError"></textarea>
+                <div id="ingredientsError" class="error" aria-live="assertive"></div>
+
+                <label for="rating">Rating (1-5)</label>
+                <input type="number" id="rating" min="1" max="5" aria-describedby="ratingError">
+                <div id="ratingError" class="error" aria-live="assertive"></div>
+
+                <button type="submit">Submit Recipe</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Search Recipes by Ingredient</h2>
+            <input type="text" id="searchInput" placeholder="Enter ingredient...">
+            <button id="searchButton">Search</button>
+        </section>
+
+        <section id="recipeList">
+            <h2>Recipes</h2>
+            <div id="recipesContainer"></div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Recipe Sharing Platform</p>
+    </footer>
+    <script>
+        const recipeForm = document.getElementById('recipeForm');
+        const recipesContainer = document.getElementById('recipesContainer');
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+
+        let recipes = [];
+
+        recipeForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const recipeName = document.getElementById('recipeName').value;
+            const ingredients = document.getElementById('ingredients').value;
+            const rating = document.getElementById('rating').value;
+
+            // Clear previous errors
+            document.getElementById('recipeNameError').textContent = '';
+            document.getElementById('ingredientsError').textContent = '';
+            document.getElementById('ratingError').textContent = '';
+
+            // Validate inputs
+            if (!recipeName) {
+                document.getElementById('recipeNameError').textContent = 'Recipe name is required.';
+                return;
+            }
+            if (!ingredients) {
+                document.getElementById('ingredientsError').textContent = 'Ingredients are required.';
+                return;
+            }
+
+            // Create recipe object
+            const newRecipe = {
+                name: recipeName,
+                ingredients: ingredients.split(',').map(item => item.trim()),
+                rating: rating ? parseInt(rating) : null
+            };
+
+            // Add recipe to the list
+            recipes.push(newRecipe);
+            displayRecipes(recipes);
+            recipeForm.reset();
+        });
+
+        searchButton.addEventListener('click', function() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredRecipes = recipes.filter(recipe => 
+                recipe.ingredients.some(ingredient => ingredient.toLowerCase().includes(searchTerm))
+            );
+            displayRecipes(filteredRecipes);
+        });
+
+        function displayRecipes(recipesToDisplay) {
+            recipesContainer.innerHTML = '';
+            recipesToDisplay.forEach(recipe => {
+                const recipeDiv = document.createElement('div');
+                recipeDiv.className = 'recipe';
+                recipeDiv.tabIndex = 0; // Make it keyboard navigable
+                recipeDiv.innerHTML = `
+                    <h3>${recipe.name}</h3>
+                    <p><strong>Ingredients:</strong> ${recipe.ingredients.join(', ')}</p>
+                    <p><strong>Rating:</strong> ${recipe.rating ? recipe.rating : 'Not rated'}</p>
+                `;
+                recipeDiv.addEventListener('keydown', handleInteraction);
+                recipesContainer.appendChild(recipeDiv);
+            });
+        }
+
+        function handleInteraction(event) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                // Perform action on recipe click (e.g., show details)
+                alert('Recipe selected: ' + event.currentTarget.querySelector('h3').innerText);
+            }
+        }
+    </script>
+</body>
+</html>

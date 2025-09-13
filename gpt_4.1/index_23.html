@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Interactive Demo – Smooth Effects & Animations</title>
+    <style>
+        /* Root and base styles */
+        :root {
+            --primary-color: #0066cc;
+            --primary-dark: #004a99;
+            --accent-color: #e67300;
+            --background: #f8f9fa;
+            --foreground: #222;
+            --focus-outline: #0066cc;
+            --focus-outline-dark: #fff;
+            --button-bg: #0066cc;
+            --button-bg-hover: #004a99;
+            --button-text: #fff;
+            --transition-fast: 0.18s cubic-bezier(.4,0,.2,1);
+            --transition-slow: 0.38s cubic-bezier(.4,0,.2,1);
+            --card-bg: #fff;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            --card-hover-shadow: 0 6px 24px rgba(0,0,0,0.14);
+            --link-hover-bg: #e6f0fa;
+        }
+        html {
+            box-sizing: border-box;
+            font-size: 18px;
+            background: var(--background);
+            color: var(--foreground);
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.5;
+            background: var(--background);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header, footer {
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+        header {
+            padding: 0.5rem 0;
+        }
+        nav {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 1.5rem;
+        }
+        nav a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            position: relative;
+            transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+        }
+        nav a:focus, nav a:hover {
+            background: var(--link-hover-bg);
+            color: var(--primary-dark);
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+            transform: translateY(-2px) scale(1.04);
+        }
+        /* Focus indicators (required) */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid var(--focus-outline-dark);
+        }
+        main {
+            flex: 1 0 auto;
+            max-width: 1100px;
+            margin: 2rem auto 0 auto;
+            padding: 1rem;
+        }
+        h1, h2 {
+            color: var(--primary-dark);
+            margin-top: 0;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.4em;
+        }
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8em;
+        }
+        /* Interactive card grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 1.2rem 1rem 1.5rem 1rem;
+            transition: 
+                box-shadow var(--transition-slow),
+                transform var(--transition-slow);
+            position: relative;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .card:focus-within, .card:hover {
+            box-shadow: var(--card-hover-shadow);
+            transform: translateY(-8px) scale(1.025);
+        }
+        .card img {
+            width: 100%;
+            max-width: 160px;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            align-self: center;
+        }
+        .card h3 {
+            margin: 0 0 0.6em 0;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+        .card p {
+            margin: 0 0 1.2em 0;
+            color: #444;
+            font-size: 1rem;
+        }
+        /* Animated button styles */
+        .btn {
+            display: inline-block;
+            background: var(--button-bg);
+            color: var(--button-text);
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            padding: 0.65em 1.5em;
+            margin-top: auto;
+            cursor: pointer;
+            transition: 
+                background var(--transition-fast),
+                box-shadow var(--transition-fast),
+                transform var(--transition-fast);
+            box-shadow: 0 2px 8px rgba(0,102,204,0.08);
+            position: relative;
+            outline: none;
+        }
+        .btn:focus, .btn:hover {
+            background: var(--button-bg-hover);
+            color: #fff;
+            box-shadow: 0 4px 18px rgba(0,102,204,0.18);
+            transform: translateY(-2px) scale(1.04);
+        }
+        /* Click (active) effect for buttons */
+        .btn:active, .btn.active {
+            background: var(--accent-color);
+            color: #fff;
+            transform: scale(0.97);
+            box-shadow: 0 1px 4px rgba(230,115,0,0.16);
+        }
+        /* Accessible link as button */
+        .link-btn {
+            background: none;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            padding: 0.6em 1.2em;
+            transition: 
+                background var(--transition-fast),
+                color var(--transition-fast),
+                border-color var(--transition-fast),
+                transform var(--transition-fast);
+        }
+        .link-btn:focus, .link-btn:hover {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-dark);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .link-btn:active, .link-btn.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #fff;
+            transform: scale(0.97);
+        }
+        /* Info section with smooth transition */
+        .info-section {
+            background: #e6f0fa;
+            border-radius: 10px;
+            padding: 1.2rem 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 4px rgba(0,102,204,0.07);
+            transition: background var(--transition-fast);
+        }
+        .info-section:focus-within, .info-section:hover {
+            background: #d1e5f9;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 700px) {
+            main {
+                padding: 0.5rem;
+            }
+            .card-grid {
+                gap: 1.2rem;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Visually hidden class for accessibility */
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#main" class="skip-link visually-hidden" tabindex="0">Skip to main content</a>
+            <a href="#features" id="nav-features">Features</a>
+            <a href="#demo" id="nav-demo">Demo Cards</a>
+            <a href="#contact" id="nav-contact">Contact</a>
+        </nav>
+    </header>
+    <main id="main" tabindex="-1">
+        <h1>Accessible Interactive Demo</h1>
+        <section class="info-section" aria-labelledby="features">
+            <h2 id="features">Smooth, Accessible Animations & Interactions</h2>
+            <ul>
+                <li>All interactive elements are keyboard accessible with visible focus indicators.</li>
+                <li>Hover and focus trigger smooth transitions and movement—try with mouse <strong>and</strong> keyboard!</li>
+                <li>Buttons and links have clear click/active feedback.</li>
+                <li>All content meets <abbr title="Web Content Accessibility Guidelines">WCAG</abbr> 2.1 AA standards.</li>
+            </ul>
+        </section>
+        <section aria-labelledby="demo">
+            <h2 id="demo">Interactive Demo Cards</h2>
+            <div class="card-grid" role="list">
+                <!-- Card 1 -->
+                <article class="card" role="listitem">
+                    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" 
+                         alt="Serene mountain landscape with lake and trees" />
+                    <h3>Visual Movement</h3>
+                    <p>
+                        This card moves and casts a deeper shadow when hovered or focused, demonstrating accessible visual feedback.
+                    </p>
+                    <button type="button" class="btn" id="card1-btn"
+                        aria-pressed="false"
+                        aria-label="Show more about Visual Movement"
+                        onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                        Show More
+                    </button>
+                </article>
+                <!-- Card 2 -->
+                <article class="card" role="listitem">
+                    <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" 
+                         alt="Close-up of a bright orange flower in bloom" />
+                    <h3>Animated Button</h3>
+                    <p>
+                        Buttons respond with color, movement, and a ripple effect on click or keyboard activation.
+                    </p>
+                    <button type="button" class="btn" id="card2-btn"
+                        aria-pressed="false"
+                        aria-label="Show more about Animated Button"
+                        onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                        Show More
+                    </button>
+                </article>
+                <!-- Card 3 -->
+                <article class="card" role="listitem">
+                    <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" 
+                         alt="Group of people collaborating at a desk" />
+                    <h3>Accessible Link as Button</h3>
+                    <p>
+                        This link is styled as a button and is fully accessible, with hover, focus, and click effects.
+                    </p>
+                    <a href="#contact" role="button" class="btn link-btn" id="card3-link"
+                        aria-label="Go to Contact section"
+                        onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                        Go to Contact
+                    </a>
+                </article>
+            </div>
+        </section>
+        <section aria-labelledby="contact">
+            <h2 id="contact">Contact Form</h2>
+            <form id="contactForm" novalidate autocomplete="off">
+                <div style="margin-bottom:1.1em;">
+                    <label for="name">Name <span aria-hidden="true" style="color:var(--accent-color);">*</span></label><br>
+                    <input type="text" id="name" name="name" required aria-required="true" aria-describedby="name-error" autocomplete="name" />
+                    <span id="name-error" class="visually-hidden"></span>
+                </div>
+                <div style="margin-bottom:1.1em;">
+                    <label for="email">Email <span aria-hidden="true" style="color:var(--accent-color);">*</span></label><br>
+                    <input type="email" id="email" name="email" required aria-required="true" aria-describedby="email-error" autocomplete="email" />
+                    <span id="email-error" class="visually-hidden"></span>
+                </div>
+                <div style="margin-bottom:1.1em;">
+                    <label for="message">Message <span aria-hidden="true" style="color:var(--accent-color);">*</span></label><br>
+                    <textarea id="message" name="message" rows="4" required aria-required="true" aria-describedby="message-error"></textarea>
+                    <span id="message-error" class="visually-hidden"></span>
+                </div>
+                <button type="submit" class="btn" id="submit-btn"
+                    onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                    Send Message
+                </button>
+                <div id="form-status" aria-live="polite" style="margin-top:1em;"></div>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <div style="max-width:1100px; margin:0 auto; padding:1.2rem 1rem; font-size:1rem; color:#555;">
+            <span>&copy; 2024 Accessible Interactive Demo. All rights reserved.</span>
+        </div>
+    </footer>
+    <script>
+        // Accessibility: Handle both mouse and keyboard for all interactive elements
+        function handleInteraction(event) {
+            // Only act on click, Enter, or Space
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                // Prevent default for keyboard ' ' (space) to avoid scrolling
+                if (event.type === 'keydown') event.preventDefault();
+
+                // Button ripple/click effect
+                const el = event.currentTarget;
+                // Add .active for click effect, remove after animation
+                el.classList.add('active');
+                setTimeout(() => {
+                    el.classList.remove('active');
+                }, 180);
+
+                // Demo: Show more for "Show More" buttons
+                if (el.id === 'card1-btn') {
+                    showDemoAlert('This card demonstrates accessible movement and shadow on hover and focus.');
+                } else if (el.id === 'card2-btn') {
+                    showDemoAlert('This button features a smooth animated click effect, accessible via keyboard and mouse.');
+                } else if (el.id === 'card3-link') {
+                    // Smooth scroll to contact section
+                    document.getElementById('contact').scrollIntoView({behavior: 'smooth', block: 'start'});
+                    // Move focus to contact heading for accessibility
+                    setTimeout(() => {
+                        document.getElementById('contact').focus();
+                    }, 450);
+                } else if (el.id === 'submit-btn') {
+                    // Form submission handled separately
+                }
+            }
+        }
+
+        // Demo alert for "Show More" buttons (using aria-live)
+        function showDemoAlert(message) {
+            let alertBox = document.getElementById('demo-alert');
+            if (!alertBox) {
+                alertBox = document.createElement('div');
+                alertBox.id = 'demo-alert';
+                alertBox.setAttribute('role', 'status');
+                alertBox.setAttribute('aria-live', 'polite');
+                alertBox.style.position = 'fixed';
+                alertBox.style.left = '50%';
+                alertBox.style.top = '2.5rem';
+                alertBox.style.transform = 'translateX(-50%)';
+                alertBox.style.background = '#0066cc';
+                alertBox.style.color = '#fff';
+                alertBox.style.padding = '1rem 2rem';
+                alertBox.style.borderRadius = '8px';
+                alertBox.style.boxShadow = '0 4px 24px rgba(0,102,204,0.25)';
+                alertBox.style.fontSize = '1.1rem';
+                alertBox.style.zIndex = '1000';
+                alertBox.style.transition = 'opacity 0.3s';
+                document.body.appendChild(alertBox);
+            }
+            alertBox.textContent = message;
+            alertBox.style.opacity = '1';
+            setTimeout(() => {
+                alertBox.style.opacity = '0';
+            }, 2000);
+        }
+
+        // Keyboard support for all nav links (for smooth scroll, skip link)
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    link.click();
+                }
+            });
+        });
+
+        // Skip link focus handler
+        document.querySelector('.skip-link').addEventListener('click', function(e) {
+            document.getElementById('main').focus();
+        });
+
+        // Contact form validation with accessible error messages
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let valid = true;
+
+            // Helper to set error
+            function setError(inputId, message) {
+                const input = document.getElementById(inputId);
+                const errorSpan = document.getElementById(inputId + '-error');
+                errorSpan.textContent = message;
+                errorSpan.classList.remove('visually-hidden');
+                input.setAttribute('aria-invalid', 'true');
+                input.setAttribute('aria-describedby', inputId + '-error');
+                valid = false;
+            }
+            // Helper to clear error
+            function clearError(inputId) {
+                const input = document.getElementById(inputId);
+                const errorSpan = document.getElementById(inputId + '-error');
+                errorSpan.textContent = '';
+                errorSpan.classList.add('visually-hidden');
+                input.removeAttribute('aria-invalid');
+                input.setAttribute('aria-describedby', inputId + '-error');
+            }
+
+            // Validate Name
+            const name = document.getElementById('name');
+            if (!name.value.trim()) {
+                setError('name', 'Please enter your name.');
+            } else {
+                clearError('name');
+            }
+            // Validate Email
+            const email = document.getElementById('email');
+            const emailVal = email.value.trim();
+            const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+            if (!emailVal) {
+                setError('email', 'Please enter your email address.');
+            } else if (!emailPattern.test(emailVal)) {
+                setError('email', 'Please enter a valid email address.');
+            } else {
+                clearError('email');
+            }
+            // Validate Message
+            const message = document.getElementById('message');
+            if (!message.value.trim()) {
+                setError('message', 'Please enter your message.');
+            } else {
+                clearError('message');
+            }
+
+            // If valid, show success message
+            const status = document.getElementById('form-status');
+            if (valid) {
+                status.textContent = 'Thank you! Your message has been sent.';
+                status.style.color = '#006600';
+                // Optionally reset form
+                document.getElementById('contactForm').reset();
+                // Remove error highlights
+                ['name','email','message'].forEach(clearError);
+            } else {
+                status.textContent = 'Please fix the errors above and try again.';
+                status.style.color = '#c00';
+            }
+        });
+
+        // Keyboard and mouse support for demo card buttons/links
+        ['card1-btn','card2-btn','card3-link','submit-btn'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('click', handleInteraction);
+                el.addEventListener('keydown', handleInteraction);
+            }
+        });
+
+        // Make contact heading focusable for accessibility (for smooth scroll)
+        document.getElementById('contact').setAttribute('tabindex', '-1');
+    </script>
+</body>
+</html>

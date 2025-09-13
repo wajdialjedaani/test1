@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Interactive Product Cards | Example Store</title>
+    <style>
+        /* Base styles and color variables for contrast */
+        :root {
+            --primary-bg: #f9f9fb;
+            --card-bg: #ffffff;
+            --card-border: #e0e0e0;
+            --accent: #0066cc;
+            --accent-dark: #004a99;
+            --text-main: #222222;
+            --text-secondary: #444444;
+            --focus-outline: #0066cc;
+            --focus-outline-dark: #ffffff;
+            --shadow: 0 2px 8px rgba(34, 34, 34, 0.08);
+        }
+
+        html {
+            box-sizing: border-box;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        body {
+            background: var(--primary-bg);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        header {
+            background: var(--accent);
+            color: #fff;
+            padding: 1rem 0;
+        }
+        nav[role="navigation"] {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        nav li {
+            margin-right: 1.5rem;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.25em 0.5em;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        nav a:focus, nav a:hover {
+            background: var(--accent-dark);
+            outline: 3px solid var(--focus-outline-dark);
+            outline-offset: 2px;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+        .products-section {
+            margin-top: 2rem;
+        }
+        .products-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        /* Accessible card styles */
+        .product-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s cubic-bezier(.4,0,.2,1), box-shadow 0.2s cubic-bezier(.4,0,.2,1);
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+            outline: none;
+            /* Ensures focus style for custom focus handling */
+        }
+        /* Hover and focus-visible scaling effect */
+        .product-card:hover,
+        .product-card:focus-visible {
+            transform: scale(1.03);
+            box-shadow: 0 6px 24px rgba(0, 102, 204, 0.18);
+            z-index: 2;
+        }
+        /* Keyboard focus indicator (required) */
+        .product-card:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            background: #e5e5e5;
+        }
+        .product-card-content {
+            flex: 1 1 auto;
+            padding: 1.25rem 1rem 1rem 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card h3 {
+            font-size: 1.15rem;
+            margin: 0 0 0.5rem 0;
+            color: var(--accent);
+        }
+        .product-card p {
+            color: var(--text-secondary);
+            margin: 0 0 1rem 0;
+            font-size: 1rem;
+        }
+        .product-card .price {
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+        .product-card-actions {
+            margin-top: auto;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .product-card button,
+        .product-card a.button-link {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.6em 1.2em;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .product-card button:focus,
+        .product-card a.button-link:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+            background: var(--accent-dark);
+        }
+        .product-card button:hover,
+        .product-card a.button-link:hover {
+            background: var(--accent-dark);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            .product-card img {
+                height: 140px;
+            }
+        }
+
+        /* Required focus indicator for all interactive elements */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid var(--focus-outline-dark);
+        }
+        /* Visually hidden class for screen reader-only text */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#main-content">Skip to main content</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main id="main-content" tabindex="-1">
+        <h1>Our Featured Products</h1>
+        <section class="products-section" id="products" aria-labelledby="products-heading">
+            <h2 id="products-heading">Product Selection</h2>
+            <div class="cards-grid" role="list">
+                <!-- Card 1 -->
+                <article class="product-card" role="listitem" tabindex="0" aria-labelledby="product1-title" aria-describedby="product1-desc product1-price">
+                    <img src="https://images.unsplash.com/photo-1513708927688-890f948bfc9e?auto=format&fit=crop&w=400&q=80" alt="Wireless headphones with cushioned ear cups and sleek design" />
+                    <div class="product-card-content">
+                        <h3 id="product1-title">Wireless Headphones</h3>
+                        <p id="product1-desc">Enjoy high-fidelity sound and all-day comfort with our top-rated wireless headphones. Perfect for music lovers and professionals alike.</p>
+                        <div class="price" id="product1-price">$99.99</div>
+                        <div class="product-card-actions">
+                            <button type="button" aria-label="Add Wireless Headphones to cart" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                Add to Cart
+                            </button>
+                            <a href="#details-headphones" class="button-link" aria-label="View details for Wireless Headphones" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </article>
+                <!-- Card 2 -->
+                <article class="product-card" role="listitem" tabindex="0" aria-labelledby="product2-title" aria-describedby="product2-desc product2-price">
+                    <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="Smartwatch with round face displaying time and notifications" />
+                    <div class="product-card-content">
+                        <h3 id="product2-title">Smart Fitness Watch</h3>
+                        <p id="product2-desc">Track your health and stay connected on the go. Our smartwatch features heart rate monitoring, GPS, and customizable watch faces.</p>
+                        <div class="price" id="product2-price">$149.00</div>
+                        <div class="product-card-actions">
+                            <button type="button" aria-label="Add Smart Fitness Watch to cart" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                Add to Cart
+                            </button>
+                            <a href="#details-smartwatch" class="button-link" aria-label="View details for Smart Fitness Watch" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </article>
+                <!-- Card 3 -->
+                <article class="product-card" role="listitem" tabindex="0" aria-labelledby="product3-title" aria-describedby="product3-desc product3-price">
+                    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" alt="Portable Bluetooth speaker in blue color, placed on a table" />
+                    <div class="product-card-content">
+                        <h3 id="product3-title">Bluetooth Speaker</h3>
+                        <p id="product3-desc">Bring the party anywhere with our portable Bluetooth speaker. Water-resistant and long battery life for music on the move.</p>
+                        <div class="price" id="product3-price">$39.95</div>
+                        <div class="product-card-actions">
+                            <button type="button" aria-label="Add Bluetooth Speaker to cart" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                Add to Cart
+                            </button>
+                            <a href="#details-speaker" class="button-link" aria-label="View details for Bluetooth Speaker" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </article>
+                <!-- Card 4 -->
+                <article class="product-card" role="listitem" tabindex="0" aria-labelledby="product4-title" aria-describedby="product4-desc product4-price">
+                    <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80" alt="Modern ergonomic office chair with mesh back and adjustable armrests" />
+                    <div class="product-card-content">
+                        <h3 id="product4-title">Ergonomic Office Chair</h3>
+                        <p id="product4-desc">Work in comfort with lumbar support and adjustable features. Designed to improve posture and productivity in any workspace.</p>
+                        <div class="price" id="product4-price">$199.00</div>
+                        <div class="product-card-actions">
+                            <button type="button" aria-label="Add Ergonomic Office Chair to cart" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                Add to Cart
+                            </button>
+                            <a href="#details-chair" class="button-link" aria-label="View details for Ergonomic Office Chair" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+        <!-- Details sections for accessibility (anchor targets) -->
+        <section id="details-headphones" aria-labelledby="details-headphones-title" tabindex="-1">
+            <h2 id="details-headphones-title">Wireless Headphones - Details</h2>
+            <p>High-quality wireless headphones with noise cancellation, up to 30 hours battery life, and comfortable ear cups. Available in black and silver.</p>
+        </section>
+        <section id="details-smartwatch" aria-labelledby="details-smartwatch-title" tabindex="-1">
+            <h2 id="details-smartwatch-title">Smart Fitness Watch - Details</h2>
+            <p>Features include step tracking, heart rate monitoring, sleep analysis, and smartphone notifications. Water-resistant and available in several colors.</p>
+        </section>
+        <section id="details-speaker" aria-labelledby="details-speaker-title" tabindex="-1">
+            <h2 id="details-speaker-title">Bluetooth Speaker - Details</h2>
+            <p>Compact speaker with deep bass, 12-hour battery, and IPX5 water resistance. Connects to any Bluetooth-enabled device.</p>
+        </section>
+        <section id="details-chair" aria-labelledby="details-chair-title" tabindex="-1">
+            <h2 id="details-chair-title">Ergonomic Office Chair - Details</h2>
+            <p>Fully adjustable chair with breathable mesh back, headrest, and lumbar support. Supports up to 300 lbs and comes with a 5-year warranty.</p>
+        </section>
+    </main>
+    <footer>
+        <section id="contact" aria-labelledby="contact-heading">
+            <h2 id="contact-heading">Contact Us</h2>
+            <address>
+                <strong>Example Store</strong><br>
+                123 Main Street, Anytown, USA<br>
+                <a href="mailto:info@example.com">info@example.com</a><br>
+                <a href="tel:+1234567890">+1 (234) 567-890</a>
+            </address>
+        </section>
+        <p>&copy; 2024 Example Store. All rights reserved.</p>
+    </footer>
+    <script>
+        // Keyboard support for custom card interaction (scaling effect and actions)
+        // Each card is focusable and should scale on focus-visible (handled by CSS)
+        // The Add to Cart and View Details buttons/links are native elements, so are natively keyboard accessible.
+        // However, we add keyboard support for their onmousedown handlers as per requirements.
+
+        function handleInteraction(event) {
+            // Handles both mouse and keyboard events for interactive elements
+            if (
+                event.type === 'click' ||
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))
+            ) {
+                // Prevent scrolling for space key on buttons/links
+                if (event.type === 'keydown') {
+                    event.preventDefault();
+                }
+                // For demonstration: simple feedback (in production, integrate with cart logic)
+                var target = event.currentTarget;
+                if (target.tagName === 'BUTTON') {
+                    // Announce to screen readers (live region)
+                    announce('Added to cart: ' + target.closest('.product-card').querySelector('h3').textContent);
+                } else if (target.classList.contains('button-link')) {
+                    // For View Details, focus the details section
+                    var href = target.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        var detailsSection = document.querySelector(href);
+                        if (detailsSection) {
+                            detailsSection.setAttribute('tabindex', '-1');
+                            detailsSection.focus();
+                            announce('Navigated to details for ' + target.closest('.product-card').querySelector('h3').textContent);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Live region for screen reader announcements
+        var liveRegion = document.createElement('div');
+        liveRegion.setAttribute('aria-live', 'polite');
+        liveRegion.setAttribute('role', 'status');
+        liveRegion.className = 'sr-only';
+        document.body.appendChild(liveRegion);
+
+        function announce(message) {
+            liveRegion.textContent = '';
+            // Small delay to ensure change is detected by assistive tech
+            setTimeout(function() {
+                liveRegion.textContent = message;
+            }, 50);
+        }
+
+        // Enhance skip link: focus main content when used
+        document.querySelector('a[href="#main-content"]').addEventListener('click', function(e) {
+            var main = document.getElementById('main-content');
+            if (main) {
+                main.setAttribute('tabindex', '-1');
+                main.focus();
+            }
+        });
+    </script>
+</body>
+</html>

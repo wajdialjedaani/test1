@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Music Player – Play, Pause, Volume, and Playlist</title>
+    <style>
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #004a99;
+            --background: #f9fafb;
+            --surface: #ffffff;
+            --text: #222222;
+            --text-secondary: #555555;
+            --accent: #f5b700;
+            --focus: #0066cc;
+            --focus-light: #ffffff;
+            --border-radius: 1rem;
+            --transition: 0.3s cubic-bezier(.4,0,.2,1);
+        }
+
+        html {
+            font-size: 100%;
+            box-sizing: border-box;
+        }
+        *, *::before, *::after {
+            box-sizing: inherit;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--primary);
+            color: #fff;
+            padding: 1rem 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        nav li {
+            margin: 0 1rem;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            transition: color var(--transition);
+        }
+
+        nav a:focus, nav a:hover {
+            color: var(--accent);
+        }
+
+        main {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem 1rem 3rem 1rem;
+        }
+
+        .player-container {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            max-width: 410px;
+            width: 100%;
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: box-shadow var(--transition);
+        }
+
+        .player-artwork {
+            width: 180px;
+            height: 180px;
+            border-radius: 1rem;
+            object-fit: cover;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+            transition: box-shadow 0.4s cubic-bezier(.4,0,.2,1);
+        }
+
+        .player-song-info {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .player-song-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin: 0 0 0.25rem 0;
+            color: var(--primary-dark);
+        }
+
+        .player-song-artist {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .player-controls button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background var(--transition), transform var(--transition);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .player-controls button:active {
+            transform: scale(0.96);
+        }
+
+        .player-controls button:focus {
+            outline: 3px solid var(--focus-light);
+            outline-offset: 2px;
+            background: var(--primary-dark);
+        }
+
+        /* Volume slider and label */
+        .player-volume {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .player-volume label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .player-volume input[type="range"] {
+            flex: 1;
+            accent-color: var(--primary);
+            height: 2px;
+        }
+
+        /* Playlist styles */
+        .player-playlist-section {
+            width: 100%;
+        }
+
+        .playlist-heading {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .player-playlist {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .player-playlist li {
+            margin-bottom: 0.25rem;
+        }
+
+        .playlist-song-btn {
+            width: 100%;
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: background var(--transition), color var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .playlist-song-btn[aria-current="true"] {
+            background: var(--primary);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .playlist-song-btn:focus {
+            outline: 3px solid var(--focus);
+            outline-offset: 2px;
+            background: var(--primary-dark);
+            color: #fff;
+        }
+
+        .playlist-song-btn:hover:not([aria-current="true"]) {
+            background: #e6f0fa;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .player-container {
+                max-width: 100%;
+                padding: 1rem 0.5rem;
+            }
+            .player-artwork {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        /* Focus indicators for all interactive elements */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus);
+            outline-offset: 2px;
+        }
+
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid var(--focus-light);
+        }
+
+        /* Footer styles */
+        footer {
+            background: var(--primary-dark);
+            color: #fff;
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 1rem;
+            letter-spacing: 0.03em;
+        }
+
+        /* Smooth fade-in for artwork and transitions */
+        .fade-in {
+            animation: fadeIn 0.6s cubic-bezier(.4,0,.2,1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.97);}
+            to { opacity: 1; transform: scale(1);}
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#main-content">Skip to main content</a></li>
+                <li><a href="#" aria-current="page">Music Player Home</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main id="main-content">
+        <h1>Accessible Music Player</h1>
+        <section class="player-container" aria-label="Music player">
+            <img
+                src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80"
+                alt="Album cover: Abstract blue and yellow artwork"
+                class="player-artwork fade-in"
+                id="player-artwork"
+                width="180"
+                height="180"
+            >
+            <div class="player-song-info" aria-live="polite" aria-atomic="true">
+                <p class="player-song-title" id="song-title">Loading...</p>
+                <p class="player-song-artist" id="song-artist"></p>
+            </div>
+            <div class="player-controls" role="group" aria-label="Playback controls">
+                <button
+                    type="button"
+                    id="prev-btn"
+                    aria-label="Previous song"
+                    title="Previous song"
+                >
+                    <!-- SVG icon: previous -->
+                    <svg width="24" height="24" aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M6 18V6h2v5.14l7.07-5.77A1 1 0 0 1 17 6.86v10.28a1 1 0 0 1-1.93.49L8 13.86V19a1 1 0 0 1-2 0z"/>
+                    </svg>
+                </button>
+                <button
+                    type="button"
+                    id="play-pause-btn"
+                    aria-label="Play"
+                    title="Play"
+                >
+                    <!-- SVG icon: play/pause, dynamic -->
+                    <svg id="play-icon" width="32" height="32" aria-hidden="true" focusable="false" viewBox="0 0 32 32">
+                        <polygon fill="currentColor" points="8,6 26,16 8,26"/>
+                    </svg>
+                    <svg id="pause-icon" width="32" height="32" aria-hidden="true" focusable="false" viewBox="0 0 32 32" style="display:none;">
+                        <rect x="8" y="6" width="6" height="20" fill="currentColor"/>
+                        <rect x="18" y="6" width="6" height="20" fill="currentColor"/>
+                    </svg>
+                </button>
+                <button
+                    type="button"
+                    id="next-btn"
+                    aria-label="Next song"
+                    title="Next song"
+                >
+                    <!-- SVG icon: next -->
+                    <svg width="24" height="24" aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M18 6v12h-2v-5.14l-7.07 5.77A1 1 0 0 1 7 17.14V6.86a1 1 0 0 1 1.93-.49L16 10.14V5a1 1 0 0 1 2 0z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="player-volume">
+                <label for="volume-slider" id="volume-label">Volume</label>
+                <input
+                    type="range"
+                    id="volume-slider"
+                    min="0"
+                    max="100"
+                    value="70"
+                    aria-valuenow="70"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="volume-label"
+                >
+            </div>
+            <section class="player-playlist-section" aria-label="Playlist">
+                <h2 class="playlist-heading" id="playlist-heading">Playlist</h2>
+                <ul class="player-playlist" id="playlist" aria-labelledby="playlist-heading">
+                    <!-- Playlist items inserted by JS -->
+                </ul>
+            </section>
+            <!-- Audio element is visually hidden but accessible for screen readers -->
+            <audio id="audio" preload="metadata" aria-label="Audio player"></audio>
+        </section>
+    </main>
+    <footer>
+        <span>&copy; 2024 Accessible Music Player. All rights reserved.</span>
+    </footer>
+    <script>
+        // Music playlist data
+        const playlist = [
+            {
+                title: "Dreams in Blue",
+                artist: "Emilia Woods",
+                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+                artwork: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
+                artworkAlt: "Album cover: Abstract blue and yellow artwork"
+            },
+            {
+                title: "Golden Hour",
+                artist: "Lucas Fields",
+                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+                artwork: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
+                artworkAlt: "Album cover: Golden hour landscape"
+            },
+            {
+                title: "Urban Night",
+                artist: "Jade Rivers",
+                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+                artwork: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
+                artworkAlt: "Album cover: City at night with lights"
+            },
+            {
+                title: "Morning Dew",
+                artist: "Milo Hart",
+                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+                artwork: "https://images.unsplash.com/photo-1465101178521-c1a9136a3a8b?auto=format&fit=crop&w=400&q=80",
+                artworkAlt: "Album cover: Dew on grass in the morning"
+            }
+        ];
+
+        // Element references
+        const audio = document.getElementById('audio');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const songTitle = document.getElementById('song-title');
+        const songArtist = document.getElementById('song-artist');
+        const artwork = document.getElementById('player-artwork');
+        const volumeSlider = document.getElementById('volume-slider');
+        const playlistEl = document.getElementById('playlist');
+
+        let currentSong = 0;
+        let isPlaying = false;
+        let playlistButtons = [];
+
+        // Utility: update play/pause button icon and aria-label
+        function updatePlayPauseButton() {
+            if (isPlaying) {
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = '';
+                playPauseBtn.setAttribute('aria-label', 'Pause');
+                playPauseBtn.setAttribute('title', 'Pause');
+            } else {
+                playIcon.style.display = '';
+                pauseIcon.style.display = 'none';
+                playPauseBtn.setAttribute('aria-label', 'Play');
+                playPauseBtn.setAttribute('title', 'Play');
+            }
+        }
+
+        // Load song at index
+        function loadSong(index, play = false) {
+            const song = playlist[index];
+            audio.src = song.src;
+            songTitle.textContent = song.title;
+            songArtist.textContent = song.artist;
+            artwork.src = song.artwork;
+            artwork.alt = song.artworkAlt;
+            artwork.classList.remove('fade-in');
+            // For animation: trigger reflow
+            void artwork.offsetWidth;
+            artwork.classList.add('fade-in');
+            // Update playlist aria-current
+            playlistButtons.forEach((btn, i) => {
+                if (i === index) {
+                    btn.setAttribute('aria-current', 'true');
+                    btn.setAttribute('tabindex', '0');
+                } else {
+                    btn.removeAttribute('aria-current');
+                    btn.setAttribute('tabindex', '-1');
+                }
+            });
+            currentSong = index;
+            if (play) {
+                playSong();
+            } else {
+                pauseSong();
+            }
+        }
+
+        // Play the current song
+        function playSong() {
+            audio.play();
+            isPlaying = true;
+            updatePlayPauseButton();
+        }
+
+        // Pause the current song
+        function pauseSong() {
+            audio.pause();
+            isPlaying = false;
+            updatePlayPauseButton();
+        }
+
+        // Play next song (with wrap-around)
+        function nextSong() {
+            let next = (currentSong + 1) % playlist.length;
+            loadSong(next, true);
+        }
+
+        // Play previous song (with wrap-around)
+        function prevSong() {
+            let prev = (currentSong - 1 + playlist.length) % playlist.length;
+            loadSong(prev, true);
+        }
+
+        // Handle play/pause button interaction (keyboard and mouse)
+        function handlePlayPauseInteraction(event) {
+            // Keyboard support
+            if (event.type === 'click' ||
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.preventDefault();
+                if (isPlaying) {
+                    pauseSong();
+                } else {
+                    playSong();
+                }
+            }
+        }
+
+        // Handle next/prev button interaction (keyboard and mouse)
+        function handleNextInteraction(event) {
+            if (event.type === 'click' ||
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.preventDefault();
+                nextSong();
+            }
+        }
+        function handlePrevInteraction(event) {
+            if (event.type === 'click' ||
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.preventDefault();
+                prevSong();
+            }
+        }
+
+        // Handle playlist song button interaction
+        function handlePlaylistSongInteraction(event) {
+            if (event.type === 'click' ||
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.preventDefault();
+                const index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
+                loadSong(index, true);
+                event.currentTarget.focus();
+            }
+        }
+
+        // Keyboard navigation for playlist (arrow up/down)
+        function handlePlaylistKeydown(event) {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                const focusedIndex = playlistButtons.findIndex(btn => btn === document.activeElement);
+                let nextIndex;
+                if (event.key === 'ArrowDown') {
+                    nextIndex = (focusedIndex + 1) % playlistButtons.length;
+                } else {
+                    nextIndex = (focusedIndex - 1 + playlistButtons.length) % playlistButtons.length;
+                }
+                playlistButtons[nextIndex].focus();
+            }
+        }
+
+        // Handle volume slider change
+        function handleVolumeChange(event) {
+            const value = parseInt(event.target.value, 10);
+            audio.volume = value / 100;
+            volumeSlider.setAttribute('aria-valuenow', value);
+        }
+
+        // Handle space/enter on volume slider (for accessibility)
+        function handleVolumeKeydown(event) {
+            // Left/Right arrows for adjusting volume
+            let value = parseInt(volumeSlider.value, 10);
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
+                event.preventDefault();
+                value = Math.max(0, value - 5);
+                volumeSlider.value = value;
+                audio.volume = value / 100;
+                volumeSlider.setAttribute('aria-valuenow', value);
+            } else if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                value = Math.min(100, value + 5);
+                volumeSlider.value = value;
+                audio.volume = value / 100;
+                volumeSlider.setAttribute('aria-valuenow', value);
+            }
+        }
+
+        // Build playlist in DOM
+        function renderPlaylist() {
+            playlistEl.innerHTML = '';
+            playlistButtons = [];
+            playlist.forEach((song, i) => {
+                const li = document.createElement('li');
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'playlist-song-btn';
+                btn.setAttribute('data-index', i);
+                btn.setAttribute('aria-label', `Play ${song.title} by ${song.artist}`);
+                btn.setAttribute('tabindex', i === currentSong ? '0' : '-1');
+                if (i === currentSong) {
+                    btn.setAttribute('aria-current', 'true');
+                }
+                // Song title and artist for screen readers and visual users
+                btn.innerHTML = `<span><strong>${song.title}</strong> <span style="color: #555;">by</span> <span>${song.artist}</span></span>`;
+                // Add keyboard/mouse event listeners
+                btn.addEventListener('click', handlePlaylistSongInteraction);
+                btn.addEventListener('keydown', handlePlaylistSongInteraction);
+                btn.addEventListener('keydown', handlePlaylistKeydown);
+                li.appendChild(btn);
+                playlistEl.appendChild(li);
+                playlistButtons.push(btn);
+            });
+        }
+
+        // Initialize player
+        function initPlayer() {
+            renderPlaylist();
+            loadSong(currentSong, false);
+
+            // Set default volume
+            audio.volume = volumeSlider.value / 100;
+
+            // Playback controls
+            playPauseBtn.addEventListener('click', handlePlayPauseInteraction);
+            playPauseBtn.addEventListener('keydown', handlePlayPauseInteraction);
+
+            nextBtn.addEventListener('click', handleNextInteraction);
+            nextBtn.addEventListener('keydown', handleNextInteraction);
+
+            prevBtn.addEventListener('click', handlePrevInteraction);
+            prevBtn.addEventListener('keydown', handlePrevInteraction);
+
+            // Keyboard shortcuts: space/enter for play/pause, left/right for prev/next
+            document.addEventListener('keydown', function(event) {
+                // Avoid if focus is on input/textarea
+                const active = document.activeElement;
+                if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
+                if (event.key === ' ' || event.key === 'Spacebar') {
+                    event.preventDefault();
+                    handlePlayPauseInteraction({type: 'keydown', key: ' '});
+                } else if (event.key === 'ArrowRight') {
+                    handleNextInteraction({type: 'keydown', key: 'ArrowRight'});
+                } else if (event.key === 'ArrowLeft') {
+                    handlePrevInteraction({type: 'keydown', key: 'ArrowLeft'});
+                }
+            });
+
+            // Audio events
+            audio.addEventListener('ended', nextSong);
+
+            // Volume control
+            volumeSlider.addEventListener('input', handleVolumeChange);
+            volumeSlider.addEventListener('keydown', handleVolumeKeydown);
+
+            // On page load, focus the play/pause button for quick keyboard access
+            setTimeout(() => {
+                playPauseBtn.focus();
+            }, 300);
+        }
+
+        // Ensure all images have alt text (accessibility check)
+        function verifyImageAlts() {
+            document.querySelectorAll('img').forEach(img => {
+                if (!img.hasAttribute('alt')) {
+                    img.setAttribute('alt', '');
+                }
+            });
+        }
+
+        // Initialize after DOM content loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initPlayer();
+            verifyImageAlts();
+        });
+    </script>
+</body>
+</html>

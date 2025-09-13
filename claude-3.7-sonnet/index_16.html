@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Countdown Timer - Countdown to Your Special Date</title>
+    <style>
+        /* Base styles with accessibility in mind */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --text-color: #333333; 
+            --light-text: #ffffff;
+            --background-color: #f5f7fa;
+            --focus-color: #0066cc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1.5rem 0;
+            text-align: center;
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .countdown-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .countdown-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .countdown-display {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .countdown-item {
+            min-width: 120px;
+            text-align: center;
+            padding: 1rem;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            border-radius: 8px;
+        }
+
+        .countdown-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .countdown-label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-container {
+            margin: 2rem 0;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 24px;
+            background-color: #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary-color);
+            border-radius: 12px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .progress-text {
+            margin-top: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .date-config {
+            margin-top: 3rem;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        input[type="date"], 
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        input[type="date"]:focus, 
+        input[type="text"]:focus {
+            border-color: var(--secondary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        .live-region {
+            margin-top: 1rem;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .countdown-display {
+                gap: 1rem;
+            }
+
+            .countdown-item {
+                min-width: 100px;
+                padding: 0.75rem;
+            }
+
+            .countdown-value {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .countdown-display {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .countdown-item {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Event Countdown Timer</h1>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="countdown-container" aria-labelledby="countdown-heading">
+            <div class="countdown-header">
+                <h2 id="countdown-heading">Time Remaining Until Your Event</h2>
+                <p id="event-name">Your Special Event</p>
+            </div>
+
+            <div class="countdown-display" aria-live="polite">
+                <div class="countdown-item" aria-labelledby="days-label">
+                    <span class="countdown-value" id="days">0</span>
+                    <span class="countdown-label" id="days-label">Days</span>
+                </div>
+                <div class="countdown-item" aria-labelledby="hours-label">
+                    <span class="countdown-value" id="hours">0</span>
+                    <span class="countdown-label" id="hours-label">Hours</span>
+                </div>
+                <div class="countdown-item" aria-labelledby="minutes-label">
+                    <span class="countdown-value" id="minutes">0</span>
+                    <span class="countdown-label" id="minutes-label">Minutes</span>
+                </div>
+                <div class="countdown-item" aria-labelledby="seconds-label">
+                    <span class="countdown-value" id="seconds">0</span>
+                    <span class="countdown-label" id="seconds-label">Seconds</span>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <h3 id="progress-heading">Event Progress</h3>
+                <div class="progress-bar-container" role="progressbar" aria-labelledby="progress-heading" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar" style="width: 0%"></div>
+                </div>
+                <p class="progress-text" id="progress-text">0% Complete</p>
+            </div>
+
+            <div class="live-region" aria-live="polite" id="time-announcement">
+                <span class="sr-only">Time will update automatically</span>
+            </div>
+        </section>
+
+        <section class="date-config" aria-labelledby="config-heading">
+            <h2 id="config-heading">Set Your Event</h2>
+            <form id="event-form">
+                <div class="form-group">
+                    <label for="event-title">Event Title:</label>
+                    <input type="text" id="event-title" name="event-title" required aria-required="true">
+                </div>
+                <div class="form-group">
+                    <label for="event-date">Event Date:</label>
+                    <input type="date" id="event-date" name="event-date" required aria-required="true">
+                </div>
+                <button type="submit" id="set-event-btn" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">Set Event</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; <span id="current-year">2025</span>Countdown Timer</p>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + 30); // Default to 30 days from now
+        let startDate = new Date();
+        let eventTitle = "Your Special Event";
+        let countdownInterval;
+
+        // DOM elements
+        const daysElement = document.getElementById('days');
+        const hoursElement = document.getElementById('hours');
+        const minutesElement = document.getElementById('minutes');
+        const secondsElement = document.getElementById('seconds');
+        const progressBarElement = document.querySelector('.progress-bar');
+        const progressTextElement = document.getElementById('progress-text');
+        const progressBarContainer = document.querySelector('.progress-bar-container');
+        const eventNameElement = document.getElementById('event-name');
+        const eventForm = document.getElementById('event-form');
+        const eventTitleInput = document.getElementById('event-title');
+        const eventDateInput = document.getElementById('event-date');
+        const timeAnnouncementElement = document.getElementById('time-announcement');
+        const currentYearElement = document.getElementById('current-year');
+
+        // Set current year in footer
+        currentYearElement.textContent = new Date().getFullYear();
+
+        // Initialize the countdown
+        function initCountdown() {
+            // Set min date for the date input to today
+            const today = new Date().toISOString().split('T')[0];
+            eventDateInput.setAttribute('min', today);
+            
+            // Check if we have saved data in localStorage
+            loadSavedEventData();
+            
+            // Start the countdown
+            updateCountdown();
+            
+            // Update every second
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
+        // Load saved event data from localStorage if available
+        function loadSavedEventData() {
+            const savedEventTitle = localStorage.getItem('eventTitle');
+            const savedEventDate = localStorage.getItem('eventDate');
+            const savedStartDate = localStorage.getItem('startDate');
+            
+            if (savedEventTitle && savedEventDate) {
+                eventTitle = savedEventTitle;
+                targetDate = new Date(savedEventDate);
+                if (savedStartDate) {
+                    startDate = new Date(savedStartDate);
+                }
+                
+                eventTitleInput.value = eventTitle;
+                eventDateInput.value = targetDate.toISOString().split('T')[0];
+                eventNameElement.textContent = eventTitle;
+            }
+        }
+
+        // Save event data to localStorage
+        function saveEventData() {
+            localStorage.setItem('eventTitle', eventTitle);
+            localStorage.setItem('eventDate', targetDate.toISOString());
+            localStorage.setItem('startDate', startDate.toISOString());
+        }
+
+        // Update the countdown timer
+        function updateCountdown() {
+            const now = new Date();
+            const timeRemaining = targetDate - now;
+            
+            // If the target date has passed
+            if (timeRemaining <= 0) {
+                clearInterval(countdownInterval);
+                daysElement.textContent = '0';
+                hoursElement.textContent = '0';
+                minutesElement.textContent = '0';
+                secondsElement.textContent = '0';
+                progressBarElement.style.width = '100%';
+                progressTextElement.textContent = '100% Complete';
+                progressBarContainer.setAttribute('aria-valuenow', 100);
+                timeAnnouncementElement.innerHTML = `<span class="sr-only">Event has arrived! ${eventTitle} is happening now.</span>`;
+                return;
+            }
+            
+            // Calculate time units
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Update DOM elements
+            daysElement.textContent = days;
+            hoursElement.textContent = hours;
+            minutesElement.textContent = minutes;
+            secondsElement.textContent = seconds;
+            
+            // Calculate and update progress
+            const totalDuration = targetDate - startDate;
+            const elapsed = now - startDate;
+            const progress = Math.min(100, Math.max(0, Math.floor((elapsed / totalDuration) * 100)));
+            
+            progressBarElement.style.width = `${progress}%`;
+            progressTextElement.textContent = `${progress}% Complete`;
+            progressBarContainer.setAttribute('aria-valuenow', progress);
+            
+            // Update screen reader announcement every minute
+            if (seconds === 0) {
+                const timeString = `${days} days, ${hours} hours, and ${minutes} minutes remaining until ${eventTitle}.`;
+                timeAnnouncementElement.innerHTML = `<span class="sr-only">${timeString}</span>`;
+            }
+        }
+
+        // Handle form submission
+        eventForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const newEventTitle = eventTitleInput.value.trim();
+            const newEventDate = new Date(eventDateInput.value);
+            
+            // Validate inputs
+            if (!newEventTitle) {
+                alert('Please enter an event title');
+                eventTitleInput.focus();
+                return;
+            }
+            
+            if (isNaN(newEventDate.getTime())) {
+                alert('Please enter a valid date');
+                eventDateInput.focus();
+                return;
+            }
+            
+            // Update event details
+            eventTitle = newEventTitle;
+            targetDate = newEventDate;
+            startDate = new Date(); // Reset start date to now
+            
+            // Update display
+            eventNameElement.textContent = eventTitle;
+            
+            // Save to localStorage
+            saveEventData();
+            
+            // Announce to screen readers
+            timeAnnouncementElement.innerHTML = `<span class="sr-only">Event updated. Counting down to ${eventTitle} on ${targetDate.toLocaleDateString()}.</span>`;
+            
+            // Update countdown immediately
+            updateCountdown();
+        });
+
+        // Handle keyboard and mouse interactions for buttons
+        function handleInteraction(event) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                // Prevent default space bar scrolling
+                if (event.key === ' ') {
+                    event.preventDefault();
+                }
+                
+                // The form submit handler will take care of the actual submission
+                if (event.type === 'keydown' && event.target.type === 'submit') {
+                    event.target.click();
+                }
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initCountdown);
+    </script>
+</body>
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Showcase - Share Your Beloved Pets</title>
+    <style>
+        /* Base styles with accessibility in mind */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --text-color: #333333;
+            --light-bg: #f8f9fa;
+            --dark-bg: #2c3e50;
+            --light-text: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem 0;
+            box-shadow: var(--box-shadow);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            margin: 1rem 0;
+            color: var(--primary-color);
+        }
+
+        header h1 {
+            color: var(--light-text);
+            margin: 0;
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        section {
+            margin-bottom: 2rem;
+        }
+
+        /* Form styles */
+        .pet-form {
+            background-color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: var(--accent-color);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+
+        .error-message {
+            color: var(--accent-color);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Pet cards display */
+        .pets-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .pet-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: transform 0.3s;
+        }
+
+        .pet-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .pet-image-container {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pet-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pet-info {
+            padding: 1.5rem;
+        }
+
+        .pet-name {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .pet-details {
+            margin-bottom: 1rem;
+        }
+
+        .pet-details p {
+            margin-bottom: 0.5rem;
+        }
+
+        .pet-fun-fact {
+            font-style: italic;
+            color: var(--secondary-color);
+        }
+
+        .remove-pet {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .remove-pet:hover {
+            background-color: #c0392b;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .pets-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pets-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* No pets message */
+        .no-pets-message {
+            text-align: center;
+            padding: 2rem;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Skip to main content link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--secondary-color);
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+   
+    <header>
+        <div class="container">
+            <h1>Pet Showcase</h1>
+            <nav role="navigation" aria-label="Main navigation">
+                <!-- Navigation placeholder for future expansion -->
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div class="container">
+            <section aria-labelledby="add-pet-heading">
+                <h2 id="add-pet-heading">Add Your Pet</h2>
+                <form id="pet-form" class="pet-form" novalidate>
+                    <div class="form-group">
+                        <label for="pet-name" class="required-field">Pet Name</label>
+                        <input type="text" id="pet-name" name="pet-name" required aria-required="true" aria-describedby="pet-name-error">
+                        <div id="pet-name-error" class="error-message">Please enter your pet's name</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pet-breed" class="required-field">Pet Breed</label>
+                        <input type="text" id="pet-breed" name="pet-breed" required aria-required="true" aria-describedby="pet-breed-error">
+                        <div id="pet-breed-error" class="error-message">Please enter your pet's breed</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pet-age" class="required-field">Pet Age</label>
+                        <input type="number" id="pet-age" name="pet-age" min="0" max="100" required aria-required="true" aria-describedby="pet-age-error">
+                        <div id="pet-age-error" class="error-message">Please enter a valid age (0-100)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pet-fun-fact">Fun Fact About Your Pet</label>
+                        <textarea id="pet-fun-fact" name="pet-fun-fact" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pet-image" class="required-field">Pet Photo</label>
+                        <input type="file" id="pet-image" name="pet-image" accept="image/*" required aria-required="true" aria-describedby="pet-image-error">
+                        <div id="pet-image-error" class="error-message">Please select a photo of your pet</div>
+                    </div>
+
+                    <button type="submit" id="submit-pet">Add Pet</button>
+                </form>
+            </section>
+
+            <section aria-labelledby="showcase-heading">
+                <h2 id="showcase-heading">Pet Showcase</h2>
+                <div id="pets-container" class="pets-container" aria-live="polite">
+                    <!-- Pet cards will be added here dynamically -->
+                    <div class="no-pets-message" id="no-pets-message">
+                        <p>No pets added yet. Add your first pet using the form above!</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Pet Showcase. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize pet data array from localStorage or empty array if none exists
+            let pets = JSON.parse(localStorage.getItem('pets')) || [];
+            
+            // DOM elements
+            const petForm = document.getElementById('pet-form');
+            const petsContainer = document.getElementById('pets-container');
+            const noPetsMessage = document.getElementById('no-pets-message');
+            
+            // Form fields
+            const petNameInput = document.getElementById('pet-name');
+            const petBreedInput = document.getElementById('pet-breed');
+            const petAgeInput = document.getElementById('pet-age');
+            const petFunFactInput = document.getElementById('pet-fun-fact');
+            const petImageInput = document.getElementById('pet-image');
+            
+            // Error message elements
+            const petNameError = document.getElementById('pet-name-error');
+            const petBreedError = document.getElementById('pet-breed-error');
+            const petAgeError = document.getElementById('pet-age-error');
+            const petImageError = document.getElementById('pet-image-error');
+            
+            // Display pets on page load
+            displayPets();
+            
+            // Form submission handler
+            petForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Reset error messages
+                resetErrorMessages();
+                
+                // Validate form
+                if (validateForm()) {
+                    addPet();
+                }
+            });
+            
+            // Function to validate the form
+            function validateForm() {
+                let isValid = true;
+                
+                // Validate pet name
+                if (!petNameInput.value.trim()) {
+                    showError(petNameInput, petNameError, 'Please enter your pet\'s name');
+                    isValid = false;
+                }
+                
+                // Validate pet breed
+                if (!petBreedInput.value.trim()) {
+                    showError(petBreedInput, petBreedError, 'Please enter your pet\'s breed');
+                    isValid = false;
+                }
+                
+                // Validate pet age
+                const age = parseInt(petAgeInput.value);
+                if (isNaN(age) || age < 0 || age > 100) {
+                    showError(petAgeInput, petAgeError, 'Please enter a valid age (0-100)');
+                    isValid = false;
+                }
+                
+                // Validate pet image
+                if (!petImageInput.files || petImageInput.files.length === 0) {
+                    showError(petImageInput, petImageError, 'Please select a photo of your pet');
+                    isValid = false;
+                }
+                
+                return isValid;
+            }
+            
+            // Function to show error message
+            function showError(inputElement, errorElement, message) {
+                inputElement.setAttribute('aria-invalid', 'true');
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+            
+            // Function to reset error messages
+            function resetErrorMessages() {
+                const errorElements = document.querySelectorAll('.error-message');
+                const inputElements = document.querySelectorAll('input, textarea');
+                
+                errorElements.forEach(element => {
+                    element.style.display = 'none';
+                });
+                
+                inputElements.forEach(element => {
+                    element.setAttribute('aria-invalid', 'false');
+                });
+            }
+            
+            // Function to add a new pet
+            function addPet() {
+                const file = petImageInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    const newPet = {
+                        id: Date.now(), // Unique ID based on timestamp
+                        name: petNameInput.value.trim(),
+                        breed: petBreedInput.value.trim(),
+                        age: parseInt(petAgeInput.value),
+                        funFact: petFunFactInput.value.trim(),
+                        image: event.target.result
+                    };
+                    
+                    // Add to pets array
+                    pets.push(newPet);
+                    
+                    // Save to localStorage
+                    localStorage.setItem('pets', JSON.stringify(pets));
+                    
+                    // Display updated pets
+                    displayPets();
+                    
+                    // Reset form
+                    petForm.reset();
+                    
+                    // Announce to screen readers that pet was added
+                    const announcement = document.createElement('div');
+                    announcement.setAttribute('aria-live', 'assertive');
+                    announcement.setAttribute('role', 'status');
+                    announcement.style.position = 'absolute';
+                    announcement.style.width = '1px';
+                    announcement.style.height = '1px';
+                    announcement.style.overflow = 'hidden';
+                    announcement.textContent = `${newPet.name} has been added to your pet showcase.`;
+                    document.body.appendChild(announcement);
+                    
+                    // Remove announcement after it's been read
+                    setTimeout(() => {
+                        document.body.removeChild(announcement);
+                    }, 3000);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+            
+            // Function to display pets
+            function displayPets() {
+                // Clear the container except for the no pets message
+                const petCards = document.querySelectorAll('.pet-card');
+                petCards.forEach(card => card.remove());
+                
+                // Show or hide no pets message
+                if (pets.length === 0) {
+                    noPetsMessage.style.display = 'block';
+                } else {
+                    noPetsMessage.style.display = 'none';
+                    
+                    // Add pet cards
+                    pets.forEach(pet => {
+                        const petCard = createPetCard(pet);
+                        petsContainer.appendChild(petCard);
+                    });
+                }
+            }
+            
+            // Function to create a pet card
+            function createPetCard(pet) {
+                const petCard = document.createElement('article');
+                petCard.className = 'pet-card';
+                petCard.setAttribute('aria-labelledby', `pet-name-${pet.id}`);
+                
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'pet-image-container';
+                
+                const image = document.createElement('img');
+                image.className = 'pet-image';
+                image.src = pet.image;
+                image.alt = `Photo of ${pet.name}, a ${pet.breed}`;
+                imageContainer.appendChild(image);
+                
+                const petInfo = document.createElement('div');
+                petInfo.className = 'pet-info';
+                
+                const petName = document.createElement('h3');
+                petName.className = 'pet-name';
+                petName.id = `pet-name-${pet.id}`;
+                petName.textContent = pet.name;
+                
+                const petDetails = document.createElement('div');
+                petDetails.className = 'pet-details';
+                
+                const breedInfo = document.createElement('p');
+                breedInfo.innerHTML = `<strong>Breed:</strong> ${pet.breed}`;
+                
+                const ageInfo = document.createElement('p');
+                ageInfo.innerHTML = `<strong>Age:</strong> ${pet.age} ${pet.age === 1 ? 'year' : 'years'}`;
+                
+                petDetails.appendChild(breedInfo);
+                petDetails.appendChild(ageInfo);
+                
+                petInfo.appendChild(petName);
+                petInfo.appendChild(petDetails);
+                
+                if (pet.funFact) {
+                    const funFact = document.createElement('p');
+                    funFact.className = 'pet-fun-fact';
+                    funFact.innerHTML = `<strong>Fun Fact:</strong> ${pet.funFact}`;
+                    petInfo.appendChild(funFact);
+                }
+                
+                const removeButton = document.createElement('button');
+                removeButton.className = 'remove-pet';
+                removeButton.textContent = 'Remove Pet';
+                removeButton.setAttribute('aria-label', `Remove ${pet.name} from showcase`);
+                
+                // Add keyboard and mouse event handlers
+                removeButton.addEventListener('click', function(event) {
+                    handleRemovePet(event, pet.id);
+                });
+                
+                removeButton.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault(); // Prevent scrolling on space
+                        handleRemovePet(event, pet.id);
+                    }
+                });
+                
+                petInfo.appendChild(removeButton);
+                
+                petCard.appendChild(imageContainer);
+                petCard.appendChild(petInfo);
+                
+                return petCard;
+            }
+            
+            // Function to handle pet removal
+            function handleRemovePet(event, petId) {
+                // Find the pet name before removing it
+                const petToRemove = pets.find(pet => pet.id === petId);
+                const petName = petToRemove ? petToRemove.name : 'Pet';
+                
+                // Remove pet from array
+                pets = pets.filter(pet => pet.id !== petId);
+                
+                // Save to localStorage
+                localStorage.setItem('pets', JSON.stringify(pets));
+                
+                // Update display
+                displayPets();
+                
+                // Announce to screen readers
+                const announcement = document.createElement('div');
+                announcement.setAttribute('aria-live', 'assertive');
+                announcement.setAttribute('role', 'status');
+                announcement.style.position = 'absolute';
+                announcement.style.width = '1px';
+                announcement.style.height = '1px';
+                announcement.style.overflow = 'hidden';
+                announcement.textContent = `${petName} has been removed from your pet showcase.`;
+                document.body.appendChild(announcement);
+                
+                // Remove announcement after it's been read
+                setTimeout(() => {
+                    document.body.removeChild(announcement);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

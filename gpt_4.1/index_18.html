@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Interactive Travel Map – Add and Share Your Experiences</title>
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #f5f7fa;
+            --text-color: #222;
+            --error-color: #c00;
+            --background-color: #ffffff;
+            --focus-outline: 3px solid var(--primary-color);
+            --focus-outline-dark: 3px solid #ffffff;
+            --map-bg: #e0e7ef;
+            --pin-color: #d32f2f;
+            --pin-size: 32px;
+            --pin-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        html {
+            box-sizing: border-box;
+            font-size: 100%;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, Arial, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 0.5em 0;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 1.5em;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: text-decoration 0.2s;
+        }
+
+        nav a:focus, nav a:hover {
+            text-decoration: underline;
+            outline: var(--focus-outline-dark);
+            outline-offset: 2px;
+        }
+
+        main {
+            flex: 1 0 auto;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2em 1em 2em 1em;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 0.5em;
+        }
+
+        .intro {
+            margin-bottom: 2em;
+            max-width: 700px;
+        }
+
+        .map-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2em;
+        }
+
+        .map-container {
+            flex: 2 1 400px;
+            background: var(--map-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            position: relative;
+            min-width: 320px;
+            min-height: 420px;
+            max-width: 600px;
+            aspect-ratio: 3/2;
+            overflow: hidden;
+        }
+
+        /* The map image is for demonstration, not interactive */
+        .map-image {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        /* Pins styling */
+        .pin {
+            position: absolute;
+            width: var(--pin-size);
+            height: var(--pin-size);
+            background: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .pin:focus {
+            outline: var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        .pin-icon {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Pin modal (for experience details) */
+        .pin-modal {
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            transform: translate(-50%, 10px);
+            min-width: 220px;
+            background: #fff;
+            color: #222;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+            padding: 1em;
+            z-index: 10;
+            margin-top: 6px;
+            font-size: 1em;
+            max-width: 320px;
+        }
+
+        .pin-modal h3 {
+            margin-top: 0;
+            font-size: 1.1em;
+        }
+
+        .pin-modal button {
+            margin-top: 1em;
+        }
+
+        .pin-modal[aria-hidden="true"] {
+            display: none;
+        }
+
+        /* Add Pin Form */
+        .add-pin-section {
+            flex: 1 1 320px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            padding: 2em 1.5em 1.5em 1.5em;
+            min-width: 300px;
+            max-width: 370px;
+            align-self: flex-start;
+        }
+
+        .add-pin-section h2 {
+            margin-top: 0;
+            font-size: 1.3em;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 0.2em;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 0.5em;
+            border: 1.5px solid #b0b8c1;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--primary-color);
+            outline: var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+            max-height: 200px;
+        }
+
+        .required-indicator {
+            color: var(--error-color);
+            margin-left: 0.2em;
+            font-size: 1em;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.98em;
+            margin-top: 0.2em;
+        }
+
+        button[type="submit"], .close-modal-btn {
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.7em 1.3em;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button[type="submit"]:hover, .close-modal-btn:hover {
+            background: #004a99;
+        }
+
+        button[type="submit"]:focus, .close-modal-btn:focus {
+            outline: var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        /* Pins List Section */
+        .pins-list-section {
+            margin-top: 2.5em;
+        }
+
+        .pins-list-section h2 {
+            font-size: 1.2em;
+            margin-bottom: 0.6em;
+        }
+
+        .pins-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .pins-list li {
+            background: #f9fafc;
+            border-radius: 7px;
+            margin-bottom: 1em;
+            padding: 1em 1.2em;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+        }
+
+        .pins-list h3 {
+            margin: 0 0 0.2em 0;
+            font-size: 1.1em;
+        }
+
+        .pins-list .pin-coords {
+            font-size: 0.98em;
+            color: #666;
+            margin-bottom: 0.5em;
+        }
+
+        @media (max-width: 900px) {
+            .map-section {
+                flex-direction: column;
+                gap: 1.5em;
+            }
+            .map-container, .add-pin-section {
+                max-width: 100%;
+                min-width: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            main {
+                padding: 1em 0.5em 2em 0.5em;
+            }
+            .add-pin-section {
+                padding: 1em 0.7em 1em 0.7em;
+            }
+        }
+
+        /* Focus indicators for all interactive elements */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: var(--focus-outline-dark);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <span style="font-size:1.3em;font-weight:bold;">Travel Map Explorer</span>
+            <ul>
+                <li><a href="#map" aria-current="page">Map</a></li>
+                <li><a href="#add-pin">Add Pin</a></li>
+                <li><a href="#pins-list">Experiences</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1 id="page-title">Interactive Travel Map – Share Your Journey</h1>
+        <p class="intro">
+            Explore the map and add pins to mark your favorite travel locations. Share your experiences and stories with others. All pins and stories are accessible to everyone.
+        </p>
+        <section class="map-section" aria-label="Travel Map and Add Pin">
+            <!-- Interactive Map -->
+            <section class="map-container" id="map" aria-label="Travel Map" tabindex="0">
+                <!-- The map image is for demonstration purposes -->
+                <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Equirectangular_projection_SW.jpg/800px-Equirectangular_projection_SW.jpg" 
+                    alt="World map in equirectangular projection" 
+                    class="map-image"
+                    draggable="false"
+                >
+                <!-- Pins will be dynamically added here -->
+                <!-- Pin modals are appended here as well -->
+            </section>
+            <!-- Add Pin Form -->
+            <aside class="add-pin-section" id="add-pin" aria-labelledby="add-pin-heading">
+                <h2 id="add-pin-heading">Add a New Pin</h2>
+                <form id="addPinForm" autocomplete="off" novalidate>
+                    <div>
+                        <label for="locationName">
+                            Location Name
+                            <span class="required-indicator" aria-hidden="true">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="locationName" 
+                            name="locationName" 
+                            required 
+                            aria-required="true"
+                            aria-describedby="locationNameError"
+                            maxlength="80"
+                            autocomplete="off"
+                        >
+                        <span id="locationNameError" class="error-message" role="alert" aria-live="polite"></span>
+                    </div>
+                    <div>
+                        <label for="experience">
+                            Your Experience
+                            <span class="required-indicator" aria-hidden="true">*</span>
+                        </label>
+                        <textarea 
+                            id="experience" 
+                            name="experience" 
+                            required 
+                            aria-required="true"
+                            aria-describedby="experienceError"
+                            maxlength="500"
+                            rows="4"
+                        ></textarea>
+                        <span id="experienceError" class="error-message" role="alert" aria-live="polite"></span>
+                    </div>
+                    <div>
+                        <label for="pinCoords">
+                            Pin Location (Click the map)
+                            <span class="required-indicator" aria-hidden="true">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="pinCoords" 
+                            name="pinCoords" 
+                            readonly 
+                            required 
+                            aria-required="true"
+                            aria-describedby="pinCoordsError"
+                            placeholder="Click a spot on the map"
+                            tabindex="-1"
+                        >
+                        <span id="pinCoordsError" class="error-message" role="alert" aria-live="polite"></span>
+                    </div>
+                    <button type="submit" id="submitPinBtn">Add Pin to Map</button>
+                </form>
+            </aside>
+        </section>
+        <!-- Pins List -->
+        <section class="pins-list-section" id="pins-list" aria-labelledby="pins-list-heading">
+            <h2 id="pins-list-heading">Shared Experiences</h2>
+            <ul class="pins-list" id="pinsList" aria-live="polite">
+                <!-- Pins will be listed here -->
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <section style="padding:1em 0;text-align:center;font-size:1em;color:#666;">
+            &copy; 2024 Travel Map Explorer. Built for accessibility and inclusivity.
+        </section>
+    </footer>
+    <script>
+        // Accessibility: ARIA live region for dynamic content
+        const pinsList = document.getElementById('pinsList');
+        const mapContainer = document.getElementById('map');
+        const addPinForm = document.getElementById('addPinForm');
+        const pinCoordsInput = document.getElementById('pinCoords');
+        let lastFocusedPinBtn = null; // To return focus after closing modal
+
+        // Utility: Get map click coordinates as percentages
+        function getMapCoords(event) {
+            const rect = mapContainer.getBoundingClientRect();
+            let x, y;
+            if (event.touches && event.touches.length) {
+                x = event.touches[0].clientX - rect.left;
+                y = event.touches[0].clientY - rect.top;
+            } else {
+                x = event.clientX - rect.left;
+                y = event.clientY - rect.top;
+            }
+            const percentX = Math.max(0, Math.min(1, x / rect.width));
+            const percentY = Math.max(0, Math.min(1, y / rect.height));
+            return { x: percentX, y: percentY };
+        }
+
+        // Store pins in memory (could be enhanced with localStorage)
+        let pins = [];
+
+        // Accessibility: Error handling helpers
+        function showError(inputId, message) {
+            const errorElem = document.getElementById(inputId + 'Error');
+            errorElem.textContent = message;
+        }
+        function clearError(inputId) {
+            const errorElem = document.getElementById(inputId + 'Error');
+            errorElem.textContent = '';
+        }
+
+        // Accessibility: Trap focus within modal
+        function trapFocus(modal) {
+            const focusableSelectors = [
+                'button:not([disabled])',
+                'a[href]',
+                'input:not([disabled])',
+                'textarea:not([disabled])',
+                '[tabindex]:not([tabindex="-1"])'
+            ];
+            const focusableEls = modal.querySelectorAll(focusableSelectors.join(','));
+            if (!focusableEls.length) return;
+            const firstEl = focusableEls[0];
+            const lastEl = focusableEls[focusableEls.length - 1];
+
+            function handleTrap(e) {
+                if (e.key === 'Tab') {
+                    if (e.shiftKey) {
+                        if (document.activeElement === firstEl) {
+                            lastEl.focus();
+                            e.preventDefault();
+                        }
+                    } else {
+                        if (document.activeElement === lastEl) {
+                            firstEl.focus();
+                            e.preventDefault();
+                        }
+                    }
+                } else if (e.key === 'Escape') {
+                    closeModal(modal);
+                }
+            }
+            modal.addEventListener('keydown', handleTrap);
+            modal._trapHandler = handleTrap;
+        }
+        function releaseFocusTrap(modal) {
+            if (modal._trapHandler) {
+                modal.removeEventListener('keydown', modal._trapHandler);
+                delete modal._trapHandler;
+            }
+        }
+
+        // Create a pin element on the map
+        function createPin(pin, index) {
+            // Button for accessibility and keyboard navigation
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'pin';
+            btn.setAttribute('aria-label', `Show experience for ${pin.name}`);
+            btn.setAttribute('aria-haspopup', 'dialog');
+            btn.setAttribute('aria-controls', `pin-modal-${index}`);
+            btn.style.left = `calc(${(pin.x * 100).toFixed(2)}% - 16px)`;
+            btn.style.top = `calc(${(pin.y * 100).toFixed(2)}% - 32px)`;
+            btn.tabIndex = 0;
+            btn.dataset.pinIndex = index;
+
+            // SVG Pin Icon (decorative, but alt for screen readers)
+            btn.innerHTML = `
+                <svg class="pin-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+                    <ellipse cx="16" cy="12" rx="7" ry="8" fill="#d32f2f" stroke="#b71c1c" stroke-width="2"/>
+                    <circle cx="16" cy="12" r="3.5" fill="#fff"/>
+                    <rect x="14.5" y="20" width="3" height="8" rx="1.2" fill="#b71c1c"/>
+                </svg>
+            `;
+
+            // Keyboard and mouse event support
+            btn.addEventListener('click', (e) => {
+                openPinModal(pin, index, btn);
+            });
+            btn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openPinModal(pin, index, btn);
+                }
+            });
+
+            // Append to map
+            mapContainer.appendChild(btn);
+        }
+
+        // Remove all pins from map
+        function clearPinsFromMap() {
+            const pinsOnMap = mapContainer.querySelectorAll('.pin');
+            pinsOnMap.forEach(pin => pin.remove());
+            const modalsOnMap = mapContainer.querySelectorAll('.pin-modal');
+            modalsOnMap.forEach(modal => modal.remove());
+        }
+
+        // Render all pins on map
+        function renderPins() {
+            clearPinsFromMap();
+            pins.forEach((pin, i) => createPin(pin, i));
+        }
+
+        // Add pin to pins list (below map)
+        function renderPinsList() {
+            pinsList.innerHTML = '';
+            if (pins.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = "No experiences shared yet. Be the first to add a pin!";
+                pinsList.appendChild(li);
+                return;
+            }
+            pins.forEach((pin, i) => {
+                const li = document.createElement('li');
+                li.setAttribute('tabindex', '0');
+                li.setAttribute('aria-labelledby', `pin-list-name-${i}`);
+                li.innerHTML = `
+                    <h3 id="pin-list-name-${i}">${pin.name}</h3>
+                    <div class="pin-coords">
+                        Map location: (${(pin.x * 100).toFixed(1)}%, ${(pin.y * 100).toFixed(1)}%)
+                    </div>
+                    <div>${escapeHTML(pin.experience)}</div>
+                `;
+                pinsList.appendChild(li);
+            });
+        }
+
+        // Open pin modal (dialog)
+        function openPinModal(pin, index, pinBtn) {
+            closeAllModals();
+            lastFocusedPinBtn = pinBtn;
+            // Modal structure
+            const modal = document.createElement('div');
+            modal.className = 'pin-modal';
+            modal.id = `pin-modal-${index}`;
+            modal.setAttribute('role', 'dialog');
+            modal.setAttribute('aria-modal', 'true');
+            modal.setAttribute('aria-labelledby', `pin-modal-title-${index}`);
+            modal.setAttribute('aria-describedby', `pin-modal-desc-${index}`);
+            modal.tabIndex = -1;
+
+            modal.innerHTML = `
+                <h3 id="pin-modal-title-${index}">${pin.name}</h3>
+                <div id="pin-modal-desc-${index}">
+                    <strong>Experience:</strong>
+                    <div>${escapeHTML(pin.experience)}</div>
+                    <div style="margin-top:0.5em;color:#666;font-size:0.97em;">
+                        <em>Map location: (${(pin.x * 100).toFixed(1)}%, ${(pin.y * 100).toFixed(1)}%)</em>
+                    </div>
+                </div>
+                <button type="button" class="close-modal-btn" aria-label="Close experience dialog">Close</button>
+            `;
+
+            // Position modal below the pin (adjust for viewport)
+            modal.style.left = `calc(${(pin.x * 100).toFixed(2)}% - 10px)`;
+            modal.style.top = `calc(${(pin.y * 100).toFixed(2)}% + 28px)`;
+
+            // Keyboard and mouse event support for close button
+            const closeBtn = modal.querySelector('.close-modal-btn');
+            closeBtn.addEventListener('click', () => closeModal(modal));
+            closeBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    closeModal(modal);
+                }
+            });
+
+            // Add modal to map
+            mapContainer.appendChild(modal);
+            modal.setAttribute('aria-hidden', 'false');
+            // Focus trap for modal
+            trapFocus(modal);
+            // Focus the close button
+            setTimeout(() => closeBtn.focus(), 10);
+        }
+
+        // Close all modals
+        function closeAllModals() {
+            const modals = mapContainer.querySelectorAll('.pin-modal');
+            modals.forEach(modal => {
+                modal.setAttribute('aria-hidden', 'true');
+                releaseFocusTrap(modal);
+                modal.remove();
+            });
+        }
+
+        // Close a specific modal
+        function closeModal(modal) {
+            releaseFocusTrap(modal);
+            modal.setAttribute('aria-hidden', 'true');
+            modal.remove();
+            // Return focus to last pin button
+            if (lastFocusedPinBtn) {
+                lastFocusedPinBtn.focus();
+                lastFocusedPinBtn = null;
+            }
+        }
+
+        // Escape HTML for safe rendering
+        function escapeHTML(str) {
+            return str.replace(/[&<>"']/g, function(m) {
+                return ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                })[m];
+            });
+        }
+
+        // Handle map click to select pin location
+        function handleMapClick(event) {
+            // Only allow click if not clicking a pin or modal
+            if (event.target.classList.contains('pin') || event.target.classList.contains('pin-icon') || event.target.classList.contains('close-modal-btn') || event.target.classList.contains('pin-modal')) {
+                return;
+            }
+            closeAllModals();
+            const coords = getMapCoords(event);
+            // Update form input
+            pinCoordsInput.value = `X: ${(coords.x * 100).toFixed(1)}%, Y: ${(coords.y * 100).toFixed(1)}%`;
+            pinCoordsInput.dataset.x = coords.x;
+            pinCoordsInput.dataset.y = coords.y;
+            clearError('pinCoords');
+        }
+
+        // Keyboard accessibility for map: Enter/Space sets pin at map center
+        function handleMapKeydown(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                // Set pin at map center for keyboard users
+                const coords = { x: 0.5, y: 0.5 };
+                pinCoordsInput.value = `X: 50.0%, Y: 50.0%`;
+                pinCoordsInput.dataset.x = coords.x;
+                pinCoordsInput.dataset.y = coords.y;
+                clearError('pinCoords');
+            }
+        }
+
+        // Form validation
+        function validateForm() {
+            let valid = true;
+            const name = addPinForm.locationName.value.trim();
+            const exp = addPinForm.experience.value.trim();
+            const coordsX = pinCoordsInput.dataset.x;
+            const coordsY = pinCoordsInput.dataset.y;
+
+            // Location Name
+            if (!name) {
+                showError('locationName', 'Location name is required.');
+                valid = false;
+            } else {
+                clearError('locationName');
+            }
+            // Experience
+            if (!exp) {
+                showError('experience', 'Experience is required.');
+                valid = false;
+            } else {
+                clearError('experience');
+            }
+            // Pin Coordinates
+            if (!coordsX || !coordsY) {
+                showError('pinCoords', 'Please select a location on the map.');
+                valid = false;
+            } else {
+                clearError('pinCoords');
+            }
+            return valid;
+        }
+
+        // Handle form submission
+        addPinForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (!validateForm()) {
+                // Focus first invalid field
+                if (addPinForm.locationName.value.trim() === '') {
+                    addPinForm.locationName.focus();
+                } else if (addPinForm.experience.value.trim() === '') {
+                    addPinForm.experience.focus();
+                } else {
+                    pinCoordsInput.focus();
+                }
+                return;
+            }
+            // All fields valid
+            const pin = {
+                name: addPinForm.locationName.value.trim(),
+                experience: addPinForm.experience.value.trim(),
+                x: parseFloat(pinCoordsInput.dataset.x),
+                y: parseFloat(pinCoordsInput.dataset.y)
+            };
+            pins.push(pin);
+            renderPins();
+            renderPinsList();
+            // Clear form
+            addPinForm.reset();
+            pinCoordsInput.value = '';
+            delete pinCoordsInput.dataset.x;
+            delete pinCoordsInput.dataset.y;
+            // Announce to screen reader
+            pinsList.setAttribute('aria-live', 'polite');
+            // Focus on map for next pin
+            mapContainer.focus();
+        });
+
+        // Map click for pin location
+        mapContainer.addEventListener('click', handleMapClick);
+
+        // Keyboard accessibility for map
+        mapContainer.addEventListener('keydown', handleMapKeydown);
+
+        // Accessibility: close modal when clicking outside or pressing Escape
+        document.addEventListener('mousedown', function(event) {
+            // If click outside modal and pins, close modal
+            const modals = mapContainer.querySelectorAll('.pin-modal');
+            if (modals.length && !event.target.closest('.pin-modal') && !event.target.classList.contains('pin')) {
+                closeAllModals();
+            }
+        });
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeAllModals();
+            }
+        });
+
+        // On page load, render initial state
+        renderPins();
+        renderPinsList();
+
+        // Ensure focus indicators for all interactive elements (redundant with CSS, but for dynamic content)
+        function ensureFocusIndicators() {
+            const style = document.createElement('style');
+            style.textContent = `
+                button:focus, input:focus, select:focus, textarea:focus, a:focus {
+                    outline: 3px solid #0066cc;
+                    outline-offset: 2px;
+                }
+                .dark-bg button:focus, .dark-bg a:focus {
+                    outline: 3px solid #ffffff;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        ensureFocusIndicators();
+    </script>
+</body>
+</html>

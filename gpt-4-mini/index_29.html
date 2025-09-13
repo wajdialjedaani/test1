@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Product Cards</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0066cc;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 200px;
+            padding: 16px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        /* Accessibility-focused CSS with focus indicators */
+        button:focus, .card:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        .card-description {
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <h2>Product Showcase</h2>
+        </nav>
+    </header>
+    <main>
+        <h1>Our Products</h1>
+        <section class="card-container" aria-label="Product Cards">
+            <article class="card" tabindex="0" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                <img src="product1.jpg" alt="Product 1 description" />
+                <h3 class="card-title">Product 1</h3>
+                <p class="card-description">This is a brief description of Product 1.</p>
+            </article>
+            <article class="card" tabindex="0" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                <img src="product2.jpg" alt="Product 2 description" />
+                <h3 class="card-title">Product 2</h3>
+                <p class="card-description">This is a brief description of Product 2.</p>
+            </article>
+            <article class="card" tabindex="0" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">
+                <img src="product3.jpg" alt="Product 3 description" />
+                <h3 class="card-title">Product 3</h3>
+                <p class="card-description">This is a brief description of Product 3.</p>
+            </article>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Product Showcase. All rights reserved.</p>
+    </footer>
+    <script>
+        // For any element with mouse events, add keyboard support
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                alert('You clicked on ' + event.currentTarget.querySelector('.card-title').innerText);
+            }
+        }
+    </script>
+</body>
+</html>

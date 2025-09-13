@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreativeShare - Upload and Share Your Creative Work</title>
+    <style>
+        /* Base styles and reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, 
+        input:focus, 
+        select:focus, 
+        textarea:focus, 
+        a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, 
+        .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            text-decoration: none;
+        }
+
+        /* Navigation */
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav li {
+            margin-left: 1.5rem;
+        }
+
+        nav a {
+            color: #555;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover, 
+        nav a:focus {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+
+        /* Main content */
+        main {
+            padding: 2rem 0;
+        }
+
+        h1, h2, h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Upload section */
+        .upload-section {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .upload-area:hover,
+        .upload-area:focus {
+            border-color: #0066cc;
+            background-color: #f0f7ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #0066cc;
+            background-color: #f0f7ff;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #666;
+        }
+
+        .upload-text {
+            margin-bottom: 1rem;
+        }
+
+        .upload-btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .upload-btn:hover,
+        .upload-btn:focus {
+            background-color: #0055aa;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .required-field::after {
+            content: "*";
+            color: #d9534f;
+            margin-left: 0.25rem;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .tags-input {
+            display: flex;
+            flex-wrap: wrap;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.5rem;
+            min-height: 3rem;
+        }
+
+        .tag {
+            background-color: #e9f2ff;
+            border-radius: 20px;
+            padding: 0.25rem 0.75rem;
+            margin: 0.25rem;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .tag-remove {
+            background: none;
+            border: none;
+            color: #666;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0 0.25rem;
+        }
+
+        .tag-input {
+            flex: 1;
+            min-width: 100px;
+            border: none;
+            outline: none;
+            padding: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover,
+        .submit-btn:focus {
+            background-color: #218838;
+        }
+
+        /* Gallery section */
+        .gallery-section {
+            margin-top: 3rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .gallery-item {
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .gallery-item:hover,
+        .gallery-item:focus-within {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .gallery-img-container {
+            position: relative;
+            padding-top: 75%; /* 4:3 aspect ratio */
+            overflow: hidden;
+        }
+
+        .gallery-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-content {
+            padding: 1.25rem;
+        }
+
+        .gallery-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .gallery-description {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .gallery-tags {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+
+        .gallery-tag {
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            padding: 0.2rem 0.6rem;
+            margin: 0.25rem;
+            font-size: 0.8rem;
+            color: #555;
+        }
+
+        /* Preview section */
+        .preview-section {
+            display: none;
+            margin-top: 1.5rem;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .preview-img-container {
+            max-height: 300px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .preview-img {
+            width: 100%;
+            height: auto;
+            max-height: 300px;
+            object-fit: contain;
+        }
+
+        /* Error messages */
+        .error-message {
+            color: #d9534f;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Status messages */
+        .status-message {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-heading {
+            color: #fff;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover,
+        .footer-links a:focus {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid #444;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            nav {
+                margin-top: 1rem;
+                width: 100%;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav li {
+                margin-left: 0;
+                margin-bottom: 0.5rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            }
+
+            .footer-content {
+                flex-direction: column;
+            }
+        }
+
+        /* Skip to main content link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #0066cc;
+            color: white;
+            padding: 8px;
+            z-index: 1000;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Visually hidden but accessible to screen readers */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header>
+        <div class="container header-content">
+            <a href="#" class="logo" aria-label="CreativeShare Home">CreativeShare</a>
+            
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="#upload" aria-current="page">Upload</a></li>
+                    <li><a href="#gallery">Gallery</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div class="container">
+            <section id="hero">
+                <h1>Share Your Creative Work with the World</h1>
+                <p>Upload your photos, illustrations, and artwork to showcase your talent. Add descriptions and tags to help others discover your creative vision.</p>
+            </section>
+
+            <section id="upload" class="upload-section">
+                <h2>Upload Your Work</h2>
+                
+                <!-- Status message area for feedback -->
+                <div id="status-message" class="status-message" style="display: none;" aria-live="polite"></div>
+                
+                <!-- Upload area with keyboard accessibility -->
+                <div id="upload-area" class="upload-area" tabindex="0" role="button" aria-label="Upload area. Click or press Enter to select a file">
+                    <div class="upload-icon" aria-hidden="true">📁</div>
+                    <p class="upload-text">Drag and drop your file here or click to browse</p>
+                    <button type="button" class="upload-btn" id="browse-btn">Browse Files</button>
+                    <input type="file" id="file-input" class="file-input" accept="image/*" aria-label="File upload">
+                </div>
+                
+                <!-- Preview section -->
+                <div id="preview-section" class="preview-section" aria-live="polite">
+                    <h3>Preview</h3>
+                    <div class="preview-img-container">
+                        <img id="preview-img" class="preview-img" src="" alt="Preview of your uploaded work">
+                    </div>
+                </div>
+                
+                <!-- Form for metadata -->
+                <form id="upload-form">
+                    <div class="form-group">
+                        <label for="title" class="required-field">Title</label>
+                        <input type="text" id="title" name="title" required aria-required="true">
+                        <div id="title-error" class="error-message" aria-live="polite"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="4" aria-describedby="description-help"></textarea>
+                        <p id="description-help" class="help-text">Describe your work, inspiration, or techniques used.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category">
+                            <option value="">Select a category</option>
+                            <option value="photography">Photography</option>
+                            <option value="illustration">Illustration</option>
+                            <option value="painting">Painting</option>
+                            <option value="digital-art">Digital Art</option>
+                            <option value="sculpture">Sculpture</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tags-input">Tags</label>
+                        <div class="tags-input" id="tags-container">
+                            <input type="text" id="tags-input" class="tag-input" placeholder="Add tags and press Enter" aria-describedby="tags-help">
+                        </div>
+                        <p id="tags-help" class="help-text">Add relevant tags to help others discover your work. Press Enter after each tag.</p>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="submit-btn">Share Your Work</button>
+                </form>
+            </section>
+
+            <section id="gallery" class="gallery-section">
+                <h2>Creative Gallery</h2>
+                <p>Explore amazing creative works shared by our community. Click on any item to view details.</p>
+                
+                <div class="gallery-grid" id="gallery-grid" aria-label="Gallery of creative works">
+                    <!-- Gallery items will be dynamically added here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="dark-bg">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3 class="footer-heading">CreativeShare</h3>
+                <p>A platform for creative minds to share and discover inspiring work.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3 class="footer-heading">Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#upload">Upload</a></li>
+                    <li><a href="#gallery">Gallery</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3 class="footer-heading">Connect</h3>
+                <ul class="footer-links">
+                    <li><a href="#" aria-label="Follow us on Twitter">Twitter</a></li>
+                    <li><a href="#" aria-label="Follow us on Instagram">Instagram</a></li>
+                    <li><a href="#" aria-label="Join our Facebook community">Facebook</a></li>
+                    <li><a href="#" aria-label="Subscribe to our newsletter">Newsletter</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="container copyright">
+            <p>&copy; 2023 CreativeShare. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const fileInput = document.getElementById('file-input');
+            const uploadArea = document.getElementById('upload-area');
+            const browseBtn = document.getElementById('browse-btn');
+            const previewSection = document.getElementById('preview-section');
+            const previewImg = document.getElementById('preview-img');
+            const uploadForm = document.getElementById('upload-form');
+            const titleInput = document.getElementById('title');
+            const titleError = document.getElementById('title-error');
+            const tagsInput = document.getElementById('tags-input');
+            const tagsContainer = document.getElementById('tags-container');
+            const statusMessage = document.getElementById('status-message');
+            const galleryGrid = document.getElementById('gallery-grid');
+            
+            // Sample gallery data
+            const sampleGallery = [
+                {
+                    id: 1,
+                    title: 'Mountain Sunrise',
+                    description: 'A beautiful sunrise captured in the mountains during early autumn.',
+                    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+                    tags: ['nature', 'mountains', 'sunrise']
+                },
+                {
+                    id: 2,
+                    title: 'Abstract Painting',
+                    description: 'An abstract expression of emotions using vibrant colors and bold strokes.',
+                    image: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+                    tags: ['abstract', 'painting', 'art']
+                },
+                {
+                    id: 3,
+                    title: 'Urban Photography',
+                    description: 'Street photography capturing the essence of city life.',
+                    image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+                    tags: ['urban', 'city', 'street']
+                },
+                {
+                    id: 4,
+                    title: 'Digital Illustration',
+                    description: 'A digital illustration exploring fantasy themes and characters.',
+                    image: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+                    tags: ['digital', 'illustration', 'fantasy']
+                }
+            ];
+            
+            // Current tags array
+            let currentTags = [];
+            
+            // Initialize gallery with sample data
+            function initializeGallery() {
+                sampleGallery.forEach(item => {
+                    addGalleryItem(item);
+                });
+            }
+            
+            // Add gallery item to the grid
+            function addGalleryItem(item) {
+                const galleryItem = document.createElement('article');
+                galleryItem.className = 'gallery-item';
+                
+                // Create tags HTML
+                const tagsHTML = item.tags.map(tag => 
+                    `<span class="gallery-tag">${tag}</span>`
+                ).join('');
+                
+                galleryItem.innerHTML = `
+                    <div class="gallery-img-container">
+                        <img src="${item.image}" alt="${item.title}" class="gallery-img">
+                    </div>
+                    <div class="gallery-content">
+                        <h3 class="gallery-title">${item.title}</h3>
+                        <p class="gallery-description">${item.description}</p>
+                        <div class="gallery-tags">${tagsHTML}</div>
+                    </div>
+                `;
+                
+                galleryGrid.appendChild(galleryItem);
+            }
+            
+            // File upload handling
+            function handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (file && file.type.match('image.*')) {
+                    displayPreview(file);
+                }
+            }
+            
+            // Display image preview
+            function displayPreview(file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.alt = file.name;
+                    previewSection.style.display = 'block';
+                    
+                    // Scroll to preview
+                    previewSection.scrollIntoView({ behavior: 'smooth' });
+                };
+                
+                reader.readAsDataURL(file);
+            }
+            
+            // Add a new tag
+            function addTag(tagText) {
+                if (tagText.trim() === '' || currentTags.includes(tagText.trim())) {
+                    return;
+                }
+                
+                const tag = document.createElement('span');
+                tag.className = 'tag';
+                tag.textContent = tagText.trim();
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'tag-remove';
+                removeBtn.innerHTML = '&times;';
+                removeBtn.setAttribute('aria-label', `Remove tag ${tagText.trim()}`);
+                removeBtn.addEventListener('click', function() {
+                    tag.remove();
+                    currentTags = currentTags.filter(t => t !== tagText.trim());
+                });
+                
+                // Add keyboard support for remove button
+                removeBtn.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        tag.remove();
+                        currentTags = currentTags.filter(t => t !== tagText.trim());
+                    }
+                });
+                
+                tag.appendChild(removeBtn);
+                tagsContainer.insertBefore(tag, tagsInput);
+                
+                currentTags.push(tagText.trim());
+                tagsInput.value = '';
+            }
+            
+            // Form submission
+            function handleFormSubmit(event) {
+                event.preventDefault();
+                
+                // Validate title
+                if (titleInput.value.trim() === '') {
+                    titleError.textContent = 'Please enter a title for your work';
+                    titleInput.focus();
+                    return;
+                } else {
+                    titleError.textContent = '';
+                }
+                
+                // Check if image is uploaded
+                if (previewImg.src === '') {
+                    showStatusMessage('Please upload an image', 'error');
+                    return;
+                }
+                
+                // Create new gallery item
+                const newItem = {
+                    id: Date.now(),
+                    title: titleInput.value.trim(),
+                    description: document.getElementById('description').value.trim() || 'No description provided',
+                    image: previewImg.src,
+                    tags: currentTags
+                };
+                
+                // Add to gallery
+                addGalleryItem(newItem);
+                
+                // Show success message
+                showStatusMessage('Your work has been successfully shared!', 'success');
+                
+                // Reset form
+                resetForm();
+                
+                // Scroll to gallery
+                document.getElementById('gallery').scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Show status message
+            function showStatusMessage(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status-message';
+                statusMessage.classList.add(`status-${type}`);
+                statusMessage.style.display = 'block';
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Reset form
+            function resetForm() {
+                uploadForm.reset();
+                previewSection.style.display = 'none';
+                previewImg.src = '';
+                previewImg.alt = '';
+                
+                // Clear tags
+                const tags = document.querySelectorAll('.tag');
+                tags.forEach(tag => tag.remove());
+                currentTags = [];
+            }
+            
+            // Event Listeners
+            
+            // File input change
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // Browse button click
+            browseBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // Upload area click
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // Upload area keyboard support
+            uploadArea.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    fileInput.click();
+                }
+            });
+            
+            // Drag and drop support
+            uploadArea.addEventListener('dragover', function(event) {
+                event.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', function(event) {
+                event.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const file = event.dataTransfer.files[0];
+                if (file && file.type.match('image.*')) {
+                    fileInput.files = event.dataTransfer.files;
+                    displayPreview(file);
+                }
+            });
+            
+            // Tags input
+            tagsInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    addTag(tagsInput.value);
+                }
+            });
+            
+            // Form submission
+            uploadForm.addEventListener('submit', handleFormSubmit);
+            
+            // Initialize gallery
+            initializeGallery();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager Dashboard - Accessible SPA</title>
+    <style>
+        /* CSS Reset with accessibility considerations */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Base styles with accessible color contrast */
+        :root {
+            --primary-color: #0066cc;
+            --primary-dark: #004c99;
+            --secondary-color: #f8f9fa;
+            --text-color: #333333;
+            --error-color: #d32f2f;
+            --success-color: #388e3c;
+            --border-color: #cccccc;
+            --focus-color: #0066cc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        /* Skip link for keyboard users */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Layout components */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .nav-links a:hover, .nav-links a:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 140px);
+        }
+
+        footer {
+            background-color: var(--secondary-color);
+            padding: 1rem 0;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: var(--error-color);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover, button:focus {
+            background-color: var(--primary-dark);
+        }
+
+        button:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        /* Card styles */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Login form */
+        .login-container {
+            max-width: 400px;
+            margin: 2rem auto;
+        }
+
+        /* Dashboard styles */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Task list styles */
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .btn-icon:hover, .btn-icon:focus {
+            background-color: var(--secondary-color);
+        }
+
+        /* Status indicators */
+        .status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        /* Error messages */
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Success messages */
+        .success-message {
+            color: var(--success-color);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Modal styles */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s linear 0.25s, opacity 0.25s;
+        }
+
+        .modal-backdrop.active {
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 0s;
+        }
+
+        .modal {
+            background-color: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        /* Utility classes */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* View transitions */
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* Loading indicator */
+        .loading {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Checkbox styling for better accessibility */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+
+        /* Task priority indicators */
+        .priority {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .priority-high {
+            background-color: var(--error-color);
+        }
+
+        .priority-medium {
+            background-color: #ff9800;
+        }
+
+        .priority-low {
+            background-color: #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip link for keyboard users -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header>
+        <div class="container">
+            <nav role="navigation" aria-label="Main navigation">
+                <div class="logo">Task Manager</div>
+                <ul class="nav-links" id="nav-links">
+                    <!-- Navigation links will be dynamically populated based on auth state -->
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div class="container">
+            <!-- Login View -->
+            <section id="login-view" class="view active" aria-labelledby="login-heading">
+                <div class="login-container card">
+                    <h1 id="login-heading">Log In to Your Account</h1>
+                    <p>Enter your credentials to access your dashboard.</p>
+                    
+                    <form id="login-form" novalidate>
+                        <div class="form-group">
+                            <label for="email" class="required-field">Email Address</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                required 
+                                autocomplete="email"
+                                aria-describedby="email-error"
+                            >
+                            <div id="email-error" class="error-message" role="alert"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password" class="required-field">Password</label>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                required 
+                                autocomplete="current-password"
+                                aria-describedby="password-error"
+                            >
+                            <div id="password-error" class="error-message" role="alert"></div>
+                        </div>
+                        
+                        <div class="form-group checkbox-container">
+                            <input type="checkbox" id="remember-me" name="remember-me">
+                            <label for="remember-me">Remember me</label>
+                        </div>
+                        
+                        <div id="login-message" role="alert" aria-live="assertive"></div>
+                        
+                        <button type="submit" id="login-button">
+                            <span id="login-button-text">Log In</span>
+                            <span id="login-spinner" class="loading" style="display: none;"></span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Dashboard View -->
+            <section id="dashboard-view" class="view" aria-labelledby="dashboard-heading">
+                <h1 id="dashboard-heading">Your Dashboard</h1>
+                <p>Welcome back, <span id="user-name">User</span>! Here's an overview of your tasks.</p>
+                
+                <div class="dashboard">
+                    <div class="card">
+                        <h2>Task Summary</h2>
+                        <p>You have <span id="task-count">0</span> tasks in total.</p>
+                        <ul>
+                            <li><strong>Completed:</strong> <span id="completed-count">0</span></li>
+                            <li><strong>Pending:</strong> <span id="pending-count">0</span></li>
+                        </ul>
+                        <button id="add-task-button" aria-haspopup="dialog">Add New Task</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h2>Recent Activity</h2>
+                        <div id="activity-list">
+                            <p>No recent activity to display.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2>Quick Links</h2>
+                        <ul>
+                            <li><a href="#" id="view-all-tasks">View All Tasks</a></li>
+                            <li><a href="#" id="view-profile">View Profile</a></li>
+                            <li><a href="#" id="account-settings">Account Settings</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tasks View -->
+            <section id="tasks-view" class="view" aria-labelledby="tasks-heading">
+                <h1 id="tasks-heading">Manage Your Tasks</h1>
+                
+                <div class="card">
+                    <div class="form-group">
+                        <label for="task-filter">Filter Tasks</label>
+                        <select id="task-filter" aria-label="Filter tasks by status">
+                            <option value="all">All Tasks</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    
+                    <div id="tasks-container">
+                        <div id="no-tasks-message">
+                            <p>You don't have any tasks yet. Click "Add New Task" to get started.</p>
+                        </div>
+                        <ul id="task-list" class="task-list" aria-live="polite"></ul>
+                    </div>
+                    
+                    <button id="add-task-button-2" aria-haspopup="dialog">Add New Task</button>
+                </div>
+            </section>
+
+            <!-- Profile View -->
+            <section id="profile-view" class="view" aria-labelledby="profile-heading">
+                <h1 id="profile-heading">Your Profile</h1>
+                
+                <div class="card">
+                    <h2>Personal Information</h2>
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label for="profile-name">Full Name</label>
+                            <input type="text" id="profile-name" name="name" value="Demo User">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profile-email">Email Address</label>
+                            <input type="email" id="profile-email" name="email" value="demo@example.com" readonly>
+                            <p class="form-hint">Email cannot be changed</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profile-bio">Bio</label>
+                            <textarea id="profile-bio" name="bio" rows="4"></textarea>
+                        </div>
+                        
+                        <div id="profile-message" role="alert" aria-live="assertive"></div>
+                        
+                        <button type="submit">Save Changes</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Task Modal -->
+    <div id="task-modal-backdrop" class="modal-backdrop" role="dialog" aria-labelledby="task-modal-title" aria-modal="true">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="task-modal-title">Add New Task</h2>
+                <button id="close-modal" class="modal-close" aria-label="Close modal">
+                    &times;
+                </button>
+            </div>
+            
+            <form id="task-form">
+                <div class="form-group">
+                    <label for="task-title" class="required-field">Task Title</label>
+                    <input 
+                        type="text" 
+                        id="task-title" 
+                        name="title" 
+                        required
+                        aria-describedby="task-title-error"
+                    >
+                    <div id="task-title-error" class="error-message" role="alert"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="task-description">Description</label>
+                    <textarea 
+                        id="task-description" 
+                        name="description" 
+                        rows="3"
+                    ></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="task-due-date">Due Date</label>
+                    <input 
+                        type="date" 
+                        id="task-due-date" 
+                        name="dueDate"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="task-priority">Priority</label>
+                    <select id="task-priority" name="priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                
+                <div id="task-form-message" role="alert" aria-live="assertive"></div>
+                
+                <button type="submit" id="save-task-button">Save Task</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Task Manager. All rights reserved.</p>
+            <p>
+                <a href="#" id="privacy-link">Privacy Policy</a> | 
+                <a href="#" id="terms-link">Terms of Service</a> | 
+                <a href="#" id="accessibility-link">Accessibility</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Main application code
+        document.addEventListener('DOMContentLoaded', function() {
+            // Application state
+            const appState = {
+                isAuthenticated: false,
+                currentUser: null,
+                currentView: 'login-view',
+                tasks: [],
+                activities: []
+            };
+
+            // DOM Elements
+            const views = document.querySelectorAll('.view');
+            const navLinks = document.getElementById('nav-links');
+            const loginForm = document.getElementById('login-form');
+            const loginButton = document.getElementById('login-button');
+            const loginButtonText = document.getElementById('login-button-text');
+            const loginSpinner = document.getElementById('login-spinner');
+            const loginMessage = document.getElementById('login-message');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const emailError = document.getElementById('email-error');
+            const passwordError = document.getElementById('password-error');
+            const userNameElement = document.getElementById('user-name');
+            const taskCountElement = document.getElementById('task-count');
+            const completedCountElement = document.getElementById('completed-count');
+            const pendingCountElement = document.getElementById('pending-count');
+            const taskList = document.getElementById('task-list');
+            const noTasksMessage = document.getElementById('no-tasks-message');
+            const taskFilter = document.getElementById('task-filter');
+            const addTaskButtons = document.querySelectorAll('#add-task-button, #add-task-button-2');
+            const taskModalBackdrop = document.getElementById('task-modal-backdrop');
+            const closeModalButton = document.getElementById('close-modal');
+            const taskForm = document.getElementById('task-form');
+            const taskFormMessage = document.getElementById('task-form-message');
+            const profileForm = document.getElementById('profile-form');
+            const profileMessage = document.getElementById('profile-message');
+            const viewAllTasksLink = document.getElementById('view-all-tasks');
+            const viewProfileLink = document.getElementById('view-profile');
+
+            // Initialize the application
+            initApp();
+
+            // Event Listeners
+            function setupEventListeners() {
+                // Login form submission
+                loginForm.addEventListener('submit', handleLogin);
+                
+                // Task filter change
+                taskFilter.addEventListener('change', filterTasks);
+                
+                // Add task buttons
+                addTaskButtons.forEach(button => {
+                    button.addEventListener('click', openTaskModal);
+                    button.addEventListener('keydown', function(event) {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            openTaskModal();
+                        }
+                    });
+                });
+                
+                // Close modal button
+                closeModalButton.addEventListener('click', closeTaskModal);
+                closeModalButton.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        closeTaskModal();
+                    }
+                });
+                
+                // Close modal when clicking outside
+                taskModalBackdrop.addEventListener('click', function(event) {
+                    if (event.target === taskModalBackdrop) {
+                        closeTaskModal();
+                    }
+                });
+                
+                // Task form submission
+                taskForm.addEventListener('submit', handleTaskSubmit);
+                
+                // Profile form submission
+                profileForm.addEventListener('submit', handleProfileSubmit);
+                
+                // Navigation links
+                viewAllTasksLink.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    navigateTo('tasks-view');
+                });
+                
+                viewProfileLink.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    navigateTo('profile-view');
+                });
+                
+                // Escape key to close modal
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape' && taskModalBackdrop.classList.contains('active')) {
+                        closeTaskModal();
+                    }
+                });
+            }
+
+            // Initialize the application
+            function initApp() {
+                setupEventListeners();
+                updateNavigation();
+                
+                // Check if user is already logged in (e.g., from localStorage)
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    try {
+                        appState.currentUser = JSON.parse(savedUser);
+                        appState.isAuthenticated = true;
+                        
+                        // Load tasks from localStorage
+                        const savedTasks = localStorage.getItem('tasks');
+                        if (savedTasks) {
+                            appState.tasks = JSON.parse(savedTasks);
+                        }
+                        
+                        // Load activities from localStorage
+                        const savedActivities = localStorage.getItem('activities');
+                        if (savedActivities) {
+                            appState.activities = JSON.parse(savedActivities);
+                        }
+                        
+                        // Navigate to dashboard
+                        navigateTo('dashboard-view');
+                        updateDashboard();
+                    } catch (error) {
+                        console.error('Error parsing saved user data:', error);
+                        localStorage.removeItem('currentUser');
+                    }
+                }
+            }
+
+            // Handle login form submission
+            function handleLogin(event) {
+                event.preventDefault();
+                
+                // Reset error messages
+                emailError.textContent = '';
+                passwordError.textContent = '';
+                loginMessage.textContent = '';
+                loginMessage.className = '';
+                
+                // Get form values
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+                
+                // Validate form
+                let isValid = true;
+                
+                if (!email) {
+                    emailError.textContent = 'Email is required';
+                    isValid = false;
+                } else if (!isValidEmail(email)) {
+                    emailError.textContent = 'Please enter a valid email address';
+                    isValid = false;
+                }
+                
+                if (!password) {
+                    passwordError.textContent = 'Password is required';
+                    isValid = false;
+                } else if (password.length < 6) {
+                    passwordError.textContent = 'Password must be at least 6 characters';
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    return;
+                }
+                
+                // Show loading state
+                loginButton.disabled = true;
+                loginButtonText.textContent = 'Logging in...';
+                loginSpinner.style.display = 'inline-block';
+                
+                // Simulate API call with setTimeout
+                setTimeout(() => {
+                    // For demo purposes, accept any valid email/password
+                    // In a real app, this would be an API call to authenticate
+                    
+                    // Create user object
+                    const user = {
+                        id: generateId(),
+                        email: email,
+                        name: email.split('@')[0], // Use part of email as name for demo
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    // Update app state
+                    appState.isAuthenticated = true;
+                    appState.currentUser = user;
+                    
+                    // Save to localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    
+                    // Add login activity
+                    addActivity('Logged in successfully');
+                    
+                    // Reset form
+                    loginForm.reset();
+                    
+                    // Update UI
+                    updateNavigation();
+                    navigateTo('dashboard-view');
+                    updateDashboard();
+                    
+                    // Reset button state
+                    loginButton.disabled = false;
+                    loginButtonText.textContent = 'Log In';
+                    loginSpinner.style.display = 'none';
+                    
+                }, 1500); // Simulate network delay
+            }
+
+            // Handle task form submission
+            function handleTaskSubmit(event) {
+                event.preventDefault();
+                
+                // Reset error messages
+                const titleError = document.getElementById('task-title-error');
+                titleError.textContent = '';
+                taskFormMessage.textContent = '';
+                taskFormMessage.className = '';
+                
+                // Get form values
+                const title = document.getElementById('task-title').value.trim();
+                const description = document.getElementById('task-description').value.trim();
+                const dueDate = document.getElementById('task-due-date').value;
+                const priority = document.getElementById('task-priority').value;
+                
+                // Validate form
+                if (!title) {
+                    titleError.textContent = 'Task title is required';
+                    return;
+                }
+                
+                // Create task object
+                const task = {
+                    id: generateId(),
+                    title: title,
+                    description: description,
+                    dueDate: dueDate,
+                    priority: priority,
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    userId: appState.currentUser.id
+                };
+                
+                // Add task to state
+                appState.tasks.push(task);
+                
+                // Save to localStorage
+                localStorage.setItem('tasks', JSON.stringify(appState.tasks));
+                
+                // Add activity
+                addActivity(`Created task: ${title}`);
+                
+                // Reset form
+                taskForm.reset();
+                
+                // Show success message
+                taskFormMessage.textContent = 'Task created successfully!';
+                taskFormMessage.className = 'success-message';
+                
+                // Close modal after a delay
+                setTimeout(() => {
+                    closeTaskModal();
+                    updateDashboard();
+                    if (appState.currentView === 'tasks-view') {
+                        renderTasks();
+                    }
+                }, 1000);
+            }
+
+            // Handle profile form submission
+            function handleProfileSubmit(event) {
+                event.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('profile-name').value.trim();
+                const bio = document.getElementById('profile-bio').value.trim();
+                
+                // Update user object
+                appState.currentUser.name = name;
+                appState.currentUser.bio = bio;
+                
+                // Save to localStorage
+                localStorage.setItem('currentUser', JSON.stringify(appState.currentUser));
+                
+                // Add activity
+                addActivity('Updated profile information');
+                
+                // Show success message
+                profileMessage.textContent = 'Profile updated successfully!';
+                profileMessage.className = 'success-message';
+                
+                // Update UI
+                userNameElement.textContent = name;
+                
+                // Clear message after delay
+                setTimeout(() => {
+                    profileMessage.textContent = '';
+                }, 3000);
+            }
+
+            // Navigation function
+            function navigateTo(viewId) {
+                // Hide all views
+                views.forEach(view => {
+                    view.classList.remove('active');
+                });
+                
+                // Show selected view
+                document.getElementById(viewId).classList.add('active');
+                
+                // Update current view in state
+                appState.currentView = viewId;
+                
+                // Perform view-specific actions
+                if (viewId === 'tasks-view') {
+                    renderTasks();
+                } else if (viewId === 'dashboard-view') {
+                    updateDashboard();
+                }
+                
+                // Scroll to top
+                window.scrollTo(0, 0);
+                
+                // Set focus to the heading of the new view
+                const headingId = viewId.replace('view', 'heading');
+                const heading = document.getElementById(headingId);
+                if (heading) {
+                    heading.focus();
+                }
+            }
+
+            // Update navigation based on auth state
+            function updateNavigation() {
+                // Clear existing links
+                navLinks.innerHTML = '';
+                
+                if (appState.isAuthenticated) {
+                    // Links for authenticated users
+                    navLinks.innerHTML = `
+                        <li><a href="#" id="nav-dashboard">Dashboard</a></li>
+                        <li><a href="#" id="nav-tasks">Tasks</a></li>
+                        <li><a href="#" id="nav-profile">Profile</a></li>
+                        <li><a href="#" id="nav-logout">Log Out</a></li>
+                    `;
+                    
+                    // Add event listeners
+                    document.getElementById('nav-dashboard').addEventListener('click', function(event) {
+                        event.preventDefault();
+                        navigateTo('dashboard-view');
+                    });
+                    
+                    document.getElementById('nav-tasks').addEventListener('click', function(event) {
+                        event.preventDefault();
+                        navigateTo('tasks-view');
+                    });
+                    
+                    document.getElementById('nav-profile').addEventListener('click', function(event) {
+                        event.preventDefault();
+                        navigateTo('profile-view');
+                    });
+                    
+                    document.getElementById('nav-logout').addEventListener('click', function(event) {
+                        event.preventDefault();
+                        handleLogout();
+                    });
+                } else {
+                    // Links for non-authenticated users
+                    navLinks.innerHTML = `
+                        <li><a href="#" id="nav-login">Log In</a></li>
+                    `;
+                    
+                    // Add event listeners
+                    document.getElementById('nav-login').addEventListener('click', function(event) {
+                        event.preventDefault();
+                        navigateTo('login-view');
+                    });
+                }
+            }
+
+            // Handle logout
+            function handleLogout() {
+                // Update app state
+                appState.isAuthenticated = false;
+                appState.currentUser = null;
+                
+                // Clear localStorage (or just the auth token in a real app)
+                localStorage.removeItem('currentUser');
+                
+                // Update UI
+                updateNavigation();
+                navigateTo('login-view');
+                
+                // Show logout message
+                loginMessage.textContent = 'You have been logged out successfully.';
+                loginMessage.className = 'success-message';
+            }
+
+            // Update dashboard with user data
+            function updateDashboard() {
+                if (!appState.isAuthenticated) return;
+                
+                // Update user name
+                userNameElement.textContent = appState.currentUser.name;
+                
+                // Update task counts
+                const totalTasks = appState.tasks.length;
+                const completedTasks = appState.tasks.filter(task => task.status === 'completed').length;
+                const pendingTasks = totalTasks - completedTasks;
+                
+                taskCountElement.textContent = totalTasks;
+                completedCountElement.textContent = completedTasks;
+                pendingCountElement.textContent = pendingTasks;
+                
+                // Update activity list
+                const activityList = document.getElementById('activity-list');
+                if (appState.activities.length === 0) {
+                    activityList.innerHTML = '<p>No recent activity to display.</p>';
+                } else {
+                    activityList.innerHTML = '<ul class="activity-list">' + 
+                        appState.activities.slice(0, 5).map(activity => `
+                            <li>
+                                <p>${activity.description}</p>
+                                <small>${formatDate(activity.timestamp)}</small>
+                            </li>
+                        `).join('') + 
+                        '</ul>';
+                }
+                
+                // Update profile form
+                document.getElementById('profile-name').value = appState.currentUser.name || '';
+                document.getElementById('profile-email').value = appState.currentUser.email || '';
+                document.getElementById('profile-bio').value = appState.currentUser.bio || '';
+            }
+
+            // Render tasks based on current filter
+            function renderTasks() {
+                if (!appState.isAuthenticated) return;
+                
+                const filter = taskFilter.value;
+                
+                // Filter tasks
+                let filteredTasks = [...appState.tasks];
+                if (filter === 'pending') {
+                    filteredTasks = filteredTasks.filter(task => task.status === 'pending');
+                } else if (filter === 'completed') {
+                    filteredTasks = filteredTasks.filter(task => task.status === 'completed');
+                }
+                
+                // Sort tasks by creation date (newest first)
+                filteredTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                // Update UI
+                if (filteredTasks.length === 0) {
+                    taskList.innerHTML = '';
+                    noTasksMessage.style.display = 'block';
+                } else {
+                    noTasksMessage.style.display = 'none';
+                    
+                    // Render task list
+                    taskList.innerHTML = filteredTasks.map(task => `
+                        <li class="task-item" data-task-id="${task.id}">
+                            <div class="task-info">
+                                <div class="checkbox-container">
+                                    <input 
+                                        type="checkbox" 
+                                        id="task-${task.id}" 
+                                        ${task.status === 'completed' ? 'checked' : ''}
+                                        aria-label="Mark task ${task.title} as ${task.status === 'completed' ? 'pending' : 'completed'}"
+                                    >
+                                    <label for="task-${task.id}">
+                                        <span class="priority priority-${task.priority}" 
+                                              aria-label="Priority: ${task.priority}"></span>
+                                        ${task.title}
+                                    </label>
+                                </div>
+                                ${task.dueDate ? `<small>Due: ${formatDate(task.dueDate)}</small>` : ''}
+                            </div>
+                            <div class="task-actions">
+                                <span class="status status-${task.status}">${task.status}</span>
+                                <button class="btn-icon edit-task" aria-label="Edit task: ${task.title}">
+                                    Edit
+                                </button>
+                                <button class="btn-icon delete-task" aria-label="Delete task: ${task.title}">
+                                    Delete
+                                </button>
+                            </div>
+                        </li>
+                    `).join('');
+                    
+                    // Add event listeners to task items
+                    document.querySelectorAll('.task-item input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.addEventListener('change', toggleTaskStatus);
+                    });
+                    
+                    document.querySelectorAll('.edit-task').forEach(button => {
+                        button.addEventListener('click', editTask);
+                        button.addEventListener('keydown', function(event) {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                editTask.call(this, event);
+                            }
+                        });
+                    });
+                    
+                    document.querySelectorAll('.delete-task').forEach(button => {
+                        button.addEventListener('click', deleteTask);
+                        button.addEventListener('keydown', function(event) {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                deleteTask.call(this, event);
+                            }
+                        });
+                    });
+                }
+            }
+
+            // Toggle task status (completed/pending)
+            function toggleTaskStatus(event) {
+                const checkbox = event.target;
+                const taskItem = checkbox.closest('.task-item');
+                const taskId = taskItem.dataset.taskId;
+                
+                // Find task in state
+                const taskIndex = appState.tasks.findIndex(task => task.id === taskId);
+                if (taskIndex === -1) return;
+                
+                // Update task status
+                const newStatus = checkbox.checked ? 'completed' : 'pending';
+                appState.tasks[taskIndex].status = newStatus;
+                
+                // Update UI
+                const statusElement = taskItem.querySelector('.status');
+                statusElement.textContent = newStatus;
+                statusElement.className = `status status-${newStatus}`;
+                
+                // Save to localStorage
+                localStorage.setItem('tasks', JSON.stringify(appState.tasks));
+                
+                // Add activity
+                addActivity(`Marked task "${appState.tasks[taskIndex].title}" as ${newStatus}`);
+                
+                // Update dashboard if visible
+                if (appState.currentView === 'dashboard-view') {
+                    updateDashboard();
+                }
+                
+                // Announce status change to screen readers
+                const announcement = document.createElement('div');
+                announcement.setAttribute('aria-live', 'polite');
+                announcement.classList.add('sr-only');
+                announcement.textContent = `Task "${appState.tasks[taskIndex].title}" marked as ${newStatus}`;
+                document.body.appendChild(announcement);
+                
+                // Remove announcement after it's been read
+                setTimeout(() => {
+                    document.body.removeChild(announcement);
+                }, 3000);
+            }
+
+            // Edit task
+            function editTask(event) {
+                const taskItem = event.target.closest('.task-item');
+                const taskId = taskItem.dataset.taskId;
+                
+                // Find task in state
+                const task = appState.tasks.find(task => task.id === taskId);
+                if (!task) return;
+                
+                // Populate form
+                document.getElementById('task-modal-title').textContent = 'Edit Task';
+                document.getElementById('task-title').value = task.title;
+                document.getElementById('task-description').value = task.description || '';
+                document.getElementById('task-due-date').value = task.dueDate || '';
+                document.getElementById('task-priority').value = task.priority || 'low';
+                
+                // Store task ID in form
+                taskForm.dataset.taskId = taskId;
+                
+                // Update form submission handler
+                taskForm.onsubmit = function(e) {
+                    e.preventDefault();
+                    
+                    // Get form values
+                    const title = document.getElementById('task-title').value.trim();
+                    const description = document.getElementById('task-description').value.trim();
+                    const dueDate = document.getElementById('task-due-date').value;
+                    const priority = document.getElementById('task-priority').value;
+                    
+                    // Validate form
+                    if (!title) {
+                        document.getElementById('task-title-error').textContent = 'Task title is required';
+                        return;
+                    }
+                    
+                    // Find task in state
+                    const taskIndex = appState.tasks.findIndex(t => t.id === taskId);
+                    if (taskIndex === -1) return;
+                    
+                    // Update task
+                    appState.tasks[taskIndex].title = title;
+                    appState.tasks[taskIndex].description = description;
+                    appState.tasks[taskIndex].dueDate = dueDate;
+                    appState.tasks[taskIndex].priority = priority;
+                    
+                    // Save to localStorage
+                    localStorage.setItem('tasks', JSON.stringify(appState.tasks));
+                    
+                    // Add activity
+                    addActivity(`Updated task: ${title}`);
+                    
+                    // Show success message
+                    taskFormMessage.textContent = 'Task updated successfully!';
+                    taskFormMessage.className = 'success-message';
+                    
+                    // Close modal after a delay
+                    setTimeout(() => {
+                        closeTaskModal();
+                        if (appState.currentView === 'tasks-view') {
+                            renderTasks();
+                        } else if (appState.currentView === 'dashboard-view') {
+                            updateDashboard();
+                        }
+                    }, 1000);
+                };
+                
+                // Open modal
+                openTaskModal();
+            }
+
+            // Delete task
+            function deleteTask(event) {
+                const taskItem = event.target.closest('.task-item');
+                const taskId = taskItem.dataset.taskId;
+                
+                // Find task in state
+                const taskIndex = appState.tasks.findIndex(task => task.id === taskId);
+                if (taskIndex === -1) return;
+                
+                // Confirm deletion
+                const taskTitle = appState.tasks[taskIndex].title;
+                if (confirm(`Are you sure you want to delete the task "${taskTitle}"?`)) {
+                    // Store task title for activity log
+                    const title = appState.tasks[taskIndex].title;
+                    
+                    // Remove task from state
+                    appState.tasks.splice(taskIndex, 1);
+                    
+                    // Save to localStorage
+                    localStorage.setItem('tasks', JSON.stringify(appState.tasks));
+                    
+                    // Add activity
+                    addActivity(`Deleted task: ${title}`);
+                    
+                    // Update UI
+                    if (appState.currentView === 'tasks-view') {
+                        renderTasks();
+                    } else if (appState.currentView === 'dashboard-view') {
+                        updateDashboard();
+                    }
+                    
+                    // Announce deletion to screen readers
+                    const announcement = document.createElement('div');
+                    announcement.setAttribute('aria-live', 'polite');
+                    announcement.classList.add('sr-only');
+                    announcement.textContent = `Task "${title}" has been deleted`;
+                    document.body.appendChild(announcement);
+                    
+                    // Remove announcement after it's been read
+                    setTimeout(() => {
+                        document.body.removeChild(announcement);
+                    }, 3000);
+                }
+            }
+
+            // Filter tasks
+            function filterTasks() {
+                renderTasks();
+            }
+
+            // Open task modal
+            function openTaskModal() {
+                // Reset form
+                taskForm.reset();
+                document.getElementById('task-title-error').textContent = '';
+                taskFormMessage.textContent = '';
+                
+                // Reset form title and submission handler
+                document.getElementById('task-modal-title').textContent = 'Add New Task';
+                delete taskForm.dataset.taskId;
+                taskForm.onsubmit = handleTaskSubmit;
+                
+                // Show modal
+                taskModalBackdrop.classList.add('active');
+                
+                // Set focus to first form field
+                document.getElementById('task-title').focus();
+                
+                // Trap focus within modal
+                trapFocus(taskModalBackdrop);
+            }
+
+            // Close task modal
+            function closeTaskModal() {
+                taskModalBackdrop.classList.remove('active');
+                
+                // Return focus to the element that opened the modal
+                const activeView = document.querySelector('.view.active');
+                if (activeView) {
+                    const addTaskButton = activeView.querySelector('[id^="add-task-button"]');
+                    if (addTaskButton) {
+                        addTaskButton.focus();
+                    }
+                }
+            }
+
+            // Add activity to log
+            function addActivity(description) {
+                const activity = {
+                    id: generateId(),
+                    description: description,
+                    timestamp: new Date().toISOString(),
+                    userId: appState.currentUser ? appState.currentUser.id : null
+                };
+                
+                // Add to state
+                appState.activities.unshift(activity);
+                
+                // Limit to 20 activities
+                if (appState.activities.length > 20) {
+                    appState.activities = appState.activities.slice(0, 20);
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('activities', JSON.stringify(appState.activities));
+            }
+
+            // Utility Functions
+            
+            // Generate unique ID
+            function generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+            }
+            
+            // Format date for display
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return dateString;
+                
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+            
+            // Validate email format
+            function isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+            
+            // Trap focus within an element (for modals)
+            function trapFocus(element) {
+                const focusableElements = element.querySelectorAll(
+                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+                
+                if (focusableElements.length === 0) return;
+                
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+                
+                // Handle tab key to trap focus
+                element.addEventListener('keydown', function(e) {
+                    if (e.key === 'Tab') {
+                        if (e.shiftKey) {
+                            if (document.activeElement === firstElement) {
+                                e.preventDefault();
+                                lastElement.focus();
+                            }
+                        } else {
+                            if (document.activeElement === lastElement) {
+                                e.preventDefault();
+                                firstElement.focus();
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

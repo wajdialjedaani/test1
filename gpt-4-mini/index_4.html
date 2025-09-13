@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Events Showcase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #0066cc;
+            color: white;
+            padding: 1rem;
+        }
+
+        nav a {
+            color: white;
+            margin: 0 1rem;
+            text-decoration: none;
+        }
+
+        main {
+            padding: 1rem;
+        }
+
+        section {
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .event-filter {
+            margin-bottom: 1rem;
+        }
+
+        .map-container {
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#events">Events</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Local Events Showcase</h1>
+        <section id="events">
+            <h2>Upcoming Events</h2>
+            <div class="event-filter">
+                <label for="category">Filter by Category:</label>
+                <select id="category" aria-label="Event category filter">
+                    <option value="all">All</option>
+                    <option value="music">Music</option>
+                    <option value="art">Art</option>
+                    <option value="food">Food</option>
+                </select>
+            </div>
+            <article class="event" tabindex="0" role="button" aria-label="Event: Music Festival, Date: July 20, 2023, Location: City Park">
+                <h3>Music Festival</h3>
+                <p><strong>Date:</strong> July 20, 2023</p>
+                <p><strong>Location:</strong> City Park</p>
+                <p>Join us for a day of music and fun at the City Park. Enjoy performances from local bands.</p>
+                <img src="music-festival.jpg" alt="A vibrant music festival at City Park with people enjoying the performances.">
+                <div class="map-container" aria-label="Map showing the location of City Park">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.835434509663!2d144.9537363153159!3d-37.81627997975149!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f0a0f81%3A0x5045675218cee0!2sCity%20Park!5e0!3m2!1sen!2sau!4v1615397893453!5m2!1sen!2sau" title="Map of City Park" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </article>
+            <article class="event" tabindex="0" role="button" aria-label="Event: Art Exhibition, Date: August 15, 2023, Location: Art Gallery">
+                <h3>Art Exhibition</h3>
+                <p><strong>Date:</strong> August 15, 2023</p>
+                <p><strong>Location:</strong> Art Gallery</p>
+                <p>Explore the latest artworks from local artists at the Art Gallery.</p>
+                <img src="art-exhibition.jpg" alt="An art exhibition showcasing various artworks in a gallery setting.">
+                <div class="map-container" aria-label="Map showing the location of Art Gallery">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.835434509663!2d144.9537363153159!3d-37.81627997975149!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f0a0f81%3A0x5045675218cee0!2sArt%20Gallery!5e0!3m2!1sen!2sau!4v1615397893453!5m2!1sen!2sau" title="Map of Art Gallery" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </article>
+        </section>
+    </main>
+    <footer id="contact">
+        <p>&copy; 2023 Local Events Showcase</p>
+    </footer>
+    <script>
+        // Function to handle event filtering
+        document.getElementById('category').addEventListener('change', function() {
+            const selectedCategory = this.value;
+            const events = document.querySelectorAll('.event');
+
+            events.forEach(event => {
+                if (selectedCategory === 'all' || event.querySelector('h3').textContent.toLowerCase().includes(selectedCategory)) {
+                    event.style.display = 'block';
+                } else {
+                    event.style.display = 'none';
+                }
+            });
+        });
+
+        // Keyboard support for event articles
+        const eventArticles = document.querySelectorAll('.event');
+        eventArticles.forEach(article => {
+            article.addEventListener('click', handleInteraction);
+            article.addEventListener('keydown', handleInteraction);
+        });
+
+        function handleInteraction(event) {
+            if (event.type === 'click' || (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                // Implement the action for event click (e.g., open a modal with more details)
+                alert('Event clicked: ' + this.querySelector('h3').textContent);
+            }
+        }
+    </script>
+</body>
+</html>

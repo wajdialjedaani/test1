@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Task Manager - Login & Dashboard</title>
+    <style>
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #004c99;
+            --accent: #e6f0fa;
+            --danger: #b00020;
+            --success: #007e33;
+            --background: #ffffff;
+            --foreground: #222222;
+            --border: #cccccc;
+            --focus-outline: var(--primary);
+        }
+        html {
+            font-size: 100%;
+            background: var(--background);
+            color: var(--foreground);
+        }
+        body {
+            margin: 0;
+            font-family: system-ui, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--background);
+        }
+        header, footer {
+            background: var(--accent);
+            padding: 1rem 0;
+        }
+        header {
+            border-bottom: 2px solid var(--primary);
+        }
+        footer {
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.95rem;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+        nav a, nav button {
+            color: var(--primary-dark);
+            text-decoration: none;
+            background: none;
+            border: none;
+            font: inherit;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        nav a:focus, nav button:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+            background: #ddefff;
+        }
+        nav a:hover, nav button:hover {
+            background: #ddefff;
+        }
+        main {
+            flex: 1 1 auto;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        h1, h2, h3 {
+            color: var(--primary-dark);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            background: #f9fafd;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem 1.5rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .required-indicator {
+            color: var(--danger);
+            margin-left: 0.2em;
+            font-size: 1em;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1rem;
+            width: 100%;
+        }
+        input:focus, textarea:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+            border-color: var(--primary);
+        }
+        button, .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        button:focus, .btn:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+            background: var(--primary-dark);
+        }
+        button:hover, .btn:hover {
+            background: var(--primary-dark);
+        }
+        .error-message {
+            color: var(--danger);
+            font-size: 1rem;
+            margin-top: 0.25rem;
+        }
+        .success-message {
+            color: var(--success);
+            font-size: 1rem;
+            margin-top: 0.25rem;
+        }
+        .dashboard-section {
+            margin-bottom: 2rem;
+        }
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0 0 0;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f2f6fa;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .task-item[aria-checked="true"] .task-title {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .task-title {
+            flex: 1 1 auto;
+            font-size: 1rem;
+        }
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .sr-only {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+        @media (max-width: 600px) {
+            main {
+                padding: 0.5rem;
+            }
+            form {
+                padding: 1rem 0.5rem;
+            }
+        }
+        /* Focus indicators for all interactive elements */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#main-content" class="sr-only" id="skip-link">Skip to main content</a>
+            <span id="app-nav"></span>
+        </nav>
+    </header>
+    <main id="main-content" tabindex="-1">
+        <div id="root" aria-live="polite"></div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Accessible Task Manager. All rights reserved.</p>
+    </footer>
+    <!-- React and Babel for JSX support (for demo only; would be omitted in a production SPA) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script type="text/babel">
+    // --- Accessibility Utility Functions ---
+    function setDocumentTitle(title) {
+        document.title = title;
+    }
+
+    // --- Accessible Focus Management ---
+    function focusMain() {
+        const main = document.getElementById('main-content');
+        if (main) {
+            main.focus();
+        }
+    }
+
+    // --- Mock Authentication (for demo) ---
+    const mockUser = {
+        email: "user@example.com",
+        password: "password123",
+        name: "Jane Doe"
+    };
+
+    // --- Main App Component ---
+    function App() {
+        const [user, setUser] = React.useState(null);
+        const [route, setRoute] = React.useState('login'); // 'login' or 'dashboard'
+        const [tasks, setTasks] = React.useState([]);
+        const [dashboardMsg, setDashboardMsg] = React.useState('');
+
+        // Focus main on route change
+        React.useEffect(() => {
+            focusMain();
+        }, [route]);
+
+        // Update document title
+        React.useEffect(() => {
+            if (user) {
+                setDocumentTitle("Dashboard - Accessible Task Manager");
+            } else {
+                setDocumentTitle("Login - Accessible Task Manager");
+            }
+        }, [user]);
+
+        // Navigation rendering
+        React.useEffect(() => {
+            const nav = (
+                <>
+                    {user ? (
+                        <>
+                            <span aria-current={route === 'dashboard' ? "page" : undefined} style={{fontWeight: 'bold'}}>Dashboard</span>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setUser(null);
+                                    setRoute('login');
+                                    setDashboardMsg('');
+                                }}
+                                onKeyDown={handleInteraction(() => {
+                                    setUser(null);
+                                    setRoute('login');
+                                    setDashboardMsg('');
+                                })}
+                                aria-label="Log out"
+                            >
+                                Log out
+                            </button>
+                        </>
+                    ) : (
+                        <span aria-current="page" style={{fontWeight: 'bold'}}>Login</span>
+                    )}
+                </>
+            );
+            ReactDOM.render(nav, document.getElementById('app-nav'));
+        }, [user, route]);
+
+        // Handle login
+        function handleLogin(credentials, setError) {
+            if (
+                credentials.email === mockUser.email &&
+                credentials.password === mockUser.password
+            ) {
+                setUser({name: mockUser.name, email: mockUser.email});
+                setRoute('dashboard');
+                setTasks([
+                    {id: 1, title: "Read accessibility guidelines", completed: false},
+                    {id: 2, title: "Review project tasks", completed: true},
+                ]);
+                setDashboardMsg('');
+            } else {
+                setError("Invalid email or password.");
+            }
+        }
+
+        // Handle task add
+        function handleAddTask(title, setError, setSuccess) {
+            if (!title.trim()) {
+                setError("Task title is required.");
+                setSuccess('');
+                return;
+            }
+            setTasks(prev => [
+                ...prev,
+                {id: Date.now(), title: title.trim(), completed: false}
+            ]);
+            setError('');
+            setSuccess('Task added successfully.');
+        }
+
+        // Handle task toggle
+        function handleToggleTask(id) {
+            setTasks(prev =>
+                prev.map(task =>
+                    task.id === id ? {...task, completed: !task.completed} : task
+                )
+            );
+        }
+
+        // Handle task delete
+        function handleDeleteTask(id) {
+            setTasks(prev => prev.filter(task => task.id !== id));
+        }
+
+        // Render
+        return (
+            <>
+                {route === 'login' && (
+                    <LoginForm onLogin={handleLogin} />
+                )}
+                {route === 'dashboard' && user && (
+                    <Dashboard
+                        user={user}
+                        tasks={tasks}
+                        onAddTask={handleAddTask}
+                        onToggleTask={handleToggleTask}
+                        onDeleteTask={handleDeleteTask}
+                        dashboardMsg={dashboardMsg}
+                        setDashboardMsg={setDashboardMsg}
+                    />
+                )}
+            </>
+        );
+    }
+
+    // --- Login Form Component ---
+    function LoginForm({onLogin}) {
+        const [email, setEmail] = React.useState('');
+        const [password, setPassword] = React.useState('');
+        const [error, setError] = React.useState('');
+
+        // For accessibility, focus email on mount
+        const emailRef = React.useRef(null);
+        React.useEffect(() => {
+            if (emailRef.current) emailRef.current.focus();
+        }, []);
+
+        function handleSubmit(e) {
+            e.preventDefault();
+            setError('');
+            if (!email.trim() || !password.trim()) {
+                setError("Email and password are required.");
+                return;
+            }
+            onLogin({email, password}, setError);
+        }
+
+        return (
+            <section aria-labelledby="login-heading">
+                <h1 id="login-heading">Sign in to your account</h1>
+                <form onSubmit={handleSubmit} noValidate aria-describedby={error ? "login-error" : undefined}>
+                    <div>
+                        <label htmlFor="email">
+                            Email address
+                            <span className="required-indicator" aria-hidden="true">*</span>
+                        </label>
+                        <input
+                            ref={emailRef}
+                            id="email"
+                            name="email"
+                            type="email"
+                            autoComplete="username"
+                            required
+                            aria-required="true"
+                            aria-invalid={!!error}
+                            aria-describedby={error ? "login-error" : undefined}
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="password">
+                            Password
+                            <span className="required-indicator" aria-hidden="true">*</span>
+                        </label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            autoComplete="current-password"
+                            required
+                            aria-required="true"
+                            aria-invalid={!!error}
+                            aria-describedby={error ? "login-error" : undefined}
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                        />
+                    </div>
+                    {error && (
+                        <div className="error-message" id="login-error" role="alert">
+                            {error}
+                        </div>
+                    )}
+                    <button type="submit">Sign in</button>
+                </form>
+            </section>
+        );
+    }
+
+    // --- Dashboard Component ---
+    function Dashboard({user, tasks, onAddTask, onToggleTask, onDeleteTask, dashboardMsg, setDashboardMsg}) {
+        return (
+            <section aria-labelledby="dashboard-heading">
+                <h1 id="dashboard-heading">Welcome, {user.name}</h1>
+                <section className="dashboard-section" aria-labelledby="your-tasks-heading">
+                    <h2 id="your-tasks-heading">Your Tasks</h2>
+                    <AddTaskForm onAddTask={onAddTask} setDashboardMsg={setDashboardMsg} />
+                    <TaskList
+                        tasks={tasks}
+                        onToggleTask={onToggleTask}
+                        onDeleteTask={onDeleteTask}
+                    />
+                </section>
+            </section>
+        );
+    }
+
+    // --- Add Task Form Component ---
+    function AddTaskForm({onAddTask, setDashboardMsg}) {
+        const [title, setTitle] = React.useState('');
+        const [error, setError] = React.useState('');
+        const [success, setSuccess] = React.useState('');
+
+        function handleSubmit(e) {
+            e.preventDefault();
+            onAddTask(title, setError, setSuccess);
+            if (!error) {
+                setTitle('');
+                setTimeout(() => setSuccess(''), 1500);
+            }
+        }
+
+        return (
+            <form
+                onSubmit={handleSubmit}
+                aria-labelledby="add-task-heading"
+                style={{marginBottom: '1.5rem'}}
+                noValidate
+            >
+                <div>
+                    <label htmlFor="new-task">
+                        Add a new task
+                        <span className="required-indicator" aria-hidden="true">*</span>
+                    </label>
+                    <input
+                        id="new-task"
+                        name="new-task"
+                        type="text"
+                        required
+                        aria-required="true"
+                        aria-invalid={!!error}
+                        aria-describedby={error ? "add-task-error" : success ? "add-task-success" : undefined}
+                        value={title}
+                        onChange={e => {
+                            setTitle(e.target.value);
+                            setError('');
+                            setSuccess('');
+                            setDashboardMsg('');
+                        }}
+                        placeholder="e.g. Complete accessibility review"
+                    />
+                </div>
+                {error && (
+                    <div className="error-message" id="add-task-error" role="alert">
+                        {error}
+                    </div>
+                )}
+                {success && (
+                    <div className="success-message" id="add-task-success" role="status">
+                        {success}
+                    </div>
+                )}
+                <button type="submit">Add Task</button>
+            </form>
+        );
+    }
+
+    // --- Task List Component ---
+    function TaskList({tasks, onToggleTask, onDeleteTask}) {
+        if (!tasks.length) {
+            return <p>No tasks yet. Add your first task above.</p>;
+        }
+        return (
+            <ul className="task-list" aria-label="Task list">
+                {tasks.map(task => (
+                    <TaskItem
+                        key={task.id}
+                        task={task}
+                        onToggle={() => onToggleTask(task.id)}
+                        onDelete={() => onDeleteTask(task.id)}
+                    />
+                ))}
+            </ul>
+        );
+    }
+
+    // --- Task Item Component ---
+    function TaskItem({task, onToggle, onDelete}) {
+        // Keyboard accessible interaction for custom toggle and delete buttons
+        const handleToggleInteraction = handleInteraction(onToggle);
+        const handleDeleteInteraction = handleInteraction(onDelete);
+
+        return (
+            <li
+                className="task-item"
+                role="checkbox"
+                aria-checked={task.completed}
+                tabIndex={-1}
+            >
+                <span className="task-title">{task.title}</span>
+                <div className="task-actions">
+                    <button
+                        type="button"
+                        aria-pressed={task.completed}
+                        aria-label={task.completed ? "Mark as incomplete" : "Mark as complete"}
+                        onClick={onToggle}
+                        onKeyDown={handleToggleInteraction}
+                        tabIndex={0}
+                    >
+                        {task.completed ? "Undo" : "Complete"}
+                    </button>
+                    <button
+                        type="button"
+                        className="btn"
+                        aria-label={`Delete task: ${task.title}`}
+                        onClick={onDelete}
+                        onKeyDown={handleDeleteInteraction}
+                        tabIndex={0}
+                    >
+                        Delete
+                    </button>
+                </div>
+            </li>
+        );
+    }
+
+    // --- Accessibility: Keyboard/Mouse Handler ---
+    function handleInteraction(action) {
+        return function(event) {
+            if (
+                event.type === 'click' ||
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))
+            ) {
+                event.preventDefault();
+                action();
+            }
+        };
+    }
+
+    // --- Render App ---
+    ReactDOM.render(<App />, document.getElementById('root'));
+
+    // --- Accessibility: Skip Link Focus ---
+    document.getElementById('skip-link').addEventListener('click', function(e) {
+        e.preventDefault();
+        focusMain();
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Tracker - Log and Monitor Your Nutrition and Exercise</title>
+    <style>
+        /* Base styles with accessibility in mind */
+        :root {
+            --primary-color: #2c7be5;
+            --primary-dark: #1a56a0;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --body-bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --focus-color: #0066cc;
+            --focus-width: 3px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+            color: var(--text-color);
+            background-color: var(--body-bg);
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, 
+        input:focus, 
+        select:focus, 
+        textarea:focus, 
+        a:focus,
+        [tabindex]:focus {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, 
+        .dark-bg a:focus,
+        .dark-bg [tabindex]:focus {
+            outline: var(--focus-width) solid #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.75rem;
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: var(--danger-color);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            background-color: white;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            user-select: none;
+            border: 1px solid transparent;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover, 
+        .btn-primary:focus {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-danger {
+            color: #fff;
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .btn-danger:hover, 
+        .btn-danger:focus {
+            background-color: #bd2130;
+            border-color: #bd2130;
+        }
+
+        /* Grid system */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -0.75rem;
+            margin-left: -0.75rem;
+        }
+
+        .col {
+            flex: 1 0 0%;
+            padding-right: 0.75rem;
+            padding-left: 0.75rem;
+        }
+
+        /* Responsive columns */
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+            }
+            
+            .col {
+                flex: 0 0 100%;
+                max-width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Lists */
+        .list-group {
+            display: flex;
+            flex-direction: column;
+            padding-left: 0;
+            margin-bottom: 0;
+            border-radius: 0.25rem;
+        }
+
+        .list-group-item {
+            position: relative;
+            display: block;
+            padding: 0.75rem 1.25rem;
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+        }
+
+        .list-group-item:first-child {
+            border-top-left-radius: 0.25rem;
+            border-top-right-radius: 0.25rem;
+        }
+
+        .list-group-item:last-child {
+            border-bottom-right-radius: 0.25rem;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .list-group-item + .list-group-item {
+            border-top: 0;
+        }
+
+        /* Utilities */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+
+        .mt-3 {
+            margin-top: 1rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-between {
+            justify-content: space-between;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        /* Summary cards */
+        .summary-card {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .summary-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card p {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .summary-card.consumed {
+            background-color: var(--primary-color);
+        }
+
+        .summary-card.burned {
+            background-color: var(--success-color);
+        }
+
+        .summary-card.remaining {
+            background-color: var(--warning-color);
+            color: var(--dark-color);
+        }
+
+        /* Error messages */
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        /* Entry items */
+        .entry-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .entry-item:last-child {
+            border-bottom: none;
+        }
+
+        .entry-details {
+            flex: 1;
+        }
+
+        .entry-name {
+            font-weight: 600;
+        }
+
+        .entry-meta {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .entry-calories {
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+
+        .entry-actions button {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            height: 1.5rem;
+            background-color: #e9ecef;
+            border-radius: 0.25rem;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 0.25rem;
+            transition: width 0.3s ease;
+        }
+
+        /* Skip link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Screen reader only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Date picker */
+        .date-selector {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .date-selector button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 1rem;
+            color: var(--primary-color);
+        }
+
+        .date-selector span {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Goal setting modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0.25rem 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header>
+        <div class="container">
+            <h1>Calorie Tracker</h1>
+        </div>
+    </header>
+    
+    <main id="main-content">
+        <div class="container">
+            <section class="date-selector" aria-label="Date navigation">
+                <button id="prev-day" aria-label="Previous day">
+                    <span aria-hidden="true">&#8249;</span>
+                </button>
+                <span id="current-date">Today</span>
+                <button id="next-day" aria-label="Next day">
+                    <span aria-hidden="true">&#8250;</span>
+                </button>
+            </section>
+            
+            <section aria-labelledby="summary-heading">
+                <h2 id="summary-heading" class="sr-only">Daily Summary</h2>
+                <div class="row">
+                    <div class="col">
+                        <div class="summary-card consumed">
+                            <h3>Calories Consumed</h3>
+                            <p id="calories-consumed">0</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="summary-card burned">
+                            <h3>Calories Burned</h3>
+                            <p id="calories-burned">0</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="summary-card remaining">
+                            <h3>Net Calories</h3>
+                            <p id="calories-remaining">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Daily Goal Progress</h3>
+                    <div class="d-flex justify-content-between">
+                        <span>0</span>
+                        <span id="goal-text">Goal: 2000 calories</span>
+                    </div>
+                    <div class="progress-container" aria-label="Goal progress">
+                        <div id="goal-progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button id="set-goal-btn" class="btn btn-primary">Set Calorie Goal</button>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="row">
+                <div class="col">
+                    <section class="card" aria-labelledby="food-heading">
+                        <h2 id="food-heading" class="card-title">Add Food</h2>
+                        <form id="food-form">
+                            <div class="form-group">
+                                <label for="food-name" class="required-field">Food Name</label>
+                                <input type="text" id="food-name" name="food-name" required aria-required="true">
+                                <div id="food-name-error" class="error-message" aria-live="polite"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="food-calories" class="required-field">Calories</label>
+                                <input type="number" id="food-calories" name="food-calories" min="0" required aria-required="true">
+                                <div id="food-calories-error" class="error-message" aria-live="polite"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="meal-type">Meal Type</label>
+                                <select id="meal-type" name="meal-type">
+                                    <option value="breakfast">Breakfast</option>
+                                    <option value="lunch">Lunch</option>
+                                    <option value="dinner">Dinner</option>
+                                    <option value="snack">Snack</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="food-time">Time</label>
+                                <input type="time" id="food-time" name="food-time">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="food-notes">Notes</label>
+                                <textarea id="food-notes" name="food-notes" rows="2"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Add Food</button>
+                        </form>
+                    </section>
+                    
+                    <section class="card" aria-labelledby="food-list-heading">
+                        <h2 id="food-list-heading" class="card-title">Food Log</h2>
+                        <div id="food-entries" aria-live="polite">
+                            <p id="no-food-message">No food entries yet for today.</p>
+                        </div>
+                    </section>
+                </div>
+                
+                <div class="col">
+                    <section class="card" aria-labelledby="exercise-heading">
+                        <h2 id="exercise-heading" class="card-title">Add Exercise</h2>
+                        <form id="exercise-form">
+                            <div class="form-group">
+                                <label for="exercise-name" class="required-field">Exercise Name</label>
+                                <input type="text" id="exercise-name" name="exercise-name" required aria-required="true">
+                                <div id="exercise-name-error" class="error-message" aria-live="polite"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="exercise-calories" class="required-field">Calories Burned</label>
+                                <input type="number" id="exercise-calories" name="exercise-calories" min="0" required aria-required="true">
+                                <div id="exercise-calories-error" class="error-message" aria-live="polite"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="exercise-duration" class="required-field">Duration (minutes)</label>
+                                <input type="number" id="exercise-duration" name="exercise-duration" min="1" required aria-required="true">
+                                <div id="exercise-duration-error" class="error-message" aria-live="polite"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="exercise-time">Time</label>
+                                <input type="time" id="exercise-time" name="exercise-time">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="exercise-notes">Notes</label>
+                                <textarea id="exercise-notes" name="exercise-notes" rows="2"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Add Exercise</button>
+                        </form>
+                    </section>
+                    
+                    <section class="card" aria-labelledby="exercise-list-heading">
+                        <h2 id="exercise-list-heading" class="card-title">Exercise Log</h2>
+                        <div id="exercise-entries" aria-live="polite">
+                            <p id="no-exercise-message">No exercise entries yet for today.</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="goal-modal" class="modal" role="dialog" aria-labelledby="goal-modal-title" aria-modal="true">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close modal">&times;</button>
+            <h2 id="goal-modal-title">Set Daily Calorie Goal</h2>
+            <form id="goal-form">
+                <div class="form-group">
+                    <label for="calorie-goal" class="required-field">Daily Calorie Goal</label>
+                    <input type="number" id="calorie-goal" name="calorie-goal" min="500" max="10000" value="2000" required aria-required="true">
+                    <div id="calorie-goal-error" class="error-message" aria-live="polite"></div>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Goal</button>
+            </form>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Calorie Tracker App. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Global state
+        const state = {
+            currentDate: new Date(),
+            calorieGoal: 2000,
+            foodEntries: {},
+            exerciseEntries: {}
+        };
+
+        // DOM elements
+        const elements = {
+            currentDateEl: document.getElementById('current-date'),
+            prevDayBtn: document.getElementById('prev-day'),
+            nextDayBtn: document.getElementById('next-day'),
+            caloriesConsumedEl: document.getElementById('calories-consumed'),
+            caloriesBurnedEl: document.getElementById('calories-burned'),
+            caloriesRemainingEl: document.getElementById('calories-remaining'),
+            goalTextEl: document.getElementById('goal-text'),
+            goalProgressEl: document.getElementById('goal-progress'),
+            setGoalBtn: document.getElementById('set-goal-btn'),
+            goalModal: document.getElementById('goal-modal'),
+            closeModalBtn: document.querySelector('.close-modal'),
+            goalForm: document.getElementById('goal-form'),
+            calorieGoalInput: document.getElementById('calorie-goal'),
+            foodForm: document.getElementById('food-form'),
+            foodEntriesEl: document.getElementById('food-entries'),
+            noFoodMessageEl: document.getElementById('no-food-message'),
+            exerciseForm: document.getElementById('exercise-form'),
+            exerciseEntriesEl: document.getElementById('exercise-entries'),
+            noExerciseMessageEl: document.getElementById('no-exercise-message')
+        };
+
+        // Initialize the app
+        function init() {
+            // Load data from localStorage if available
+            loadFromLocalStorage();
+            
+            // Update the UI with current data
+            updateDateDisplay();
+            updateSummary();
+            renderFoodEntries();
+            renderExerciseEntries();
+            
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        // Format date as YYYY-MM-DD for storage keys
+        function formatDateKey(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        // Format date for display
+        function formatDateForDisplay(date) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Update the date display
+        function updateDateDisplay() {
+            const today = new Date();
+            const currentDateKey = formatDateKey(state.currentDate);
+            const todayKey = formatDateKey(today);
+            
+            if (currentDateKey === todayKey) {
+                elements.currentDateEl.textContent = 'Today';
+            } else {
+                elements.currentDateEl.textContent = formatDateForDisplay(state.currentDate);
+            }
+        }
+
+        // Load data from localStorage
+        function loadFromLocalStorage() {
+            // Load calorie goal
+            const savedGoal = localStorage.getItem('calorieGoal');
+            if (savedGoal) {
+                state.calorieGoal = parseInt(savedGoal, 10);
+            }
+            
+            // Load food and exercise entries for current date
+            const currentDateKey = formatDateKey(state.currentDate);
+            
+            const savedFoodEntries = localStorage.getItem(`foodEntries_${currentDateKey}`);
+            if (savedFoodEntries) {
+                state.foodEntries[currentDateKey] = JSON.parse(savedFoodEntries);
+            } else {
+                state.foodEntries[currentDateKey] = [];
+            }
+            
+            const savedExerciseEntries = localStorage.getItem(`exerciseEntries_${currentDateKey}`);
+            if (savedExerciseEntries) {
+                state.exerciseEntries[currentDateKey] = JSON.parse(savedExerciseEntries);
+            } else {
+                state.exerciseEntries[currentDateKey] = [];
+            }
+        }
+
+        // Save data to localStorage
+        function saveToLocalStorage() {
+            // Save calorie goal
+            localStorage.setItem('calorieGoal', state.calorieGoal.toString());
+            
+            // Save food and exercise entries for current date
+            const currentDateKey = formatDateKey(state.currentDate);
+            
+            if (state.foodEntries[currentDateKey]) {
+                localStorage.setItem(`foodEntries_${currentDateKey}`, JSON.stringify(state.foodEntries[currentDateKey]));
+            }
+            
+            if (state.exerciseEntries[currentDateKey]) {
+                localStorage.setItem(`exerciseEntries_${currentDateKey}`, JSON.stringify(state.exerciseEntries[currentDateKey]));
+            }
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Date navigation
+            elements.prevDayBtn.addEventListener('click', navigateToPreviousDay);
+            elements.prevDayBtn.addEventListener('keydown', handleKeyboardInteraction);
+            
+            elements.nextDayBtn.addEventListener('click', navigateToNextDay);
+            elements.nextDayBtn.addEventListener('keydown', handleKeyboardInteraction);
+            
+            // Goal setting
+            elements.setGoalBtn.addEventListener('click', openGoalModal);
+            elements.setGoalBtn.addEventListener('keydown', handleKeyboardInteraction);
+            
+            elements.closeModalBtn.addEventListener('click', closeGoalModal);
+            elements.closeModalBtn.addEventListener('keydown', handleKeyboardInteraction);
+            
+            elements.goalForm.addEventListener('submit', handleGoalSubmit);
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (event) => {
+                if (event.target === elements.goalModal) {
+                    closeGoalModal();
+                }
+            });
+            
+            // Food form
+            elements.foodForm.addEventListener('submit', handleFoodSubmit);
+            
+            // Exercise form
+            elements.exerciseForm.addEventListener('submit', handleExerciseSubmit);
+        }
+
+        // Handle keyboard interactions for buttons
+        function handleKeyboardInteraction(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                event.target.click();
+            }
+        }
+
+        // Navigate to previous day
+        function navigateToPreviousDay() {
+            const newDate = new Date(state.currentDate);
+            newDate.setDate(newDate.getDate() - 1);
+            state.currentDate = newDate;
+            
+            updateDateDisplay();
+            loadFromLocalStorage();
+            updateSummary();
+            renderFoodEntries();
+            renderExerciseEntries();
+        }
+
+        // Navigate to next day
+        function navigateToNextDay() {
+            const newDate = new Date(state.currentDate);
+            newDate.setDate(newDate.getDate() + 1);
+            state.currentDate = newDate;
+            
+            updateDateDisplay();
+            loadFromLocalStorage();
+            updateSummary();
+            renderFoodEntries();
+            renderExerciseEntries();
+        }
+
+        // Open goal modal
+        function openGoalModal() {
+            elements.calorieGoalInput.value = state.calorieGoal;
+            elements.goalModal.style.display = 'block';
+            elements.calorieGoalInput.focus();
+        }
+
+        // Close goal modal
+        function closeGoalModal() {
+            elements.goalModal.style.display = 'none';
+            elements.setGoalBtn.focus();
+        }
+
+        // Handle goal form submission
+        function handleGoalSubmit(event) {
+            event.preventDefault();
+            
+            const goalInput = elements.calorieGoalInput;
+            const errorEl = document.getElementById('calorie-goal-error');
+            
+            // Validate input
+            if (!goalInput.value) {
+                errorEl.textContent = 'Please enter a calorie goal';
+                errorEl.style.display = 'block';
+                goalInput.setAttribute('aria-invalid', 'true');
+                return;
+            }
+            
+            const goal = parseInt(goalInput.value, 10);
+            
+            if (isNaN(goal) || goal < 500 || goal > 10000) {
+                errorEl.textContent = 'Please enter a number between 500 and 10000';
+                errorEl.style.display = 'block';
+                goalInput.setAttribute('aria-invalid', 'true');
+                return;
+            }
+            
+            // Clear any error
+            errorEl.style.display = 'none';
+            goalInput.removeAttribute('aria-invalid');
+            
+            // Update state and UI
+            state.calorieGoal = goal;
+            saveToLocalStorage();
+            updateSummary();
+            
+            // Close modal
+            closeGoalModal();
+            
+            // Announce change to screen readers
+            const announcement = document.createElement('div');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.classList.add('sr-only');
+            announcement.textContent = `Daily calorie goal updated to ${goal} calories`;
+            document.body.appendChild(announcement);
+            
+            // Remove announcement after it's been read
+            setTimeout(() => {
+                document.body.removeChild(announcement);
+            }, 3000);
+        }
+
+        // Handle food form submission
+        function handleFoodSubmit(event) {
+            event.preventDefault();
+            
+            const nameInput = document.getElementById('food-name');
+            const caloriesInput = document.getElementById('food-calories');
+            const mealTypeInput = document.getElementById('meal-type');
+            const timeInput = document.getElementById('food-time');
+            const notesInput = document.getElementById('food-notes');
+            
+            const nameErrorEl = document.getElementById('food-name-error');
+            const caloriesErrorEl = document.getElementById('food-calories-error');
+            
+            let isValid = true;
+            
+            // Validate name
+            if (!nameInput.value.trim()) {
+                nameErrorEl.textContent = 'Please enter a food name';
+                nameErrorEl.style.display = 'block';
+                nameInput.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            } else {
+                nameErrorEl.style.display = 'none';
+                nameInput.removeAttribute('aria-invalid');
+            }
+            
+            // Validate calories
+            if (!caloriesInput.value) {
+                caloriesErrorEl.textContent = 'Please enter calories';
+                caloriesErrorEl.style.display = 'block';
+                caloriesInput.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            } else if (isNaN(parseInt(caloriesInput.value, 10)) || parseInt(caloriesInput.value, 10) < 0) {
+                caloriesErrorEl.textContent = 'Please enter a valid positive number';
+                caloriesErrorEl.style.display = 'block';
+                caloriesInput.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            } else {
+                caloriesErrorEl.style.display = 'none';
+                caloriesInput.removeAttribute('aria-invalid');
+            }
+            
+            if (!isValid) {
+                return;
+            }
+            
+            // Create new food entry
+            const newEntry = {
+                id: Date.now(), // Use timestamp as unique ID
+                name: nameInput.value.trim(),
+                calories: parseInt(caloriesInput.value, 10),
+                mealType: mealTypeInput.value,
+                time: timeInput.value || '',
+                notes: notesInput.value.trim(),
+                date: formatDateKey(state.currentDate)
+            };
+            
+            // Add to state
+            const currentDateKey = formatDateKey(state.currentDate);
+            if (!state.foodEntries[currentDateKey]) {
+                state.foodEntries[currentDateKey] = [];
+            }
+            
+            state.foodEntries[currentDateKey].push(newEntry);
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update UI
+            renderFoodEntries();
+            updateSummary();
+            
+            // Reset form
+            elements.foodForm.reset();
+            nameInput.focus();
+        }
+
+        // Handle exercise form submission
+        function handleExerciseSubmit(event) {
+            event.preventDefault();
+            
+            const nameInput = document.getElementById('exercise-name');
+            const caloriesInput = document.getElementById('exercise-calories');
+            const durationInput = document.getElementById('exercise-duration');
+            const timeInput = document.getElementById('exercise-time');
+            const notesInput = document.getElementById('exercise-notes');
+            
+            const nameErrorEl = document.getElementById('exercise-name-error');
+            const caloriesErrorEl = document.getElementById('exercise-calories-error');
+            const durationErrorEl = document.getElementById('exercise-duration-error');
+            
+            let isValid = true;
+            
+            // Validate name
+            if (!nameInput.value.trim()) {
+                nameErrorEl.textContent = 'Please enter an exercise name';
+                nameErrorEl.style.display = 'block';
+                nameInput.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            } else {
+                nameErrorEl.style.display = 'none';
+                nameInput.removeAttribute('aria-invalid');
+            }
+            
+            // Validate calories
+            if (!caloriesInput.value) {
+                caloriesErrorEl.textContent = 'Please enter calories burned';
+                caloriesErrorEl.style.display = 'block';
+                caloriesInput.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            } else if (isNaN(parseInt(caloriesInput.value, 10)) || parseInt(caloriesInput.value, 10) < 0) {
+                caloriesErrorEl.textContent = 'Please enter a valid positive number';
+                caloriesErrorEl.style.display = 'block';
+                caloriesInput.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            } else {
+                caloriesErrorEl.style.display = 'none';
+                caloriesInput.removeAttribute('aria-invalid');
+            }
+            
+            // Validate duration
+            if (!durationInput.value) {
+                durationErrorEl.textContent = 'Please enter duration';
+                durationErrorEl.style.display = 'block';
+                durationInput.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            } else if (isNaN(parseInt(durationInput.value, 10)) || parseInt(durationInput.value, 10) <= 0) {
+                durationErrorEl.textContent = 'Please enter a valid positive number';
+                durationErrorEl.style.display = 'block';
+                durationInput.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            } else {
+                durationErrorEl.style.display = 'none';
+                durationInput.removeAttribute('aria-invalid');
+            }
+            
+            if (!isValid) {
+                return;
+            }
+            
+            // Create new exercise entry
+            const newEntry = {
+                id: Date.now(), // Use timestamp as unique ID
+                name: nameInput.value.trim(),
+                calories: parseInt(caloriesInput.value, 10),
+                duration: parseInt(durationInput.value, 10),
+                time: timeInput.value || '',
+                notes: notesInput.value.trim(),
+                date: formatDateKey(state.currentDate)
+            };
+            
+            // Add to state
+            const currentDateKey = formatDateKey(state.currentDate);
+            if (!state.exerciseEntries[currentDateKey]) {
+                state.exerciseEntries[currentDateKey] = [];
+            }
+            
+            state.exerciseEntries[currentDateKey].push(newEntry);
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update UI
+            renderExerciseEntries();
+            updateSummary();
+            
+            // Reset form
+            elements.exerciseForm.reset();
+            nameInput.focus();
+        }
+
+        // Render food entries
+        function renderFoodEntries() {
+            const currentDateKey = formatDateKey(state.currentDate);
+            const entries = state.foodEntries[currentDateKey] || [];
+            
+            if (entries.length === 0) {
+                elements.noFoodMessageEl.style.display = 'block';
+                elements.foodEntriesEl.innerHTML = '';
+                elements.foodEntriesEl.appendChild(elements.noFoodMessageEl);
+                return;
+            }
+            
+            elements.noFoodMessageEl.style.display = 'none';
+            elements.foodEntriesEl.innerHTML = '';
+            
+            // Sort entries by time if available
+            entries.sort((a, b) => {
+                if (!a.time && !b.time) return 0;
+                if (!a.time) return 1;
+                if (!b.time) return -1;
+                return a.time.localeCompare(b.time);
+            });
+            
+            entries.forEach(entry => {
+                const entryEl = document.createElement('div');
+                entryEl.className = 'entry-item';
+                entryEl.setAttribute('data-id', entry.id);
+                
+                const timeDisplay = entry.time ? formatTime(entry.time) : '';
+                const mealTypeDisplay = entry.mealType.charAt(0).toUpperCase() + entry.mealType.slice(1);
+                
+                entryEl.innerHTML = `
+                    <div class="entry-details">
+                        <div class="entry-name">${escapeHTML(entry.name)}</div>
+                        <div class="entry-meta">
+                            ${mealTypeDisplay}${timeDisplay ? ` at ${timeDisplay}` : ''}
+                            ${entry.notes ? `<br>${escapeHTML(entry.notes)}` : ''}
+                        </div>
+                    </div>
+                    <div class="entry-calories">${entry.calories} cal</div>
+                    <div class="entry-actions">
+                        <button type="button" class="delete-entry" aria-label="Delete ${escapeHTML(entry.name)}" data-id="${entry.id}">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                `;
+                
+                // Add delete event listener
+                const deleteBtn = entryEl.querySelector('.delete-entry');
+                deleteBtn.addEventListener('click', () => deleteFood(entry.id));
+                deleteBtn.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        deleteFood(entry.id);
+                    }
+                });
+                
+                elements.foodEntriesEl.appendChild(entryEl);
+            });
+        }
+
+        // Render exercise entries
+        function renderExerciseEntries() {
+            const currentDateKey = formatDateKey(state.currentDate);
+            const entries = state.exerciseEntries[currentDateKey] || [];
+            
+            if (entries.length === 0) {
+                elements.noExerciseMessageEl.style.display = 'block';
+                elements.exerciseEntriesEl.innerHTML = '';
+                elements.exerciseEntriesEl.appendChild(elements.noExerciseMessageEl);
+                return;
+            }
+            
+            elements.noExerciseMessageEl.style.display = 'none';
+            elements.exerciseEntriesEl.innerHTML = '';
+            
+            // Sort entries by time if available
+            entries.sort((a, b) => {
+                if (!a.time && !b.time) return 0;
+                if (!a.time) return 1;
+                if (!b.time) return -1;
+                return a.time.localeCompare(b.time);
+            });
+            
+            entries.forEach(entry => {
+                const entryEl = document.createElement('div');
+                entryEl.className = 'entry-item';
+                entryEl.setAttribute('data-id', entry.id);
+                
+                const timeDisplay = entry.time ? formatTime(entry.time) : '';
+                
+                entryEl.innerHTML = `
+                    <div class="entry-details">
+                        <div class="entry-name">${escapeHTML(entry.name)}</div>
+                        <div class="entry-meta">
+                            ${entry.duration} minutes${timeDisplay ? ` at ${timeDisplay}` : ''}
+                            ${entry.notes ? `<br>${escapeHTML(entry.notes)}` : ''}
+                        </div>
+                    </div>
+                    <div class="entry-calories">${entry.calories} cal</div>
+                    <div class="entry-actions">
+                        <button type="button" class="delete-entry" aria-label="Delete ${escapeHTML(entry.name)}" data-id="${entry.id}">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                `;
+                
+                // Add delete event listener
+                const deleteBtn = entryEl.querySelector('.delete-entry');
+                deleteBtn.addEventListener('click', () => deleteExercise(entry.id));
+                deleteBtn.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        deleteExercise(entry.id);
+                    }
+                });
+                
+                elements.exerciseEntriesEl.appendChild(entryEl);
+            });
+        }
+
+        // Delete food entry
+        function deleteFood(id) {
+            const currentDateKey = formatDateKey(state.currentDate);
+            
+            if (!state.foodEntries[currentDateKey]) {
+                return;
+            }
+            
+            // Find the entry to get its name for the confirmation
+            const entry = state.foodEntries[currentDateKey].find(item => item.id === id);
+            if (!entry) return;
+            
+            const confirmDelete = confirm(`Are you sure you want to delete "${entry.name}"?`);
+            if (!confirmDelete) return;
+            
+            // Filter out the entry to delete
+            state.foodEntries[currentDateKey] = state.foodEntries[currentDateKey].filter(item => item.id !== id);
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update UI
+            renderFoodEntries();
+            updateSummary();
+        }
+
+        // Delete exercise entry
+        function deleteExercise(id) {
+            const currentDateKey = formatDateKey(state.currentDate);
+            
+            if (!state.exerciseEntries[currentDateKey]) {
+                return;
+            }
+            
+            // Find the entry to get its name for the confirmation
+            const entry = state.exerciseEntries[currentDateKey].find(item => item.id === id);
+            if (!entry) return;
+            
+            const confirmDelete = confirm(`Are you sure you want to delete "${entry.name}"?`);
+            if (!confirmDelete) return;
+            
+            // Filter out the entry to delete
+            state.exerciseEntries[currentDateKey] = state.exerciseEntries[currentDateKey].filter(item => item.id !== id);
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update UI
+            renderExerciseEntries();
+            updateSummary();
+        }
+
+        // Update summary section
+        function updateSummary() {
+            const currentDateKey = formatDateKey(state.currentDate);
+            
+            // Calculate total calories consumed
+            const foodEntries = state.foodEntries[currentDateKey] || [];
+            const totalConsumed = foodEntries.reduce((total, entry) => total + entry.calories, 0);
+            
+            // Calculate total calories burned
+            const exerciseEntries = state.exerciseEntries[currentDateKey] || [];
+            const totalBurned = exerciseEntries.reduce((total, entry) => total + entry.calories, 0);
+            
+            // Calculate net calories
+            const netCalories = totalConsumed - totalBurned;
+            
+            // Update UI
+            elements.caloriesConsumedEl.textContent = totalConsumed;
+            elements.caloriesBurnedEl.textContent = totalBurned;
+            elements.caloriesRemainingEl.textContent = netCalories;
+            
+            // Update goal text
+            elements.goalTextEl.textContent = `Goal: ${state.calorieGoal} calories`;
+            
+            // Update progress bar
+            const progressPercentage = Math.min(100, Math.max(0, (totalConsumed / state.calorieGoal) * 100));
+            elements.goalProgressEl.style.width = `${progressPercentage}%`;
+            elements.goalProgressEl.setAttribute('aria-valuenow', Math.round(progressPercentage));
+            
+            // Change progress bar color based on percentage
+            if (progressPercentage > 100) {
+                elements.goalProgressEl.style.backgroundColor = var(--danger-color);
+            } else if (progressPercentage > 85) {
+                elements.goalProgressEl.style.backgroundColor = var(--warning-color);
+            } else {
+                elements.goalProgressEl.style.backgroundColor = var(--primary-color);
+            }
+        }
+
+        // Format time for display
+        function formatTime(timeString) {
+            if (!timeString) return '';
+            
+            const [hours, minutes] = timeString.split(':');
+            const hour = parseInt(hours, 10);
+            
+            if (hour === 0) {
+                return `12:${minutes} AM`;
+            } else if (hour < 12) {
+                return `${hour}:${minutes} AM`;
+            } else if (hour === 12) {
+                return `12:${minutes} PM`;
+            } else {
+                return `${hour - 12}:${minutes} PM`;
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

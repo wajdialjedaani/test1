@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Portfolio Showcase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background-color: #0066cc;
+            color: white;
+            padding: 1rem;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1rem;
+        }
+        nav a:focus {
+            outline: 3px solid #ffcc00;
+        }
+        main {
+            padding: 2rem;
+        }
+        h1 {
+            font-size: 2rem;
+        }
+        .project {
+            border: 1px solid #ccc;
+            margin: 1rem 0;
+            padding: 1rem;
+            transition: transform 0.2s;
+        }
+        .project:hover {
+            transform: scale(1.02);
+            background-color: #e7f3ff;
+        }
+        .filter-buttons {
+            margin-bottom: 1rem;
+        }
+        .filter-buttons button {
+            margin-right: 0.5rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+        /* Accessibility-focused CSS with focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#projects">Projects</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+    <main>
+        <h1>My Creative Portfolio</h1>
+        <section id="projects">
+            <h2>Projects</h2>
+            <div class="filter-buttons" role="group" aria-label="Project filter buttons">
+                <button onclick="filterProjects('all')" onkeydown="handleInteraction(event)">All</button>
+                <button onclick="filterProjects('web')" onkeydown="handleInteraction(event)">Web Development</button>
+                <button onclick="filterProjects('design')" onkeydown="handleInteraction(event)">Design</button>
+            </div>
+            <article class="project" data-category="web">
+                <h3>Project One</h3>
+                <p>A web development project showcasing responsive design.</p>
+            </article>
+            <article class="project" data-category="design">
+                <h3>Project Two</h3>
+                <p>A graphic design project featuring modern aesthetics.</p>
+            </article>
+            <article class="project" data-category="web">
+                <h3>Project Three</h3>
+                <p>Another web project with a focus on accessibility.</p>
+            </article>
+        </section>
+        <section id="contact">
+            <h2>Contact Me</h2>
+            <form aria-labelledby="contact-form" id="contact-form">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required aria-required="true" />
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required aria-required="true" />
+                <button type="submit">Send Message</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 My Portfolio</p>
+    </footer>
+    <script>
+        // Function to filter projects based on category
+        function filterProjects(category) {
+            const projects = document.querySelectorAll('.project');
+            projects.forEach(project => {
+                if (category === 'all' || project.dataset.category === category) {
+                    project.style.display = 'block';
+                } else {
+                    project.style.display = 'none';
+                }
+            });
+        }
+
+        // For any element with mouse events, add keyboard support
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.currentTarget.click();
+            }
+        }
+    </script>
+</body>
+</html>

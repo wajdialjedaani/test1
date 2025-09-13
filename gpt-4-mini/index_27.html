@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible To-Do List Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #0066cc;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover, button:focus {
+            background-color: #005bb5;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #fff;
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>To-Do List</h1>
+    </header>
+    <main>
+        <form id="taskForm" aria-label="Add a new task">
+            <label for="taskInput">Task:</label>
+            <input type="text" id="taskInput" required aria-required="true" placeholder="Enter a new task" />
+            
+            <label for="priorityInput">Priority:</label>
+            <select id="priorityInput" aria-label="Select priority level">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            
+            <label for="dueDateInput">Due Date:</label>
+            <input type="date" id="dueDateInput" aria-label="Select due date" />
+            
+            <button type="submit">Add Task</button>
+        </form>
+        
+        <ul id="taskList" role="list" aria-label="List of tasks">
+            <!-- Tasks will be dynamically added here -->
+        </ul>
+    </main>
+    <footer>
+        <p>&copy; 2023 Accessible To-Do List</p>
+    </footer>
+    <script>
+        document.getElementById('taskForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const taskInput = document.getElementById('taskInput');
+            const priorityInput = document.getElementById('priorityInput');
+            const dueDateInput = document.getElementById('dueDateInput');
+
+            const taskText = taskInput.value;
+            const priority = priorityInput.value;
+            const dueDate = dueDateInput.value;
+
+            if (taskText) {
+                addTask(taskText, priority, dueDate);
+                taskInput.value = '';
+                dueDateInput.value = '';
+            }
+        });
+
+        function addTask(taskText, priority, dueDate) {
+            const taskList = document.getElementById('taskList');
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span class="task-text">${taskText} (Priority: ${priority}, Due: ${dueDate})</span>
+                <div>
+                    <button onclick="toggleComplete(this)" aria-label="Mark as completed">✓</button>
+                    <button onclick="deleteTask(this)" aria-label="Delete task">✖</button>
+                </div>
+            `;
+            taskList.appendChild(li);
+        }
+
+        function toggleComplete(button) {
+            const taskItem = button.closest('li');
+            const taskText = taskItem.querySelector('.task-text');
+            taskText.classList.toggle('completed');
+        }
+
+        function deleteTask(button) {
+            const taskItem = button.closest('li');
+            taskItem.remove();
+        }
+    </script>
+</body>
+</html>

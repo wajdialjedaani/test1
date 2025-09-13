@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gardening Community</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        main {
+            padding: 20px;
+        }
+        section {
+            margin-bottom: 20px;
+        }
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .plant-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #fff;
+        }
+        .feedback {
+            margin-top: 10px;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Gardening Community</h1>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#upload-form" style="color: white;">Upload Your Plant</a>
+        </nav>
+    </header>
+    <main>
+        <section id="upload-form">
+            <h2>Upload Your Plant Picture</h2>
+            <form id="plant-form" aria-labelledby="upload-form">
+                <label for="plant-image">Plant Image (required):</label>
+                <input type="file" id="plant-image" accept="image/*" required aria-describedby="image-error">
+                <span id="image-error" class="error" aria-live="assertive"></span>
+
+                <label for="plant-description">Description:</label>
+                <textarea id="plant-description" rows="4" aria-required="true"></textarea>
+
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+        <section id="plant-gallery">
+            <h2>Plant Gallery</h2>
+            <div id="gallery"></div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Gardening Community</p>
+    </footer>
+    <script>
+        document.getElementById('plant-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const imageInput = document.getElementById('plant-image');
+            const descriptionInput = document.getElementById('plant-description');
+            const gallery = document.getElementById('gallery');
+            const imageError = document.getElementById('image-error');
+
+            // Clear previous error message
+            imageError.textContent = '';
+
+            if (!imageInput.files.length) {
+                imageError.textContent = 'Please upload an image.';
+                return;
+            }
+
+            const file = imageInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const plantItem = document.createElement('div');
+                plantItem.classList.add('plant-item');
+                plantItem.innerHTML = `
+                    <img src="${e.target.result}" alt="Picture of a plant" style="max-width: 100%; height: auto;">
+                    <p>${descriptionInput.value}</p>
+                    <button class="like-button">Like</button>
+                    <div class="feedback"></div>
+                `;
+                gallery.prepend(plantItem);
+
+                // Reset the form
+                imageInput.value = '';
+                descriptionInput.value = '';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Handle likes with keyboard accessibility
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('like-button')) {
+                const feedbackDiv = event.target.nextElementSibling;
+                feedbackDiv.textContent = feedbackDiv.textContent ? '' : 'You liked this plant!';
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                if (event.target.classList.contains('like-button')) {
+                    event.preventDefault();
+                    const feedbackDiv = event.target.nextElementSibling;
+                    feedbackDiv.textContent = feedbackDiv.textContent ? '' : 'You liked this plant!';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

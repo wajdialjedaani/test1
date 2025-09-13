@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Share: Upload and Share Your Art & Photos</title>
+    <style>
+        /* Reset & base styles */
+        html {
+            box-sizing: border-box;
+            font-size: 18px;
+            background: #f8fafc;
+            color: #1a1a1a;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: #22223b;
+            color: #fff;
+            padding: 0;
+        }
+        .site-header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.2rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .site-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        nav[role="navigation"] ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 1.2rem;
+        }
+        nav[role="navigation"] a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.3em 0.8em;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        nav[role="navigation"] a:focus,
+        nav[role="navigation"] a:hover {
+            background: #4a4e69;
+            outline: 3px solid #ffffff;
+            outline-offset: 2px;
+        }
+
+        main {
+            flex: 1 0 auto;
+            max-width: 900px;
+            margin: 2rem auto 0 auto;
+            padding: 1rem;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5em;
+        }
+        section {
+            margin-bottom: 2.5rem;
+        }
+        .upload-section {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(34,34,59,0.05);
+            padding: 2rem 1.5rem;
+        }
+        .upload-form label {
+            display: block;
+            margin-bottom: 0.3em;
+            font-weight: 500;
+        }
+        .upload-form input[type="file"] {
+            margin-bottom: 1em;
+        }
+        .required {
+            color: #d7263d;
+            font-weight: bold;
+            margin-left: 0.2em;
+        }
+        .upload-form input[type="text"],
+        .upload-form textarea {
+            width: 100%;
+            max-width: 100%;
+            padding: 0.6em;
+            margin-bottom: 1em;
+            border: 1px solid #bfc0c0;
+            border-radius: 4px;
+            font-size: 1em;
+            background: #f4f6f8;
+        }
+        .upload-form textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+        .upload-form button[type="submit"] {
+            background: #22223b;
+            color: #fff;
+            border: none;
+            padding: 0.8em 2em;
+            border-radius: 4px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .upload-form button[type="submit"]:hover,
+        .upload-form button[type="submit"]:focus {
+            background: #4a4e69;
+        }
+        /* Focus indicators for all interactive elements */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+        /* Error messages */
+        .form-error {
+            color: #d7263d;
+            font-size: 1em;
+            margin-top: -0.8em;
+            margin-bottom: 1em;
+            display: block;
+        }
+        /* Gallery styles */
+        .gallery-section {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(34,34,59,0.05);
+            padding: 2rem 1.5rem;
+        }
+        .gallery-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .art-card {
+            background: #f4f6f8;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(34,34,59,0.05);
+            padding: 1em;
+            display: flex;
+            flex-direction: column;
+            min-height: 340px;
+        }
+        .art-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            background: #e0e0e0;
+            margin-bottom: 0.8em;
+            object-fit: cover;
+            min-height: 180px;
+        }
+        .art-card .art-desc {
+            font-size: 1em;
+            margin-bottom: 0.6em;
+        }
+        .art-card .art-tags {
+            margin-top: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4em;
+        }
+        .art-card .art-tag {
+            background: #22223b;
+            color: #fff;
+            border-radius: 3px;
+            padding: 0.2em 0.7em;
+            font-size: 0.95em;
+            margin-bottom: 0.3em;
+            letter-spacing: 0.02em;
+        }
+        /* Visually hidden class for accessibility */
+        .visually-hidden {
+            position: absolute !important;
+            height: 1px; width: 1px;
+            overflow: hidden;
+            clip: rect(1px, 1px, 1px, 1px);
+            white-space: nowrap;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 700px) {
+            .site-header, main {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            .upload-section, .gallery-section {
+                padding: 1rem 0.5rem;
+            }
+        }
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+            .site-title {
+                font-size: 1.1rem;
+            }
+        }
+        /* Footer */
+        footer {
+            background: #22223b;
+            color: #fff;
+            text-align: center;
+            padding: 1.2rem 1rem;
+            font-size: 1em;
+            margin-top: 2rem;
+            flex-shrink: 0;
+        }
+        /* Tag input hint */
+        .tag-hint {
+            font-size: 0.95em;
+            color: #444;
+            margin-bottom: 0.5em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="site-header">
+            <span class="site-title">Creative Share</span>
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="#upload-section">Upload Work</a></li>
+                    <li><a href="#gallery-section">Gallery</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <h1>Share Your Creative Work</h1>
+        <section id="upload-section" class="upload-section" aria-labelledby="upload-heading">
+            <h2 id="upload-heading">Upload Your Art or Photo</h2>
+            <form id="upload-form" class="upload-form" autocomplete="off" novalidate>
+                <div>
+                    <label for="art-file">
+                        Select image file
+                        <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <input 
+                        type="file" 
+                        id="art-file" 
+                        name="art-file" 
+                        accept="image/*" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="art-file-desc art-file-error"
+                    >
+                    <span id="art-file-desc" class="tag-hint">Accepted formats: JPEG, PNG, GIF, SVG. Max 5MB.</span>
+                    <span id="art-file-error" class="form-error" aria-live="polite"></span>
+                </div>
+                <div>
+                    <label for="art-desc">
+                        Description
+                        <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <textarea 
+                        id="art-desc" 
+                        name="art-desc" 
+                        rows="3" 
+                        maxlength="250" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="art-desc-desc art-desc-error"
+                        placeholder="Describe your work (max 250 characters)"
+                    ></textarea>
+                    <span id="art-desc-desc" class="tag-hint">Give your work a meaningful description for all users.</span>
+                    <span id="art-desc-error" class="form-error" aria-live="polite"></span>
+                </div>
+                <div>
+                    <label for="art-tags">
+                        Tags
+                        <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="art-tags" 
+                        name="art-tags" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="art-tags-desc art-tags-error"
+                        placeholder="e.g. nature, watercolor, portrait"
+                        maxlength="100"
+                        autocomplete="off"
+                    >
+                    <span id="art-tags-desc" class="tag-hint">Separate tags with commas. (At least one tag required)</span>
+                    <span id="art-tags-error" class="form-error" aria-live="polite"></span>
+                </div>
+                <button type="submit" id="upload-btn">Upload Work</button>
+            </form>
+        </section>
+        <section id="gallery-section" class="gallery-section" aria-labelledby="gallery-heading">
+            <h2 id="gallery-heading">Gallery</h2>
+            <ul id="gallery-list" class="gallery-list" aria-live="polite" aria-relevant="additions">
+                <!-- Gallery items inserted here -->
+            </ul>
+            <div id="empty-gallery-msg" role="status" aria-live="polite">
+                <p>No creative works uploaded yet. Be the first to share your art!</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>
+            &copy; <span id="year"></span> Creative Share &ndash; Built for everyone.
+        </p>
+    </footer>
+    <script>
+        // Utility: set current year in footer
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Accessibility: focus management for error summary
+        function focusFirstErrorField(errors) {
+            if (errors.length > 0) {
+                const field = document.getElementById(errors[0]);
+                if (field) {
+                    field.focus();
+                }
+            }
+        }
+
+        // Accessibility: Keyboard interaction handler for custom elements
+        function handleInteraction(event, callback) {
+            if (
+                event.type === 'click' ||
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))
+            ) {
+                event.preventDefault();
+                callback();
+            }
+        }
+
+        // Validate form fields and provide accessible error messages
+        function validateUploadForm(form) {
+            let valid = true;
+            const errors = [];
+
+            // Clear previous errors
+            document.getElementById('art-file-error').textContent = '';
+            document.getElementById('art-desc-error').textContent = '';
+            document.getElementById('art-tags-error').textContent = '';
+
+            // File validation
+            const fileInput = form['art-file'];
+            const file = fileInput.files[0];
+            if (!file) {
+                document.getElementById('art-file-error').textContent = 'Please select an image file to upload.';
+                errors.push('art-file');
+                valid = false;
+            } else if (!/^image\//.test(file.type)) {
+                document.getElementById('art-file-error').textContent = 'File must be an image (JPEG, PNG, GIF, SVG).';
+                errors.push('art-file');
+                valid = false;
+            } else if (file.size > 5 * 1024 * 1024) {
+                document.getElementById('art-file-error').textContent = 'Image must be less than 5MB.';
+                errors.push('art-file');
+                valid = false;
+            }
+
+            // Description validation
+            const desc = form['art-desc'].value.trim();
+            if (!desc) {
+                document.getElementById('art-desc-error').textContent = 'Please provide a description of your work.';
+                errors.push('art-desc');
+                valid = false;
+            } else if (desc.length > 250) {
+                document.getElementById('art-desc-error').textContent = 'Description cannot exceed 250 characters.';
+                errors.push('art-desc');
+                valid = false;
+            }
+
+            // Tags validation
+            const tagsInput = form['art-tags'].value.trim();
+            if (!tagsInput) {
+                document.getElementById('art-tags-error').textContent = 'Please provide at least one tag.';
+                errors.push('art-tags');
+                valid = false;
+            } else {
+                // Split tags, check for at least one non-empty
+                const tagsArr = tagsInput.split(',').map(t => t.trim()).filter(Boolean);
+                if (tagsArr.length === 0) {
+                    document.getElementById('art-tags-error').textContent = 'Please provide at least one tag.';
+                    errors.push('art-tags');
+                    valid = false;
+                }
+            }
+
+            // Focus first error field for accessibility
+            if (!valid) {
+                setTimeout(() => focusFirstErrorField(errors), 0);
+            }
+            return valid;
+        }
+
+        // Accessible image alt text generator
+        function generateAltText(description, tags) {
+            // Use description as primary alt text, append tags for context
+            if (tags && tags.length > 0) {
+                return description + ' (Tags: ' + tags.join(', ') + ')';
+            }
+            return description;
+        }
+
+        // Add uploaded art to the gallery
+        function addToGallery(imageDataUrl, description, tags) {
+            const galleryList = document.getElementById('gallery-list');
+            const emptyMsg = document.getElementById('empty-gallery-msg');
+            if (emptyMsg) {
+                emptyMsg.style.display = 'none';
+            }
+
+            // Create article element for each artwork
+            const li = document.createElement('li');
+            li.className = 'art-card';
+            li.setAttribute('tabindex', '-1'); // Allow programmatic focus for accessibility
+
+            // Image with accessible alt text
+            const img = document.createElement('img');
+            img.src = imageDataUrl;
+            img.alt = generateAltText(description, tags);
+            img.loading = "lazy";
+
+            // Description
+            const descP = document.createElement('p');
+            descP.className = 'art-desc';
+            descP.textContent = description;
+
+            // Tags
+            const tagsDiv = document.createElement('div');
+            tagsDiv.className = 'art-tags';
+            tags.forEach(tag => {
+                const tagSpan = document.createElement('span');
+                tagSpan.className = 'art-tag';
+                tagSpan.textContent = tag;
+                tagsDiv.appendChild(tagSpan);
+            });
+
+            // Compose card
+            li.appendChild(img);
+            li.appendChild(descP);
+            li.appendChild(tagsDiv);
+
+            // Insert at the top for latest first
+            galleryList.insertBefore(li, galleryList.firstChild);
+
+            // Announce addition for screen readers
+            li.setAttribute('aria-live', 'polite');
+            li.setAttribute('role', 'article');
+            li.focus();
+        }
+
+        // Form submission handler
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = event.target;
+
+            if (!validateUploadForm(form)) {
+                return;
+            }
+
+            // Gather form data
+            const file = form['art-file'].files[0];
+            const description = form['art-desc'].value.trim();
+            const tagsArr = form['art-tags'].value.split(',').map(t => t.trim()).filter(Boolean);
+
+            // Read image file as DataURL
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                addToGallery(e.target.result, description, tagsArr);
+
+                // Reset form
+                form.reset();
+                // Move focus to gallery heading for context
+                document.getElementById('gallery-heading').focus();
+            };
+            reader.onerror = function() {
+                document.getElementById('art-file-error').textContent = 'Could not read the image file. Please try another.';
+                document.getElementById('art-file').focus();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Accessibility: make gallery heading focusable for context shift
+        document.getElementById('gallery-heading').setAttribute('tabindex', '-1');
+
+        // Accessibility: Keyboard support for navigation links (redundant for <a>, but pattern included for custom elements)
+        // Example pattern (not strictly needed here, as <a> is natively accessible):
+        // document.querySelectorAll('nav[role="navigation"] a').forEach(link => {
+        //     link.addEventListener('keydown', function(e) {
+        //         handleInteraction(e, () => link.click());
+        //     });
+        // });
+
+        // Responsive: Hide empty gallery message when there are items
+        const observer = new MutationObserver(() => {
+            const galleryList = document.getElementById('gallery-list');
+            const emptyMsg = document.getElementById('empty-gallery-msg');
+            if (galleryList.children.length === 0) {
+                emptyMsg.style.display = 'block';
+            } else {
+                emptyMsg.style.display = 'none';
+            }
+        });
+        observer.observe(document.getElementById('gallery-list'), { childList: true });
+
+        // Accessibility: Announce empty gallery on load
+        window.addEventListener('DOMContentLoaded', function() {
+            const galleryList = document.getElementById('gallery-list');
+            const emptyMsg = document.getElementById('empty-gallery-msg');
+            if (galleryList.children.length === 0 && emptyMsg) {
+                emptyMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

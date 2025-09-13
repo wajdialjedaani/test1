@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile Page</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 0 80px 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        header, main, footer {
+            padding: 20px;
+        }
+        header {
+            background-color: #0066cc;
+            color: #fff;
+        }
+        main {
+            background-color: #fff;
+            margin: 20px 0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            background-color: #0066cc;
+            color: #fff;
+            text-align: center;
+        }
+        h1, h2, h3 {
+            margin: 0 0 10px;
+        }
+        .profile-bio {
+            margin-bottom: 20px;
+        }
+        .avatar-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .avatar-gallery img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #0066cc;
+        }
+        .follow-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #0066cc;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .follow-button:hover {
+            background-color: #0055aa;
+        }
+        .follow-button:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .social-links {
+            margin-top: 20px;
+        }
+        .social-links a {
+            display: inline-block;
+            margin-right: 10px;
+            color: #0066cc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .social-links a:hover {
+            color: #0055aa;
+        }
+        .social-links a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#profile">Profile</a></li>
+                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="#follow">Follow</a></li>
+                <li><a href="#social">Social</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="profile">
+            <h1>User Profile</h1>
+            <div class="profile-bio">
+                <p><strong>Name:</strong> John Doe</p>
+                <p><strong>Bio:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            </div>
+        </section>
+        <section id="gallery">
+            <h2>Avatar Gallery</h2>
+            <div class="avatar-gallery">
+                <img src="avatar1.jpg" alt="Avatar 1" tabindex="0">
+                <img src="avatar2.jpg" alt="Avatar 2" tabindex="0">
+                <img src="avatar3.jpg" alt="Avatar 3" tabindex="0">
+            </div>
+        </section>
+        <section id="follow">
+            <h2>Follow Me</h2>
+            <button class="follow-button" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">Follow</button>
+        </section>
+        <section id="social">
+            <h2>Social Media Links</h2>
+            <div class="social-links">
+                <a href="https://twitter.com/johndoe" target="_blank" rel="noopener noreferrer">Twitter</a>
+                <a href="https://facebook.com/johndoe" target="_blank" rel="noopener noreferrer">Facebook</a>
+                <a href="https://linkedin.com/in/johndoe" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 John Doe. All rights reserved.</p>
+    </footer>
+    <script>
+        // Keyboard-accessible JavaScript functions
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                // Your action here
+                alert('Follow button clicked');
+            }
+        }
+    </script>
+</body>
+</html>

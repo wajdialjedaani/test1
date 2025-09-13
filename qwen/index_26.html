@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meditation Timer</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        header, main, footer {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: #4a90e2;
+            color: #fff;
+            padding: 1rem;
+        }
+
+        main {
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            background-color: #4a90e2;
+            color: #fff;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        h1, h2, h3 {
+            margin: 0;
+        }
+
+        .timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-display {
+            font-size: 2rem;
+            margin: 1rem 0;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .controls button {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 4px;
+            background-color: #4a90e2;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .controls button:hover {
+            background-color: #3a78c2;
+        }
+
+        .controls button:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .sound-controls {
+            margin-top: 1rem;
+        }
+
+        .sound-controls label {
+            margin-right: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-bar .progress {
+            height: 100%;
+            width: 0;
+            background-color: #4a90e2;
+            transition: width 0.5s;
+        }
+
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Meditation Timer</h1>
+    </header>
+    <main>
+        <section class="timer-container">
+            <h2>Set Your Meditation Time</h2>
+            <input type="number" id="timer-duration" name="timer-duration" min="1" max="60" value="10" aria-label="Set meditation duration in minutes" required>
+            <label for="timer-duration">minutes</label>
+            <div class="timer-display" id="timer-display">10:00</div>
+            <div class="controls">
+                <button id="start-timer" onclick="startTimer(event)">Start</button>
+                <button id="pause-timer" onclick="pauseTimer(event)">Pause</button>
+                <button id="reset-timer" onclick="resetTimer(event)">Reset</button>
+            </div>
+            <div class="sound-controls">
+                <label for="sound-toggle">Play Sound:</label>
+                <input type="checkbox" id="sound-toggle" name="sound-toggle" aria-label="Toggle sound on or off">
+            </div>
+            <div class="progress-bar">
+                <div class="progress" id="progress-bar"></div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Meditation Timer. All rights reserved.</p>
+    </footer>
+    <script>
+        // Timer variables
+        let timerDuration = 10 * 60; // 10 minutes in seconds
+        let timer;
+        let isRunning = false;
+        let soundEnabled = false;
+
+        // Update the timer display
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timerDuration / 60);
+            const seconds = timerDuration % 60;
+            document.getElementById('timer-display').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // Start the timer
+        function startTimer(event) {
+            handleInteraction(event);
+            if (!isRunning) {
+                isRunning = true;
+                timer = setInterval(() => {
+                    if (timerDuration > 0) {
+                        timerDuration--;
+                        updateTimerDisplay();
+                        updateProgressBar();
+                    } else {
+                        clearInterval(timer);
+                        isRunning = false;
+                        if (soundEnabled) {
+                            playSound();
+                        }
+                    }
+                }, 1000);
+            }
+        }
+
+        // Pause the timer
+        function pauseTimer(event) {
+            handleInteraction(event);
+            if (isRunning) {
+                clearInterval(timer);
+                isRunning = false;
+            }
+        }
+
+        // Reset the timer
+        function resetTimer(event) {
+            handleInteraction(event);
+            clearInterval(timer);
+            isRunning = false;
+            timerDuration = document.getElementById('timer-duration').value * 60;
+            updateTimerDisplay();
+            updateProgressBar();
+        }
+
+        // Update the progress bar
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercentage = (timerDuration / (document.getElementById('timer-duration').value * 60)) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        // Play a sound
+        function playSound() {
+            const sound = new Audio('https://example.com/meditation-sound.mp3'); // Replace with actual sound file
+            sound.play();
+        }
+
+        // Handle both mouse and keyboard events
+        function handleInteraction(event) {
+            if (event.type === 'click' || (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.preventDefault();
+                event.target.click();
+            }
+        }
+
+        // Initialize the timer display
+        updateTimerDisplay();
+
+        // Add event listener for sound toggle
+        document.getElementById('sound-toggle').addEventListener('change', (event) => {
+            soundEnabled = event.target.checked;
+        });
+    </script>
+</body>
+</html>

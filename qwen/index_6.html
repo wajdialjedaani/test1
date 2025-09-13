@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 0 80px 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header, main, footer {
+            padding: 20px;
+        }
+        header {
+            background-color: #007bff;
+            color: #fff;
+            text-align: center;
+        }
+        main {
+            background-color: #fff;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+        }
+        h1, h2 {
+            margin: 0;
+        }
+        .quiz-container {
+            margin: 20px 0;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .question p {
+            margin: 0;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .options li {
+            margin: 10px 0;
+        }
+        .options label {
+            cursor: pointer;
+        }
+        .options input[type="radio"] {
+            margin-right: 10px;
+        }
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .submit-btn:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .feedback {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+        }
+        .feedback.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .quiz-results {
+            margin-top: 20px;
+        }
+        .quiz-results h2 {
+            margin-bottom: 10px;
+        }
+        .quiz-results p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Interactive Quiz</h1>
+    </header>
+    <main>
+        <section class="quiz-container" aria-live="polite" aria-atomic="true">
+            <div class="question" id="question1" aria-hidden="true">
+                <p>What is the capital of France?</p>
+                <ul class="options">
+                    <li><label><input type="radio" name="q1" value="a" id="q1a"> A) Berlin</label></li>
+                    <li><label><input type="radio" name="q1" value="b" id="q1b"> B) Paris</label></li>
+                    <li><label><input type="radio" name="q1" value="c" id="q1c"> C) Madrid</label></li>
+                    <li><label><input type="radio" name="q1" value="d" id="q1d"> D) Rome</label></li>
+                </ul>
+                <button class="submit-btn" onclick="checkAnswer('q1', 'b')">Submit Answer</button>
+                <div class="feedback" aria-live="polite" aria-atomic="true" aria-hidden="true"></div>
+            </div>
+            <div class="question" id="question2" aria-hidden="true">
+                <p>What is the largest planet in our solar system?</p>
+                <ul class="options">
+                    <li><label><input type="radio" name="q2" value="a" id="q2a"> A) Earth</label></li>
+                    <li><label><input type="radio" name="q2" value="b" id="q2b"> B) Jupiter</label></li>
+                    <li><label><input type="radio" name="q2" value="c" id="q2c"> C) Mars</label></li>
+                    <li><label><input type="radio" name="q2" value="d" id="q2d"> D) Saturn</label></li>
+                </ul>
+                <button class="submit-btn" onclick="checkAnswer('q2', 'b')">Submit Answer</button>
+                <div class="feedback" aria-live="polite" aria-atomic="true" aria-hidden="true"></div>
+            </div>
+            <div class="quiz-results" aria-hidden="true">
+                <h2>Quiz Results</h2>
+                <p id="result-text"></p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Interactive Quiz. All rights reserved.</p>
+    </footer>
+    <script>
+        // Function to check the answer and provide feedback
+        function checkAnswer(questionId, correctAnswer) {
+            const questionElement = document.getElementById(questionId);
+            const options = questionElement.querySelectorAll('input[type="radio"]');
+            const feedbackElement = questionElement.querySelector('.feedback');
+            let selectedAnswer = '';
+
+            options.forEach(option => {
+                if (option.checked) {
+                    selectedAnswer = option.value;
+                }
+            });
+
+            if (selectedAnswer === correctAnswer) {
+                feedbackElement.textContent = 'Correct! Well done.';
+                feedbackElement.classList.add('success');
+                feedbackElement.classList.remove('error');
+                feedbackElement.setAttribute('aria-hidden', 'false');
+            } else {
+                feedbackElement.textContent = 'Incorrect. Please try again.';
+                feedbackElement.classList.add('error');
+                feedbackElement.classList.remove('success');
+                feedbackElement.setAttribute('aria-hidden', 'false');
+            }
+
+            // Hide the question and show the next one
+            questionElement.setAttribute('aria-hidden', 'true');
+            const nextQuestion = document.querySelector(`#${questionId}:not([aria-hidden="true"]) + .question`);
+            if (nextQuestion) {
+                nextQuestion.setAttribute('aria-hidden', 'false');
+            } else {
+                showResults();
+            }
+        }
+
+        // Function to show quiz results
+        function showResults() {
+            const quizResults = document.querySelector('.quiz-results');
+            const resultText = quizResults.querySelector('#result-text');
+            resultText.textContent = 'You have completed the quiz. Thank you for participating!';
+            quizResults.setAttribute('aria-hidden', 'false');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Webpage with Smooth Hover Effects</title>
+    <style>
+        /* Base styles */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 0 80px 0;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+
+        header, main, footer {
+            padding: 20px;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+        }
+
+        main {
+            background-color: #fff;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Accessibility-focused CSS with focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        /* Smooth hover effects */
+        .card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        .card p {
+            color: #666;
+        }
+
+        .button {
+            background-color: #0066cc;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #0055aa;
+        }
+
+        .button:active {
+            background-color: #004488;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            main {
+                margin: 10px auto;
+            }
+
+            .card {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Interactive Webpage with Smooth Hover Effects</h1>
+        <section>
+            <div class="card" role="region" aria-label="Card 1">
+                <h2>Card 1</h2>
+                <p>This is a card with a smooth hover effect. When you hover over it, it will move up and have a shadow.</p>
+                <button class="button" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">Click Me</button>
+            </div>
+            <div class="card" role="region" aria-label="Card 2">
+                <h2>Card 2</h2>
+                <p>This is another card with a smooth hover effect. When you hover over it, it will move up and have a shadow.</p>
+                <button class="button" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">Click Me</button>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Interactive Webpage. All rights reserved.</p>
+    </footer>
+    <script>
+        // Keyboard-accessible JavaScript functions
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                alert('Button clicked or activated with keyboard!');
+            }
+        }
+    </script>
+</body>
+</html>

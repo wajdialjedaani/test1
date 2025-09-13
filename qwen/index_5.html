@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Portfolio</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 0 80px 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 1rem 0;
+            text-align: center;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 1rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        nav a:hover, nav a:focus {
+            border-color: #fff;
+        }
+
+        main {
+            padding: 2rem;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .portfolio-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .portfolio-item:hover, .portfolio-item:focus-within {
+            transform: translateY(-10px);
+        }
+
+        .portfolio-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .portfolio-item h2 {
+            font-size: 1.5rem;
+            margin: 1rem;
+        }
+
+        .portfolio-item p {
+            margin: 0 1rem 1rem;
+        }
+
+        .portfolio-item .details {
+            display: none;
+            padding: 1rem;
+            background-color: #f9f9f9;
+        }
+
+        .portfolio-item:hover .details, .portfolio-item:focus-within .details {
+            display: block;
+        }
+
+        /* Focus Indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav a {
+                margin: 0 0.5rem;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Personal Portfolio</h1>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#" data-category="all" aria-current="page">All</a>
+            <a href="#" data-category="web">Web Development</a>
+            <a href="#" data-category="design">Design</a>
+            <a href="#" data-category="photography">Photography</a>
+        </nav>
+    </header>
+    <main>
+        <section class="portfolio-grid" aria-live="polite" aria-atomic="true">
+            <article class="portfolio-item" data-category="web">
+                <img src="https://via.placeholder.com/300x200" alt="Web Development Project 1">
+                <h2>Web Development Project 1</h2>
+                <p>Description of the project goes here. This is a brief summary of the project.</p>
+                <div class="details">
+                    <p>More details about the project can be found here. This section is hidden until the user hovers over or focuses on the project item.</p>
+                </div>
+            </article>
+            <article class="portfolio-item" data-category="design">
+                <img src="https://via.placeholder.com/300x200" alt="Design Project 1">
+                <h2>Design Project 1</h2>
+                <p>Description of the project goes here. This is a brief summary of the project.</p>
+                <div class="details">
+                    <p>More details about the project can be found here. This section is hidden until the user hovers over or focuses on the project item.</p>
+                </div>
+            </article>
+            <article class="portfolio-item" data-category="photography">
+                <img src="https://via.placeholder.com/300x200" alt="Photography Project 1">
+                <h2>Photography Project 1</h2>
+                <p>Description of the project goes here. This is a brief summary of the project.</p>
+                <div class="details">
+                    <p>More details about the project can be found here. This section is hidden until the user hovers over or focuses on the project item.</p>
+                </div>
+            </article>
+            <article class="portfolio-item" data-category="web">
+                <img src="https://via.placeholder.com/300x200" alt="Web Development Project 2">
+                <h2>Web Development Project 2</h2>
+                <p>Description of the project goes here. This is a brief summary of the project.</p>
+                <div class="details">
+                    <p>More details about the project can be found here. This section is hidden until the user hovers over or focuses on the project item.</p>
+                </div>
+            </article>
+            <article class="portfolio-item" data-category="design">
+                <img src="https://via.placeholder.com/300x200" alt="Design Project 2">
+                <h2>Design Project 2</h2>
+                <p>Description of the project goes here. This is a brief summary of the project.</p>
+                <div class="details">
+                    <p>More details about the project can be found here. This section is hidden until the user hovers over or focuses on the project item.</p>
+                </div>
+            </article>
+            <article class="portfolio-item" data-category="photography">
+                <img src="https://via.placeholder.com/300x200" alt="Photography Project 2">
+                <h2>Photography Project 2</h2>
+                <p>Description of the project goes here. This is a brief summary of the project.</p>
+                <div class="details">
+                    <p>More details about the project can be found here. This section is hidden until the user hovers over or focuses on the project item.</p>
+                </div>
+            </article>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Personal Portfolio. All rights reserved.</p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('nav a');
+            const portfolioItems = document.querySelectorAll('.portfolio-item');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const category = this.getAttribute('data-category');
+                    filterPortfolioItems(category);
+                });
+
+                link.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        const category = this.getAttribute('data-category');
+                        filterPortfolioItems(category);
+                    }
+                });
+            });
+
+            function filterPortfolioItems(category) {
+                portfolioItems.forEach(item => {
+                    if (category === 'all' || item.getAttribute('data-category') === category) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Update the aria-current attribute
+                navLinks.forEach(link => {
+                    link.setAttribute('aria-current', link.getAttribute('data-category') === category ? 'page' : 'false');
+                });
+            }
+
+            // Initial filter
+            filterPortfolioItems('all');
+        });
+    </script>
+</body>
+</html>

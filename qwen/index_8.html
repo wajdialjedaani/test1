@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Landing Page with Dark/Light Theme Toggle</title>
+    <style>
+        /* Base styles */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 0 80px 0;
+            color: #333;
+            background-color: #f4f4f4;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark theme styles */
+        body.dark-theme {
+            background-color: #333;
+            color: #f4f4f4;
+        }
+
+        /* Focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+
+        /* Header styles */
+        header {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 1rem 0;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        /* Navigation styles */
+        nav {
+            background-color: #0056b3;
+            padding: 0.5rem 0;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 1rem;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            transition: background-color 0.3s;
+        }
+
+        nav ul li a:hover {
+            background-color: #004494;
+        }
+
+        /* Hero section styles */
+        .hero {
+            background: url('https://via.placeholder.com/1200x400') no-repeat center center/cover;
+            color: #fff;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .hero button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Features section styles */
+        .features {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .features h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .features ul li {
+            flex: 1 1 200px;
+            margin: 1rem;
+            padding: 1rem;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .features ul li h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .features ul li p {
+            font-size: 1rem;
+        }
+
+        /* Call-to-action section styles */
+        .cta {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta button {
+            background-color: #fff;
+            color: #007BFF;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .cta button:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Theme toggle styles */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 2rem;
+            }
+
+            .features ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features ul li {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Our Interactive Landing Page</h1>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#cta">Sign Up</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <button class="theme-toggle" aria-label="Toggle dark/light theme" onclick="toggleTheme()">Toggle Theme</button>
+
+    <section class="hero" aria-label="Hero section">
+        <h2>Discover the Power of Our Platform</h2>
+        <p>Experience seamless integration and unparalleled performance with our cutting-edge technology.</p>
+        <button onclick="alert('Sign up button clicked!')">Get Started</button>
+    </section>
+
+    <section class="features" id="features" aria-label="Features section">
+        <h2>Key Benefits</h2>
+        <ul>
+            <li>
+                <h3>Feature 1</h3>
+                <p>Description of feature 1 and its benefits.</p>
+            </li>
+            <li>
+                <h3>Feature 2</h3>
+                <p>Description of feature 2 and its benefits.</p>
+            </li>
+            <li>
+                <h3>Feature 3</h3>
+                <p>Description of feature 3 and its benefits.</p>
+            </li>
+        </ul>
+    </section>
+
+    <section class="cta" id="cta" aria-label="Call-to-action section">
+        <h2>Join Us Today</h2>
+        <button onclick="alert('Sign up button clicked!')">Sign Up Now</button>
+    </section>
+
+    <footer>
+        <p>&copy; 2023 Your Company. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+        }
+
+        // Ensure all interactive elements have keyboard support
+        function handleInteraction(event) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                // Your action here
+                alert('Button clicked or activated via keyboard');
+            }
+        }
+
+        // Apply to elements: onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)"
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', handleInteraction);
+            button.addEventListener('keydown', handleInteraction);
+        });
+    </script>
+</body>
+</html>

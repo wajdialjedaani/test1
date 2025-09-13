@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible To-Do List</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background: #007BFF;
+            color: #fff;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        main {
+            padding: 2rem;
+        }
+        h1 {
+            margin: 0;
+        }
+        form {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .task-item {
+            background: #fff;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-item.completed {
+            background: #d4edda;
+            text-decoration: line-through;
+        }
+        .task-item button {
+            background: none;
+            border: none;
+            color: #007BFF;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .task-item button:hover {
+            text-decoration: underline;
+        }
+        .task-item button:focus, input:focus, select:focus, button:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#main-content" class="skip-link">Skip to main content</a>
+        </nav>
+        <h1>Accessible To-Do List</h1>
+    </header>
+    <main id="main-content">
+        <form id="task-form">
+            <label for="task-description">Task Description:</label>
+            <input type="text" id="task-description" name="task-description" required aria-describedby="description-error">
+            <span id="description-error" class="error" aria-live="assertive" style="display: none;">Task description is required.</span>
+
+            <label for="task-priority">Priority Level:</label>
+            <select id="task-priority" name="task-priority" required aria-describedby="priority-error">
+                <option value="">Select Priority</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <span id="priority-error" class="error" aria-live="assertive" style="display: none;">Priority level is required.</span>
+
+            <label for="task-due-date">Due Date:</label>
+            <input type="date" id="task-due-date" name="task-due-date" required aria-describedby="date-error">
+            <span id="date-error" class="error" aria-live="assertive" style="display: none;">Due date is required.</span>
+
+            <button type="submit">Add Task</button>
+        </form>
+
+        <ul class="task-list" aria-live="polite" aria-atomic="true" aria-relevant="additions removals">
+            <!-- Task items will be dynamically added here -->
+        </ul>
+    </main>
+    <footer>
+        <p>&copy; 2023 Accessible To-Do List. All rights reserved.</p>
+    </footer>
+    <script>
+        // Keyboard-accessible JavaScript functions
+        document.addEventListener('DOMContentLoaded', function () {
+            const taskForm = document.getElementById('task-form');
+            const taskList = document.querySelector('.task-list');
+            const descriptionInput = document.getElementById('task-description');
+            const prioritySelect = document.getElementById('task-priority');
+            const dueDateInput = document.getElementById('task-due-date');
+            const descriptionError = document.getElementById('description-error');
+            const priorityError = document.getElementById('priority-error');
+            const dateError = document.getElementById('date-error');
+
+            taskForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                // Reset error messages
+                descriptionError.style.display = 'none';
+                priorityError.style.display = 'none';
+                dateError.style.display = 'none';
+
+                const description = descriptionInput.value.trim();
+                const priority = prioritySelect.value;
+                const dueDate = dueDateInput.value;
+
+                if (!description) {
+                    descriptionError.style.display = 'block';
+                    descriptionInput.focus();
+                    return;
+                }
+
+                if (!priority) {
+                    priorityError.style.display = 'block';
+                    prioritySelect.focus();
+                    return;
+                }
+
+                if (!dueDate) {
+                    dateError.style.display = 'block';
+                    dueDateInput.focus();
+                    return;
+                }
+
+                const taskItem = document.createElement('li');
+                taskItem.classList.add('task-item');
+                taskItem.innerHTML = `
+                    <span class="task-description">${description}</span>
+                    <span class="task-priority">Priority: ${priority}</span>
+                    <span class="task-due-date">Due: ${dueDate}</span>
+                    <button aria-label="Mark task as completed" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">Complete</button>
+                    <button aria-label="Delete task" onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)">Delete</button>
+                `;
+
+                taskItem.querySelector('button[aria-label="Mark task as completed"]').addEventListener('click', function () {
+                    taskItem.classList.toggle('completed');
+                });
+
+                taskItem.querySelector('button[aria-label="Delete task"]').addEventListener('click', function () {
+                    taskList.removeChild(taskItem);
+                });
+
+                taskList.appendChild(taskItem);
+
+                // Clear form inputs
+                descriptionInput.value = '';
+                prioritySelect.value = '';
+                dueDateInput.value = '';
+            });
+
+            function handleInteraction(event) {
+                if (event.type === 'click' || (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                    event.target.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Form with Validation</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input:focus, textarea:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: -15px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #0066cc;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .success {
+            color: green;
+            font-size: 1em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#main-content" tabindex="1">Skip to main content</a>
+        </nav>
+    </header>
+    <main id="main-content">
+        <h1>Interactive Form with Validation</h1>
+        <form id="registrationForm" novalidate>
+            <section>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                <span id="nameError" class="error" aria-live="polite" aria-atomic="true"></span>
+            </section>
+            <section>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <span id="emailError" class="error" aria-live="polite" aria-atomic="true"></span>
+            </section>
+            <section>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <span id="passwordError" class="error" aria-live="polite" aria-atomic="true"></span>
+            </section>
+            <section>
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required>
+                <span id="phoneError" class="error" aria-live="polite" aria-atomic="true"></span>
+            </section>
+            <button type="submit">Submit</button>
+            <span id="successMessage" class="success" aria-live="polite" aria-atomic="true"></span>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2023 Your Company. All rights reserved.</p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('registrationForm');
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const phoneInput = document.getElementById('phone');
+            const nameError = document.getElementById('nameError');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const phoneError = document.getElementById('phoneError');
+            const successMessage = document.getElementById('successMessage');
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                clearErrors();
+                let isValid = true;
+
+                if (nameInput.value.trim() === '') {
+                    nameError.textContent = 'Name is required.';
+                    nameInput.focus();
+                    isValid = false;
+                }
+
+                if (!emailInput.value.trim().match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                    emailError.textContent = 'Please enter a valid email address.';
+                    emailInput.focus();
+                    isValid = false;
+                }
+
+                if (passwordInput.value.trim().length < 8) {
+                    passwordError.textContent = 'Password must be at least 8 characters long.';
+                    passwordInput.focus();
+                    isValid = false;
+                }
+
+                if (!phoneInput.value.trim().match(/^[0-9]{10}$/)) {
+                    phoneError.textContent = 'Please enter a valid 10-digit phone number.';
+                    phoneInput.focus();
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    successMessage.textContent = 'Form submitted successfully!';
+                    form.reset();
+                }
+            });
+
+            function clearErrors() {
+                nameError.textContent = '';
+                emailError.textContent = '';
+                passwordError.textContent = '';
+                phoneError.textContent = '';
+                successMessage.textContent = '';
+            }
+
+            // Real-time validation
+            nameInput.addEventListener('input', function () {
+                if (nameInput.value.trim() !== '') {
+                    nameError.textContent = '';
+                }
+            });
+
+            emailInput.addEventListener('input', function () {
+                if (emailInput.value.trim().match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                    emailError.textContent = '';
+                }
+            });
+
+            passwordInput.addEventListener('input', function () {
+                if (passwordInput.value.trim().length >= 8) {
+                    passwordError.textContent = '';
+                }
+            });
+
+            phoneInput.addEventListener('input', function () {
+                if (phoneInput.value.trim().match(/^[0-9]{10}$/)) {
+                    phoneError.textContent = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

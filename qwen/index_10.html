@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Friendly Products</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 0 0 80px 0;
+        }
+        header, main, footer {
+            padding: 20px;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+        }
+        nav {
+            margin-top: 20px;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+        }
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .filter-sort {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .filter-sort select, .filter-sort button {
+            padding: 10px;
+            margin-right: 10px;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .product-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .product-card h2 {
+            font-size: 1.2em;
+            margin: 10px;
+        }
+        .product-card p {
+            margin: 10px;
+        }
+        .product-card button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            margin: 0 10px 10px 10px;
+        }
+        .product-card button:hover {
+            background-color: #45a049;
+        }
+        .product-card button:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        footer {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+        }
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Eco-Friendly Products</h1>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="filter-sort">
+            <div>
+                <label for="category-filter">Filter by Category:</label>
+                <select id="category-filter" aria-label="Filter by Category">
+                    <option value="all">All</option>
+                    <option value="home">Home</option>
+                    <option value="garden">Garden</option>
+                    <option value="office">Office</option>
+                </select>
+            </div>
+            <div>
+                <label for="sort-by">Sort by:</label>
+                <select id="sort-by" aria-label="Sort by">
+                    <option value="popularity">Popularity</option>
+                    <option value="price-low-to-high">Price: Low to High</option>
+                    <option value="price-high-to-low">Price: High to Low</option>
+                </select>
+            </div>
+        </section>
+        <section class="product-grid" id="product-grid">
+            <!-- Product cards will be dynamically generated here -->
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Eco-Friendly Products. All rights reserved.</p>
+    </footer>
+    <script>
+        // Sample product data
+        const products = [
+            { id: 1, name: 'Eco-Friendly Reusable Water Bottle', category: 'home', price: 15.99, image: 'https://via.placeholder.com/250x250?text=Water+Bottle', description: 'A reusable water bottle made from recycled materials.' },
+            { id: 2, name: 'Biodegradable Trash Bags', category: 'home', price: 9.99, image: 'https://via.placeholder.com/250x250?text=Trash+Bags', description: 'Eco-friendly trash bags that decompose naturally.' },
+            { id: 3, name: 'Solar-Powered Garden Lights', category: 'garden', price: 24.99, image: 'https://via.placeholder.com/250x250?text=Garden+Lights', description: 'Solar-powered garden lights that reduce energy consumption.' },
+            { id: 4, 'name': 'Eco-Friendly Office Chair', category: 'office', price: 129.99, image: 'https://via.placeholder.com/250x250?text=Office+Chair', description: 'An ergonomic office chair made from sustainable materials.' },
+            { id: 5, name: 'Recycled Paper Notebooks', category: 'office', price: 7.99, image: 'https://via.placeholder.com/250x250?text=Notebooks', description: 'Notebooks made from 100% recycled paper.' }
+        ];
+
+        // Function to generate product cards
+        function generateProductCards(products) {
+            const productGrid = document.getElementById('product-grid');
+            productGrid.innerHTML = ''; // Clear existing cards
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" />
+                    <h2>${product.name}</h2>
+                    <p>Price: $${product.price.toFixed(2)}</p>
+                    <button onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)" aria-label="Quick View ${product.name}">Quick View</button>
+                    <p class="description" style="display: none;">${product.description}</p>
+                `;
+                card.querySelector('button').addEventListener('click', () => {
+                    card.querySelector('.description').style.display = 'block';
+                });
+                productGrid.appendChild(card);
+            });
+        }
+
+        // Function to handle both mouse and keyboard events
+        function handleInteraction(event) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.target.click();
+            }
+        }
+
+        // Initial product display
+        generateProductCards(products);
+
+        // Filter and sort functionality
+        document.getElementById('category-filter').addEventListener('change', (event) => {
+            const selectedCategory = event.target.value;
+            const filteredProducts = selectedCategory === 'all' ? products : products.filter(product => product.category === selectedCategory);
+            generateProductCards(filteredProducts);
+        });
+
+        document.getElementById('sort-by').addEventListener('change', (event) => {
+            const selectedSort = event.target.value;
+            let sortedProducts = [...products];
+            if (selectedSort === 'price-low-to-high') {
+                sortedProducts.sort((a, b) => a.price - b.price);
+            } else if (selectedSort === 'price-high-to-low') {
+                sortedProducts.sort((a, b) => b.price - a.price);
+            }
+            generateProductCards(sortedProducts);
+        });
+    </script>
+</body>
+</html>

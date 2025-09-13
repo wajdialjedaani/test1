@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Showcase</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 0 80px 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        header, main, footer {
+            padding: 20px;
+            text-align: center;
+        }
+        header {
+            background-color: #0066cc;
+            color: #fff;
+        }
+        main {
+            background-color: #fff;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            background-color: #0066cc;
+            color: #fff;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .pet-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            background-color: #f9f9f9;
+        }
+        .pet-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .pet-card h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .pet-card p {
+            margin: 5px 0;
+        }
+        button, a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            background-color: #0066cc;
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover, a:hover {
+            background-color: #0055aa;
+        }
+        button:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#pets" aria-label="Go to pet showcase">Pet Showcase</a>
+        </nav>
+    </header>
+    <main id="pets">
+        <h1>Pet Showcase</h1>
+        <section class="pet-card">
+            <img src="https://via.placeholder.com/600x400" alt="A cute golden retriever puppy playing with a ball" aria-label="Golden Retriever Puppy">
+            <h2>Max</h2>
+            <p><strong>Breed:</strong> Golden Retriever</p>
+            <p><strong>Age:</strong> 2 years</p>
+            <p><strong>Fun Fact:</strong> Max loves to play fetch and can catch a ball mid-air!</p>
+        </section>
+        <section class="pet-card">
+            <img src="https://via.placeholder.com/600x400" alt="A black and white cat sitting on a windowsill" aria-label="Black and White Cat">
+            <h2>Luna</h2>
+            <p><strong>Breed:</strong> Domestic Shorthair</p>
+            <p><strong>Age:</strong> 3 years</p>
+            <p><strong>Fun Fact:</strong> Luna is a master at opening doors and loves to explore new rooms.</p>
+        </section>
+        <section class="pet-card">
+            <img src="https://via.placeholder.com/600x400" alt="A small white rabbit eating a carrot" aria-label="White Rabbit">
+            <h2>Bunny</h2>
+            <p><strong>Breed:</strong> Netherland Dwarf</p>
+            <p><strong>Age:</strong> 1 year</p>
+            <p><strong>Fun Fact:</strong> Bunny is very gentle and enjoys being petted, especially on the head.</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Pet Showcase. All rights reserved.</p>
+    </footer>
+    <script>
+        // Keyboard-accessible JavaScript functions
+        function handleInteraction(event) {
+            // Handle both mouse and keyboard events
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                // Your action here
+                alert('Interaction detected!');
+            }
+        }
+
+        // Apply to elements: onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)"
+        document.querySelectorAll('button, a').forEach(element => {
+            element.addEventListener('mousedown', handleInteraction);
+            element.addEventListener('keydown', handleInteraction);
+        });
+    </script>
+</body>
+</html>

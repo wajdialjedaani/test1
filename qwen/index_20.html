@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Music Player</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0 0 80px 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header, main, footer {
+            padding: 20px;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+        }
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .music-player {
+            text-align: center;
+            padding: 20px;
+        }
+        .music-player button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #0066cc;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .music-player button:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .music-player button:hover {
+            background-color: #0055aa;
+        }
+        .music-player .volume-slider {
+            width: 200px;
+            margin: 20px auto;
+        }
+        .playlist {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        .playlist li {
+            margin: 10px 0;
+        }
+        .playlist li button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #0066cc;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .playlist li button:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .playlist li button:hover {
+            background-color: #0055aa;
+        }
+        .hidden {
+            position: absolute;
+            clip: rect(0 0 0 0);
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Accessible Music Player</h1>
+    </header>
+    <main>
+        <section class="music-player">
+            <audio id="audioPlayer" controls>
+                <source src="song1.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <button id="playButton" aria-label="Play/Pause">Play</button>
+            <button id="stopButton" aria-label="Stop">Stop</button>
+            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.5" aria-label="Volume Control">
+            <ul class="playlist">
+                <li><button data-song="song1.mp3" aria-label="Play Song 1">Song 1</button></li>
+                <li><button data-song="song2.mp3" aria-label="Play Song 2">Song 2</button></li>
+                <li><button data-song="song3.mp3" aria-label="Play Song 3">Song 3</button></li>
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Accessible Music Player. All rights reserved.</p>
+    </footer>
+    <script>
+        // Keyboard-accessible JavaScript functions
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playButton = document.getElementById('playButton');
+        const stopButton = document.getElementById('stopButton');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const playlistButtons = document.querySelectorAll('.playlist button');
+
+        // Function to handle play/pause
+        function handlePlayPause(event) {
+            if (event.type === 'click' || (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    playButton.textContent = 'Pause';
+                } else {
+                    audioPlayer.pause();
+                    playButton.textContent = 'Play';
+                }
+            }
+        }
+
+        // Function to handle stop
+        function handleStop(event) {
+            if (event.type === 'click' || (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+                playButton.textContent = 'Play';
+            }
+        }
+
+        // Function to handle volume change
+        function handleVolumeChange(event) {
+            audioPlayer.volume = event.target.value;
+        }
+
+        // Function to handle song selection
+        function handleSongSelection(event) {
+            if (event.type === 'click' || (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                const song = event.target.getAttribute('data-song');
+                audioPlayer.src = song;
+                audioPlayer.play();
+                playButton.textContent = 'Pause';
+            }
+        }
+
+        // Add event listeners
+        playButton.addEventListener('click', handlePlayPause);
+        playButton.addEventListener('keydown', handlePlayPause);
+        stopButton.addEventListener('click', handleStop);
+        stopButton.addEventListener('keydown', handleStop);
+        volumeSlider.addEventListener('input', handleVolumeChange);
+        playlistButtons.forEach(button => {
+            button.addEventListener('click', handleSongSelection);
+            button.addEventListener('keydown', handleSongSelection);
+        });
+    </script>
+</body>
+</html>

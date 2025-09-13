@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Travel Map</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 0 80px 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        header, main, footer {
+            padding: 20px;
+        }
+        header {
+            background-color: #0066cc;
+            color: #fff;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 10px;
+        }
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background-color: #ccc;
+            margin-bottom: 20px;
+        }
+        .pin {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            cursor: pointer;
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .pin:hover, .pin:focus {
+            outline: 3px solid #ff0000;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0066cc;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        button:hover, button:focus {
+            background-color: #0055aa;
+        }
+        .error {
+            color: #ff0000;
+            margin-top: 5px;
+        }
+        .experience {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .experience h2 {
+            margin-top: 0;
+        }
+        .experience p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Interactive Travel Map</h1>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#map">Map</a></li>
+                <li><a href="#add-pin">Add Pin</a></li>
+                <li><a href="#experiences">Experiences</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="map" class="map-container" tabindex="0" aria-label="Interactive travel map">
+            <!-- Map will be dynamically populated with pins -->
+        </section>
+        <section id="add-pin" class="form-container">
+            <h2>Add a Pin</h2>
+            <form id="pin-form">
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" required>
+                <span class="error" id="location-error" aria-live="polite"></span>
+
+                <label for="latitude">Latitude:</label>
+                <input type="number" id="latitude" name="latitude" step="0.000001" required>
+                <span class="error" id="latitude-error" aria-live="polite"></span>
+
+                <label for="longitude">Longitude:</label>
+                <input type="number" id="longitude" name="longitude" step="0.000001" required>
+                <span class="error" id="longitude-error" aria-live="polite"></span>
+
+                <label for="experience">Share Your Experience:</label>
+                <textarea id="experience" name="experience" required></textarea>
+                <span class="error" id="experience-error" aria-live="polite"></span>
+
+                <button type="submit">Add Pin</button>
+            </form>
+        </section>
+        <section id="experiences">
+            <h2>User Experiences</h2>
+            <div id="experiences-list">
+                <!-- Experiences will be dynamically populated here -->
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Interactive Travel Map. All rights reserved.</p>
+    </footer>
+    <script>
+        // Keyboard-accessible JavaScript functions
+        function handleInteraction(event) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                addPin();
+            }
+        }
+
+        function addPin() {
+            const location = document.getElementById('location').value;
+            const latitude = document.getElementById('latitude').value;
+            const longitude = document.getElementById('longitude').value;
+            const experience = document.getElementById('experience').value;
+
+            if (!location || !latitude || !longitude || !experience) {
+                showError('All fields are required.');
+                return;
+            }
+
+            const mapContainer = document.querySelector('.map-container');
+            const pin = document.createElement('div');
+            pin.classList.add('pin');
+            pin.style.left = `${(longitude + 180) * (mapContainer.clientWidth / 360)}px`;
+            pin.style.top = `${(90 - latitude) * (mapContainer.clientHeight / 180)}px`;
+            pin.setAttribute('tabindex', '0');
+            pin.setAttribute('aria-label', `Pin at ${location}`);
+            pin.onclick = pin.onclick = handleInteraction;
+            pin.onkeydown = handleInteraction;
+            mapContainer.appendChild(pin);
+
+            const experiencesList = document.getElementById('experiences-list');
+            const experienceItem = document.createElement('div');
+            experienceItem.classList.add('experience');
+            experienceItem.innerHTML = `
+                <h2>${location}</h2>
+                <p>${experience}</p>
+            `;
+            experiencesList.appendChild(experienceItem);
+
+            document.getElementById('pin-form').reset();
+            clearErrors();
+        }
+
+        function showError(message) {
+            const errorMessages = document.querySelectorAll('.error');
+            errorMessages.forEach(error => {
+                error.textContent = message;
+            });
+        }
+
+        function clearErrors() {
+            const errorMessages = document.querySelectorAll('.error');
+            errorMessages.forEach(error => {
+                error.textContent = '';
+            });
+        }
+
+        document.getElementById('pin-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            addPin();
+        });
+    </script>
+</body>
+</html>

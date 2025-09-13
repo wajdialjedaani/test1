@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gardening Community</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        header, main, footer {
+            padding: 20px;
+        }
+        header {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        main {
+            background-color: #fff;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #4CAF50;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+        .error {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        .comment {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .comment p {
+            margin: 0;
+        }
+        .comment .username {
+            font-weight: bold;
+        }
+        .comment .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        .comment .actions button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .comment .actions button:hover {
+            background-color: #45a049;
+        }
+        .comment .actions button:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .comment .actions button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .comment .actions .like-count {
+            margin-left: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            main {
+                margin: 10px;
+            }
+            nav a {
+                margin: 0 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#home">Home</a>
+            <a href="#upload">Upload</a>
+            <a href="#community">Community</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Gardening Community</h1>
+        <section id="upload">
+            <h2>Upload Your Plant or Garden</h2>
+            <form id="uploadForm" onsubmit="return handleUpload(event)">
+                <label for="image">Upload Image:</label>
+                <input type="file" id="image" name="image" accept="image/*" required>
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+                <button type="submit">Upload</button>
+            </form>
+            <div id="uploadError" class="error hidden" aria-live="assertive"></div>
+        </section>
+        <section id="community">
+            <h2>Community Contributions</h2>
+            <div id="communityPosts">
+                <!-- Posts will be dynamically added here -->
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Gardening Community. All rights reserved.</p>
+    </footer>
+    <script>
+        // Keyboard-accessible JavaScript functions
+        function handleUpload(event) {
+            event.preventDefault();
+            const form = event.target;
+            const imageInput = form.querySelector('#image');
+            const descriptionInput = form.querySelector('#description');
+            const uploadError = document.getElementById('uploadError');
+
+            if (!imageInput.files.length) {
+                uploadError.textContent = 'Please select an image.';
+                uploadError.classList.remove('hidden');
+                imageInput.focus();
+                return;
+            }
+
+            if (descriptionInput.value.trim() === '') {
+                uploadError.textContent = 'Please provide a description.';
+                uploadError.classList.remove('hidden');
+                descriptionInput.focus();
+                return;
+            }
+
+            // Simulate image upload and post creation
+            const image = imageInput.files[0];
+            const description = descriptionInput.value.trim();
+            const post = createPost(image, description);
+            document.getElementById('communityPosts').prepend(post);
+
+            // Clear form
+            form.reset();
+            uploadError.classList.add('hidden');
+        }
+
+        function createPost(image, description) {
+            const post = document.createElement('div');
+            post.className = 'comment';
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(image);
+            img.alt = description;
+            img.loading = 'lazy';
+
+            const desc = document.createElement('p');
+            desc.textContent = description;
+
+            const actions = document.createElement('div');
+            actions.className = 'actions';
+
+            const likeButton = document.createElement('button');
+            likeButton.textContent = 'Like';
+            likeButton.onclick = () => toggleLike(likeButton);
+            likeButton.onkeydown = (event) => handleInteraction(event, () => toggleLike(likeButton));
+
+            const likeCount = document.createElement('span');
+            likeCount.className = 'like-count';
+            likeCount.textContent = '0';
+
+            actions.appendChild(likeButton);
+            actions.appendChild(likeCount);
+
+            post.appendChild(img);
+            post.appendChild(desc);
+            post.appendChild(actions);
+
+            return post;
+        }
+
+        function toggleLike(button) {
+            const likeCount = button.nextElementSibling;
+            const currentCount = parseInt(likeCount.textContent, 10);
+            likeCount.textContent = currentCount + 1;
+            button.disabled = true;
+        }
+
+        function handleInteraction(event, action) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                action();
+            }
+        }
+    </script>
+</body>
+</html>

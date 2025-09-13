@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Work Sharing Platform</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 0 80px 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        header, main, footer {
+            padding: 20px;
+            text-align: center;
+        }
+        header {
+            background-color: #0066cc;
+            color: #fff;
+        }
+        nav {
+            margin-top: 10px;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        main {
+            background-color: #fff;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            background-color: #0066cc;
+            color: #fff;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            margin: 10px 0;
+        }
+        input, textarea, button {
+            margin: 5px 0;
+            padding: 10px;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #0066cc;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0053a3;
+        }
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+        .error {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Creative Work Sharing Platform</h1>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#upload">Upload Work</a>
+            <a href="#gallery">Gallery</a>
+            <a href="#about">About</a>
+        </nav>
+    </header>
+    <main>
+        <section id="upload">
+            <h2>Upload Your Creative Work</h2>
+            <form id="uploadForm" onsubmit="return handleFormSubmit(event)">
+                <label for="fileInput">Select a file to upload:</label>
+                <input type="file" id="fileInput" name="file" required>
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+                <label for="tags">Tags (comma-separated):</label>
+                <input type="text" id="tags" name="tags" required>
+                <button type="submit">Upload</button>
+                <div id="error" class="error hidden" aria-live="assertive"></div>
+            </form>
+        </section>
+        <section id="gallery">
+            <h2>Gallery</h2>
+            <div id="galleryContent">
+                <!-- Gallery items will be dynamically added here -->
+            </div>
+        </section>
+        <section id="about">
+            <h2>About</h2>
+            <p>Welcome to the Creative Work Sharing Platform! Here, you can upload and share your creative work, such as photos and art. All users can add descriptions and tags to their work, making it easy to discover and enjoy.</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Creative Work Sharing Platform. All rights reserved.</p>
+    </footer>
+    <script>
+        // Keyboard-accessible JavaScript functions
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            const description = document.getElementById('description');
+            const tags = document.getElementById('tags');
+            const error = document.getElementById('error');
+
+            // Clear previous errors
+            error.textContent = '';
+            error.classList.add('hidden');
+
+            // Basic validation
+            if (!fileInput.files.length) {
+                error.textContent = 'Please select a file to upload.';
+                error.classList.remove('hidden');
+                return;
+            }
+
+            if (description.value.trim() === '') {
+                error.textContent = 'Please provide a description.';
+                error.classList.remove('hidden');
+                return;
+            }
+
+            if (tags.value.trim() === '') {
+                error.textContent = 'Please provide at least one tag.';
+                error.classList.remove('hidden');
+                return;
+            }
+
+            // Simulate file upload and display in gallery
+            const file = fileInput.files[0];
+            const galleryContent = document.getElementById('galleryContent');
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.alt = description.value;
+            img.loading = 'lazy';
+
+            const desc = document.createElement('p');
+            desc.textContent = description.value;
+
+            const tagList = document.createElement('ul');
+            tags.value.split(',').forEach(tag => {
+                const li = document.createElement('li');
+                li.textContent = tag.trim();
+                tagList.appendChild(li);
+            });
+
+            galleryItem.appendChild(img);
+            galleryItem.appendChild(desc);
+            galleryItem.appendChild(tagList);
+            galleryContent.appendChild(galleryItem);
+
+            // Clear form fields
+            fileInput.value = '';
+            description.value = '';
+            tags.value = '';
+        }
+
+        // Ensure all interactive elements are keyboard accessible
+        document.querySelectorAll('button, input, select, textarea, a').forEach(element => {
+            element.addEventListener('keydown', handleInteraction);
+        });
+
+        function handleInteraction(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                event.target.click();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Tracker</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 0 80px 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        header, main, footer {
+            padding: 20px;
+        }
+        header {
+            background-color: #007BFF;
+            color: #fff;
+        }
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        footer {
+            text-align: center;
+            background-color: #007BFF;
+            color: #fff;
+        }
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button, input[type="submit"] {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover, input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+        .error {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        .success {
+            color: #008000;
+            font-weight: bold;
+        }
+        .daily-totals {
+            margin-bottom: 20px;
+        }
+        .daily-totals h2 {
+            margin-bottom: 10px;
+        }
+        .daily-totals p {
+            margin: 0;
+        }
+        .meal-log, .exercise-log {
+            margin-bottom: 20px;
+        }
+        .meal-log h2, .exercise-log h2 {
+            margin-bottom: 10px;
+        }
+        .meal-log ul, .exercise-log ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .meal-log li, .exercise-log li {
+            background-color: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .meal-log li .remove, .exercise-log li .remove {
+            float: right;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#meal-form">Add Meal</a>
+            <a href="#exercise-form">Add Exercise</a>
+            <a href="#goals">Set Goals</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Calorie Tracker</h1>
+
+        <section class="daily-totals">
+            <h2>Daily Totals</h2>
+            <p><strong>Calories Consumed:</strong> <span id="calories-consumed">0</span></p>
+            <p><strong>Calories Burned:</strong> <span id="calories-burned">0</span></p>
+            <p><strong>Net Calories:</strong> <span id="net-calories">0</span></p>
+        </section>
+
+        <section class="meal-log">
+            <h2>Meal Log</h2>
+            <form id="meal-form">
+                <label for="meal-name">Meal Name:</label>
+                <input type="text" id="meal-name" name="meal-name" required>
+                <label for="meal-calories">Calories:</label>
+                <input type="number" id="meal-calories" name="meal-calories" required>
+                <button type="submit">Add Meal</button>
+            </form>
+            <ul id="meal-list"></ul>
+        </section>
+
+        <section class="exercise-log">
+            <h2>Exercise Log</h2>
+            <form id="exercise-form">
+                <label for="exercise-name">Exercise Name:</label>
+                <input type="text" id="exercise-name" name="exercise-name" required>
+                <label for="exercise-calories">Calories Burned:</label>
+                <input type="number" id="exercise-calories" name="exercise-calories" required>
+                <button type="submit">Add Exercise</button>
+            </form>
+            <ul id="exercise-list"></ul>
+        </section>
+
+        <section class="goals">
+            <h2>Fitness Goals</h2>
+            <form id="goals-form">
+                <label for="goal-calories">Daily Calorie Goal:</label>
+                <input type="number" id="goal-calories" name="goal-calories" required>
+                <button type="submit">Set Goal</button>
+            </form>
+            <p id="goal-message"></p>
+        </section>
+    </main>
+    <footer>
+        &copy; 2023 Calorie Tracker. All rights reserved.
+    </footer>
+    <script>
+        // Initialize variables
+        let caloriesConsumed = 0;
+        let caloriesBurned = 0;
+        let netCalories = 0;
+        let goalCalories = 0;
+
+        // Update daily totals
+        function updateTotals() {
+            document.getElementById('calories-consumed').textContent = caloriesConsumed;
+            document.getElementById('calories-burned').textContent = caloriesBurned;
+            netCalories = caloriesConsumed - caloriesBurned;
+            document.getElementById('net-calories').textContent = netCalories;
+        }
+
+        // Add meal
+        document.getElementById('meal-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const mealName = document.getElementById('meal-name').value;
+            const mealCalories = parseInt(document.getElementById('meal-calories').value);
+            if (isNaN(mealCalories) || mealCalories <= 0) {
+                alert('Please enter a valid number of calories.');
+                return;
+            }
+            caloriesConsumed += mealCalories;
+            updateTotals();
+            const mealList = document.getElementById('meal-list');
+            const mealItem = document.createElement('li');
+            mealItem.textContent = `${mealName} - ${mealCalories} calories`;
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.classList.add('remove');
+            removeButton.addEventListener('click', function() {
+                caloriesConsumed -= mealCalories;
+                updateTotals();
+                mealList.removeChild(mealItem);
+            });
+            mealItem.appendChild(removeButton);
+            mealList.appendChild(mealItem);
+            document.getElementById('meal-name').value = '';
+            document.getElementById('meal-calories').value = '';
+        });
+
+        // Add exercise
+        document.getElementById('exercise-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const exerciseName = document.getElementById('exercise-name').value;
+            const exerciseCalories = parseInt(document.getElementById('exercise-calories').value);
+            if (isNaN(exerciseCalories) || exerciseCalories <= 0) {
+                alert('Please enter a valid number of calories.');
+                return;
+            }
+            caloriesBurned += exerciseCalories;
+            updateTotals();
+            const exerciseList = document.getElementById('exercise-list');
+            const exerciseItem = document.createElement('li');
+            exerciseItem.textContent = `${exerciseName} - ${exerciseCalories} calories burned`;
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.classList.add('remove');
+            removeButton.addEventListener('click', function() {
+                caloriesBurned -= exerciseCalories;
+                updateTotals();
+                exerciseList.removeChild(exerciseItem);
+            });
+            exerciseItem.appendChild(removeButton);
+            exerciseList.appendChild(exerciseItem);
+            document.getElementById('exercise-name').value = '';
+            document.getElementById('exercise-calories').value = '';
+        });
+
+        // Set goal
+        document.getElementById('goals-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            goalCalories = parseInt(document.getElementById('goal-calories').value);
+            if (isNaN(goalCalories) || goalCalories <= 0) {
+                alert('Please enter a valid number of calories.');
+                return;
+            }
+            const goalMessage = document.getElementById('goal-message');
+            if (netCalories <= goalCalories) {
+                goalMessage.textContent = `You are on track to meet your goal of ${goalCalories} calories!`;
+                goalMessage.classList.add('success');
+            } else {
+                goalMessage.textContent = `You are exceeding your goal of ${goalCalories} calories. Consider adjusting your intake or exercise.`;
+                goalMessage.classList.add('error');
+            }
+            document.getElementById('goal-calories').value = '';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management Dashboard</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0 0 80px 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header, main, footer {
+            padding: 20px;
+        }
+        header {
+            background-color: #007bff;
+            color: #fff;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            background-color: #fff;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        label {
+            margin-bottom: 5px;
+        }
+        input, button {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#login" aria-label="Login">Login</a>
+            <a href="#dashboard" aria-label="Dashboard">Dashboard</a>
+            <a href="#logout" aria-label="Logout">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <section id="login" role="region" aria-labelledby="login-heading">
+            <h1 id="login-heading">Login</h1>
+            <form id="login-form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit" aria-label="Submit Login">Login</button>
+                <div id="login-error" class="error" aria-live="polite" aria-atomic="true" hidden></div>
+            </form>
+        </section>
+        <section id="dashboard" role="region" aria-labelledby="dashboard-heading" hidden>
+            <h1 id="dashboard-heading">Dashboard</h1>
+            <h2>Tasks</h2>
+            <ul id="task-list">
+                <!-- Task items will be dynamically added here -->
+            </ul>
+            <form id="add-task-form">
+                <label for="new-task">Add Task:</label>
+                <input type="text" id="new-task" name="new-task" required>
+                <button type="submit" aria-label="Add Task">Add Task</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Task Management Dashboard. All rights reserved.</p>
+    </footer>
+    <script>
+        // Function to handle login form submission
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginError = document.getElementById('login-error');
+
+            // Simulate authentication
+            if (username === 'user' && password === 'password') {
+                loginError.hidden = true;
+                document.getElementById('login').hidden = true;
+                document.getElementById('dashboard').hidden = false;
+            } else {
+                loginError.textContent = 'Invalid username or password.';
+                loginError.hidden = false;
+            }
+        });
+
+        // Function to handle adding a new task
+        document.getElementById('add-task-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const newTaskInput = document.getElementById('new-task');
+            const taskList = document.getElementById('task-list');
+
+            if (newTaskInput.value.trim() !== '') {
+                const taskItem = document.createElement('li');
+                taskItem.textContent = newTaskInput.value;
+                taskItem.setAttribute('tabindex', '0');
+                taskItem.addEventListener('click', function() {
+                    taskItem.remove();
+                });
+                taskList.appendChild(taskItem);
+                newTaskInput.value = '';
+            }
+        });
+
+        // Ensure all interactive elements have keyboard support
+        function handleInteraction(event) {
+            if (event.type === 'click' || 
+                (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' '))) {
+                event.preventDefault();
+                event.target.click();
+            }
+        }
+
+        // Apply to elements: onmousedown="handleInteraction(event)" onkeydown="handleInteraction(event)"
+        document.querySelectorAll('button, a').forEach(element => {
+            element.addEventListener('mousedown', handleInteraction);
+            element.addEventListener('keydown', handleInteraction);
+        });
+    </script>
+</body>
+</html>

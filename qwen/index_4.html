@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Events Showcase</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 0 80px 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        header, main, footer {
+            padding: 20px;
+        }
+        header {
+            background-color: #0066cc;
+            color: #fff;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        nav a:hover, nav a:focus {
+            text-decoration: underline;
+        }
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .event-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .event-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .event-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .event-card h2 {
+            margin: 0 0 10px;
+        }
+        .event-card p {
+            margin: 0 0 10px;
+        }
+        .event-card .location {
+            margin: 0 0 10px;
+        }
+        .event-card .date {
+            margin: 0 0 10px;
+        }
+        .event-card .category {
+            margin: 0 0 10px;
+        }
+        .filter-options {
+            margin-bottom: 20px;
+        }
+        .filter-options label {
+            margin-right: 10px;
+        }
+        .filter-options input {
+            margin-right: 5px;
+        }
+        .map-container {
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        /* Focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#events">Events</a>
+            <a href="#map">Map</a>
+            <a href="#footer">Footer</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Local Events Showcase</h1>
+        <section class="filter-options">
+            <h2>Filter Events by Category</h2>
+            <label>
+                <input type="checkbox" id="music" value="music" onmousedown="filterEvents(event)" onkeydown="filterEvents(event)">
+                Music
+            </label>
+            <label>
+                <input type="checkbox" id="sports" value="sports" onmousedown="filterEvents(event)" onkeydown="filterEvents(event)">
+                Sports
+            </label>
+            <label>
+                <input type="checkbox" id="theater" value="theater" onmousedown="filterEvents(event)" onkeydown="filterEvents(event)">
+                Theater
+            </label>
+            <label>
+                <input type="checkbox" id="exhibitions" value="exhibitions" onmousedown="filterEvents(event)" onkeydown="filterEvents(event)">
+                Exhibitions
+            </label>
+        </section>
+        <section id="events" class="event-list">
+            <!-- Event cards will be dynamically generated here -->
+        </section>
+        <section id="map" class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3152.051188344664!2d-73.99655238439292!3d40.75004297932796!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25855c6459f2d%3A0x56911a4a4d1b80e5!2sTimes%20Square!5e0!3m2!1sen!2sus!4v1633077677492!5m2!1sen!2sus" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" title="Map of Event Venues"></iframe>
+        </section>
+    </main>
+    <footer id="footer">
+        <p>&copy; 2023 Local Events Showcase. All rights reserved.</p>
+    </footer>
+    <script>
+        // Sample event data
+        const events = [
+            {
+                id: 1,
+                title: "Summer Music Festival",
+                date: "2023-08-15",
+                location: "Central Park",
+                description: "Enjoy a day of live music with your favorite artists.",
+                category: "music",
+                image: "https://via.placeholder.com/300x200?text=Music+Festival"
+            },
+            {
+                id: 2,
+                title: "Basketball Championship",
+                date: "2023-09-20",
+                location: "Madison Square Garden",
+                description: "Watch the best teams compete for the championship.",
+                category: "sports",
+                image: "https://via.placeholder.com/300x200?text=Basketball+Championship"
+            },
+            {
+                id: 3,
+                title: "Shakespeare in the Park",
+                date: "2023-07-10",
+                location: "Shakespeare Garden",
+                description: "Experience the classic plays under the stars.",
+                category: "theater",
+                image: "https://via.placeholder.com/300x200?text=Shakespeare+in+the+Park"
+            },
+            {
+                id: 4,
+                title: "Art Exhibition",
+                date: "2023-06-25",
+                location: "Metropolitan Museum of Art",
+                description: "Explore the latest contemporary art from around the world.",
+                category: "exhibitions",
+                image: "https://via.placeholder.com/300x200?text=Art+Exhibition"
+            }
+        ];
+
+        // Function to generate event cards
+        function generateEventCards() {
+            const eventList = document.getElementById('events');
+            eventList.innerHTML = ''; // Clear existing cards
+
+            events.forEach(event => {
+                const eventCard = document.createElement('article');
+                eventCard.className = 'event-card';
+                eventCard.innerHTML = `
+                    <img src="${event.image}" alt="${event.title} - ${event.description}">
+                    <h2>${event.title}</h2>
+                    <p class="date">Date: ${event.date}</p>
+                    <p class="location">Location: ${event.location}</p>
+                    <p class="description">${event.description}</p>
+                    <p class="category">Category: ${event.category}</p>
+                `;
+                eventList.appendChild(eventCard);
+            });
+        }
+
+        // Function to filter events by category
+        function filterEvents(event) {
+            const checkedCategories = Array.from(document.querySelectorAll('.filter-options input:checked')).map(input => input.value);
+            const filteredEvents = events.filter(event => checkedCategories.includes(event.category) || checkedCategories.length === 0);
+
+            const eventList = document.getElementById('events');
+            eventList.innerHTML = ''; // Clear existing cards
+
+            filteredEvents.forEach(event => {
+                const eventCard = document.createElement('article');
+                eventCard.className = 'event-card';
+                eventCard.innerHTML = `
+                    <img src="${event.image}" alt="${event.title} - ${event.description}">
+                    <h2>${event.title}</h2>
+                    <p class="date">Date: ${event.date}</p>
+                    <p class="location">Location: ${event.location}</p>
+                    <p class="description">${event.description}</p>
+                    <p class="category">Category: ${event.category}</p>
+                `;
+                eventList.appendChild(eventCard);
+            });
+        }
+
+        // Initialize event cards on page load
+        document.addEventListener('DOMContentLoaded', generateEventCards);
+    </script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Recommendation Form</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 0 80px 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        header, main, footer {
+            padding: 20px;
+        }
+        header {
+            background-color: #0066cc;
+            color: #fff;
+        }
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            text-align: center;
+            background-color: #0066cc;
+            color: #fff;
+        }
+        h1, h2, h3 {
+            color: #0066cc;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, select, textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px;
+            background-color: #0066cc;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0053a3;
+        }
+        .book-recommendation {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .book-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .book-card img {
+            max-width: 100px;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .book-card h3 {
+            margin: 0;
+        }
+        .book-card p {
+            margin: 5px 0;
+        }
+        /* Ensure all interactive elements have visible focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+        /* High contrast focus for dark backgrounds */
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="#form">Book Recommendation Form</a></li>
+                <li><a href="#recommendations">Book Recommendations</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Book Recommendation Form</h1>
+        <form id="bookForm">
+            <label for="genre">Favorite Genre:</label>
+            <select id="genre" name="genre" required>
+                <option value="" disabled selected>Select a genre</option>
+                <option value="fiction">Fiction</option>
+                <option value="non-fiction">Non-Fiction</option>
+                <option value="mystery">Mystery</option>
+                <option value="fantasy">Fantasy</option>
+                <option value="science-fiction">Science Fiction</option>
+                <option value="romance">Romance</option>
+                <option value="biography">Biography</option>
+            </select>
+
+            <label for="author">Favorite Author:</label>
+            <input type="text" id="author" name="author" placeholder="Enter author name" required>
+
+            <button type="submit">Get Recommendations</button>
+        </form>
+
+        <section id="recommendations" class="book-recommendation" aria-live="polite" aria-atomic="true">
+            <h2>Book Recommendations</h2>
+            <!-- Recommendations will be dynamically added here -->
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Book Recommendation Service. All rights reserved.</p>
+    </footer>
+    <script>
+        // Keyboard-accessible JavaScript functions
+        document.getElementById('bookForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const genre = document.getElementById('genre').value;
+            const author = document.getElementById('author').value;
+
+            // Simulate fetching recommendations
+            const recommendations = getBookRecommendations(genre, author);
+
+            // Clear previous recommendations
+            const recommendationsSection = document.getElementById('recommendations');
+            recommendationsSection.innerHTML = '<h2>Book Recommendations</h2>';
+
+            // Display new recommendations
+            recommendations.forEach(book => {
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+
+                const bookImage = document.createElement('img');
+                bookImage.src = book.cover;
+                bookImage.alt = book.title + ' book cover';
+                bookCard.appendChild(bookImage);
+
+                const bookDetails = document.createElement('div');
+                const bookTitle = document.createElement('h3');
+                bookTitle.textContent = book.title;
+                bookDetails.appendChild(bookTitle);
+
+                const bookAuthor = document.createElement('p');
+                bookAuthor.textContent = 'Author: ' + book.author;
+                bookDetails.appendChild(bookAuthor);
+
+                const bookDescription = document.createElement('p');
+                bookDescription.textContent = book.description;
+                bookDetails.appendChild(bookDescription);
+
+                bookCard.appendChild(bookDetails);
+                recommendationsSection.appendChild(bookCard);
+            });
+        });
+
+        // Simulated function to fetch book recommendations
+        function getBookRecommendations(genre, author) {
+            // This is a placeholder function. In a real application, you would fetch data from an API.
+            return [
+                {
+                    title: 'The Great Gatsby',
+                    author: 'F. Scott Fitzgerald',
+                    cover: 'https://example.com/great-gatsby.jpg',
+                    description: 'A novel about the American Dream and the decline of the Jazz Age.'
+                },
+                {
+                    title: '1984',
+                    author: 'George Orwell',
+                    cover: 'https://example.com/1984.jpg',
+                    description: 'A dystopian novel about a totalitarian society and the struggle for individual freedom.'
+                },
+                {
+                    title: 'To Kill a Mockingbird',
+                    author: 'Harper Lee',
+                    cover: 'https://example.com/to-kill-a-mockingbird.jpg',
+                    description: 'A novel about racial injustice and moral growth in the American South.'
+                }
+            ].filter(book => book.author.toLowerCase().includes(author.toLowerCase()) || book.genre === genre);
+        }
+    </script>
+</body>
+</html>

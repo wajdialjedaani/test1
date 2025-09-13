@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Space-Themed Website</title>
+    <style>
+        /* Accessibility-focused CSS with focus indicators */
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header, main, footer {
+            padding: 20px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        nav a:hover, nav a:focus {
+            text-decoration: underline;
+        }
+
+        .constellation {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .constellation:hover, .constellation:focus {
+            transform: scale(1.2);
+        }
+
+        .planet-gallery {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 20px 0;
+        }
+
+        .planet-card {
+            flex: 0 0 auto;
+            width: 300px;
+            margin: 0 20px;
+            scroll-snap-align: start;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid #fff;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .planet-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .planet-card h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .planet-card p {
+            font-size: 1em;
+        }
+
+        /* Focus indicators */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        .dark-bg button:focus, .dark-bg a:focus {
+            outline: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="#main-content" tabindex="1">Skip to main content</a>
+            <a href="#planet-gallery" tabindex="2">Planet Gallery</a>
+            <a href="#constellations" tabindex="3">Constellations</a>
+        </nav>
+    </header>
+    <main id="main-content">
+        <h1>Explore the Cosmos</h1>
+        <section id="constellations">
+            <h2>Constellations</h2>
+            <div class="constellation" tabindex="4" onmousedown="showConstellationInfo('Orion')" onkeydown="showConstellationInfo('Orion', event)">
+                <img src="orion.jpg" alt="Orion Constellation" width="100" height="100">
+                <span class="sr-only">Orion Constellation</span>
+            </div>
+            <div class="constellation" tabindex="5" onmousedown="showConstellationInfo('Big Dipper')" onkeydown="showConstellationInfo('Big Dipper', event)">
+                <img src="big-dipper.jpg" alt="Big Dipper Constellation" width="100" height="100">
+                <span class="sr-only">Big Dipper Constellation</span>
+            </div>
+            <div class="constellation" tabindex="6" onmousedown="showConstellationInfo('Cassiopeia')" onkeydown="showConstellationInfo('Cassiopeia', event)">
+                <img src="cassiopeia.jpg" alt="Cassiopeia Constellation" width="100" height="100">
+                <span class="sr-only">Cassiopeia Constellation</span>
+            </div>
+            <div id="constellation-info" aria-live="polite" style="display: none; margin-top: 20px;">
+                <h3 id="constellation-title"></h3>
+                <p id="constellation-description"></p>
+            </div>
+        </section>
+        <section id="planet-gallery">
+            <h2>Planet Gallery</h2>
+            <div class="planet-gallery">
+                <div class="planet-card" tabindex="7">
+                    <img src="mercury.jpg" alt="Mercury" width="300" height="300">
+                    <h2>Mercury</h2>
+                    <p>Mercury is the smallest and closest planet to the Sun in our solar system.</p>
+                </div>
+                <div class="planet-card" tabindex="8">
+                    <img src="venus.jpg" alt="Venus" width="300" height="300">
+                    <h2>Venus</h2>
+                    <p>Venus is the second planet from the Sun and is often called Earth's "sister planet" due to its similar size and mass.</p>
+                </div>
+                <div class="planet-card" tabindex="9">
+                    <img src="earth.jpg" alt="Earth" width="300" height="300">
+                    <h2>Earth</h2>
+                    <p>Earth is the third planet from the Sun and the only known planet to support life.</p>
+                </div>
+                <div class="planet-card" tabindex="10">
+                    <img src="mars.jpg" alt="Mars" width="300" height="300">
+                    <h2>Mars</h2>
+                    <p>Mars is the fourth planet from the Sun and is often called the "Red Planet" due to its reddish appearance.</p>
+                </div>
+                <div class="planet-card" tabindex="11">
+                    <img src="jupiter.jpg" alt="Jupiter" width="300" height="300">
+                    <h2>Jupiter</h2>
+                    <p>Jupiter is the largest planet in our solar system and is known for its Great Red Spot.</p>
+                </div>
+                <div class="planet-card" tabindex="12">
+                    <img src="saturn.jpg" alt="Saturn" width="300" height="300">
+                    <h2>Saturn</h2>
+                    <p>Saturn is the sixth planet from the Sun and is known for its prominent ring system.</p>
+                </div>
+                <div class="planet-card" tabindex="13">
+                    <img src="uranus.jpg" alt="Uranus" width="300" height="300">
+                    <h2>Uranus</h2>
+                    <p>Uranus is the seventh planet from the Sun and is known for its blue-green color.</p>
+                </div>
+                <div class="planet-card" tabindex="14">
+                    <img src="neptune.jpg" alt="Neptune" width="300" height="300">
+                    <h2>Neptune</h2>
+                    <p>Neptune is the eighth and farthest known planet from the Sun and is known for its deep blue color.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Interactive Space-Themed Website. All rights reserved.</p>
+    </footer>
+    <script>
+        // Keyboard-accessible JavaScript functions
+        function showConstellationInfo(constellation, event) {
+            if (event && (event.type === 'click' || (event.type === 'keydown' && (event.key === 'Enter' || event.key === ' ')))) {
+                const infoDiv = document.getElementById('constellation-info');
+                const title = document.getElementById('constellation-title');
+                const description = document.getElementById('constellation-description');
+
+                infoDiv.style.display = 'block';
+                title.textContent = constellation;
+
+                switch (constellation) {
+                    case 'Orion':
+                        description.textContent = 'Orion is a prominent constellation located on the celestial equator and visible throughout the world.';
+                        break;
+                    case 'Big Dipper':
+                        description.textContent = 'The Big Dipper is an asterism in the constellation Ursa Major, consisting of seven bright stars.';
+                        break;
+                    case 'Cassiopeia':
+                        description.textContent = 'Cassiopeia is a constellation in the northern sky, named after the vain queen Cassiopeia in Greek mythology.';
+                        break;
+                    default:
+                        description.textContent = 'No information available for this constellation.';
+                        break;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
